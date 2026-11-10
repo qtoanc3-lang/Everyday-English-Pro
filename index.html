@@ -3426,1107 +3426,1313 @@
       }
     }
     /* =========================================================================
-     * 11. HỆ THỐNG AI 3 TẦNG (GEMINI -> POLLINATIONS -> OFFLINE COMM LEXICON)
+     * 11. HỆ THỐNG AI 3 TẦNG & LÀM GIÀU TỪ VỰNG GIAO TIẾP
      * ========================================================================= */
     async function queryThreeTierAi(promptText) {
-      const apiKey = (localStorage.getItem(STORAGE_KEY_AI_KEY) || "").trim();
+      const sysPrompt = "Bạn là Trợ lý Tiếng Anh Giao Tiếp & Phản Xạ chuyên nghiệp (Everyday English Pro — Tác giả: Quốc Toản). Hãy giải thích chuẩn xác, tự nhiên, phân tích rõ sắc thái giao tiếp (thân mật hay lịch sự), ngữ cảnh sử dụng và đưa ra ví dụ hội thoại A - B thực tế dễ nhớ.";
 
-      if (apiKey) {
+      // TẦNG 1: Chrome On-Device AI
+      if (window.ai && window.ai.languageModel) {
         try {
-          const gemRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-          });
-          if (gemRes.ok) {
-            const data = await gemRes.json();
-            const txt = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (txt) return { tier: "Tầng 1 (Google Gemini API)", text: txt };
+          const cap = await window.ai.languageModel.capabilities();
+          if (cap.available === "readily") {
+            const session = await window.ai.languageModel.create({ systemPrompt: sysPrompt });
+            const reply = await session.prompt(promptText);
+            if (reply) return `📱 [Chrome On-Device AI — Trực tiếp trên thiết bị]\n\n${reply}`;
           }
-        } catch (err) {
-          console.warn("Gemini Tier 1 fallback:", err);
+        } catch (e) {}
+      }
+
+      // TẦNG 2: Google Gemini Cloud AI
+      const apiKey = localStorage.getItem(STORAGE_KEY_AI_KEY);
+      let apiErrorMessage = "";
+      if (apiKey) {
+        const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest"];
+        for (const m of models) {
+          try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: `${sysPrompt}\n\n${promptText}` }] }]
+              })
+            });
+            const data = await res.json();
+            if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+              return `✨ [Google Gemini Cloud AI — Model: ${m}]\n\n${data.candidates[0].content.parts[0].text}`;
+            } else if (data?.error?.message) {
+              apiErrorMessage = data.error.message;
+            }
+          } catch (e) {
+            apiErrorMessage = e.message || "Lỗi kết nối mạng";
+          }
         }
       }
 
-      try {
-        const polUrl = `https://text.pollinations.ai/${encodeURIComponent(promptText)}`;
-        const polRes = await fetch(polUrl, { method: "GET" });
-        if (polRes.ok) {
-          const txt = await polRes.text();
-          if (txt && txt.trim().length > 10) {
-            return { tier: "Tầng 2 (Cloud AI Miễn Phí)", text: txt.trim() };
-          }
-        }
-      } catch (err) {
-        console.warn("Pollinations Tier 2 fallback:", err);
+      // TẦNG 3: Phân tích Ngữ cảnh Giao tiếp Nội tuyến (Chế độ Offline)
+      const offlineResult = buildOfflineCommAnalysis(promptText);
+      if (apiKey && apiErrorMessage) {
+        return `⚠️ [CẢNH BÁO GEMINI API KEY]: Không thể kết nối Gemini (${apiErrorMessage}).\n\n👉 Hệ thống tự động chuyển sang Cẩm nang Giao tiếp Nội tuyến (Offline):\n\n${offlineResult}`;
+      } else if (!apiKey) {
+        return `📚 [Cẩm Nang Giao Tiếp Nội Tuyến — Chế Độ Offline]\n\n${offlineResult}\n\n💡 Mẹo: Nhấn vào "⚙️ Cài đặt Gemini API Key cá nhân" bên dưới để kết nối trực tiếp với Google Gemini 2.5 Flash!`;
       }
-
-      return { tier: "Tầng 3 (Offline Conversational Lexicon)", text: buildOfflineCommAnalysis(promptText) };
+      return offlineResult;
     }
 
     function buildOfflineCommAnalysis(q) {
-      const lower = q.toLowerCase();
-      const foundExprs = [];
-      Object.keys(COMM_EXPRESSION_LEXICON).forEach(key => {
-        if (lower.includes(key)) {
-          foundExprs.push(`• "${key}": ${COMM_EXPRESSION_LEXICON[key]}`);
-        }
+      const lower = (q || "").toLowerCase().trim();
+      const matchedWords = vocabList.filter(v => {
+        const wVars = extractAllVariants(v.word);
+        const mVars = extractAllVariants(v.meaning);
+        return wVars.some(cw => cw.length >= 2 && lower.includes(cw)) ||
+               mVars.some(cm => cm.length >= 2 && (lower.includes(cm) || cm.includes(lower)));
       });
-
-      const matchedVocab = vocabDatabase.find(v => lower.includes(v.word.toLowerCase()));
-      let res = "💬 PHÂN TÍCH NGỮ CẢNH & PHẢN XẠ GIAO TIẾP (OFFLINE):\n";
-      if (matchedVocab) {
-        res += `- Mẫu câu / Cụm từ: ${matchedVocab.word} (${matchedVocab.ipa || ""})\n`;
-        res += `- Nghĩa tiếng Việt: ${matchedVocab.meaning}\n`;
-        res += `- Ngữ cảnh & Sắc thái: ${matchedVocab.clinicalNote || "Dùng phổ biến trong giao tiếp tiếng Anh hàng ngày và công sở."}\n`;
-        res += `- Tình huống hội thoại (A nói): "${matchedVocab.dialoguePrompt || "How's everything going with you today?"}"\n`;
-        res += `- Ví dụ thực tế: "${matchedVocab.example}" (${matchedVocab.exampleVi || ""})\n`;
+      if (matchedWords.length >= 2) {
+        const w1 = matchedWords[0], w2 = matchedWords[1];
+        return `💬 PHÂN TÍCH SO SÁNH SẮC THÁI GIAO TIẾP:\n\n1️⃣ ${w1.word} (${w1.ipa}): ${w1.meaning}\n   • Sắc thái: ${w1.clinicalNote}\n   • Ví dụ: "${w1.example}"\n\n2️⃣ ${w2.word} (${w2.ipa}): ${w2.meaning}\n   • Sắc thái: ${w2.clinicalNote}\n   • Ví dụ: "${w2.example}"`;
       }
-      if (foundExprs.length > 0) {
-        res += `- Phân tích sắc thái cụm từ:\n${foundExprs.join("\n")}\n`;
-      } else if (!matchedVocab) {
-        res += `- Gợi ý luyện phản xạ: Hãy đọc to cả cụm từ theo ngữ điệu tự nhiên (nối âm và nhấn trọng âm vào từ mang nội dung chính), đặt mình vào tình huống hội thoại thực tế để bật ra câu trả lời trong 2 giây.`;
+      if (matchedWords.length === 1) {
+        const w = matchedWords[0];
+        return `💬 HỒ SƠ MẪU CÂU GIAO TIẾP:\n\n• Mẫu câu: ${w.word} (${w.ipa}) — ${w.pos}\n• Nghĩa: ${w.meaning}\n• Ngữ cảnh & Sắc thái: ${w.clinicalNote}\n• Tình huống A nói: "${w.dialoguePrompt || w.example}"\n• Ví dụ: "${w.example}" (${w.exampleVi})`;
       }
-      return res;
+      const matchedLex = COMM_EXPRESSION_LEXICON.filter(r => lower.includes(r.aff));
+      if (matchedLex.length > 0) {
+        return `🧩 GIẢI MÃ CỤM PHẢN XẠ GIAO TIẾP:\n\n` + matchedLex.map(r => `• ${r.type}: ${r.mean}\n  ➔ Ngữ cảnh: ${r.note}`).join("\n\n");
+      }
+      return `📚 DỮ LIỆU NỘI TUYẾN:\nHãy thử bấm vào các gợi ý phía trên hoặc nhập một từ/cụm câu có trong 8 Unit giao tiếp. Bạn cũng có thể lưu Gemini API Key bên dưới để AI giải thích tự do mọi tình huống.`;
     }
 
     async function enrichWordWithAiFallback(word, meaning, unit) {
-      const prompt = `Return ONLY a valid JSON object (no markdown) for the everyday conversational English phrase "${word}" (Vietnamese meaning: "${meaning}", topic: "${unit}") with exact keys: "ipa" (IPA phonetic), "pos" (phr./idiom./excl./v./adj.), "example" (1 natural conversational English sentence containing "${word}"), "exampleVi" (Vietnamese translation), "clinicalNote" (short Vietnamese communication context & nuance note), "dialoguePrompt" (short English line spoken by Person A so Person B naturally replies with "${word}"), "dialoguePromptVi" (Vietnamese explanation of Person A's prompt).`;
-      try {
-        const res = await queryThreeTierAi(prompt);
-        const match = res.text.match(/\{[\s\S]*\}/);
-        if (match) {
-          const parsed = JSON.parse(match[0]);
-          if (parsed.ipa && parsed.example) return parsed;
-        }
-      } catch (e) { console.warn("AI JSON parse fallback", e); }
+      const cleanW = word.trim();
+      const lowerW = cleanW.toLowerCase();
+      const apiKey = localStorage.getItem(STORAGE_KEY_AI_KEY);
 
+      if (apiKey) {
+        const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest"];
+        for (const m of models) {
+          try {
+            const aiPrompt = `Bạn là chuyên gia Tiếng Anh Giao Tiếp bản xứ. Hãy phân tích mẫu câu/từ: "${cleanW}" (nghĩa gợi ý nếu có: "${meaning || ''}").
+Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backticks theo cấu trúc:
+{
+  "ipa": "phiên âm quốc tế IPA",
+  "pos": "phr. hoặc idiom. hoặc v. hoặc adj.",
+  "meaning": "nghĩa tiếng Việt tự nhiên chuẩn xác",
+  "clinicalNote": "ghi chú ngữ cảnh và sắc thái giao tiếp ngắn gọn 1-2 câu",
+  "example": "1 câu ví dụ giao tiếp thực tế bằng tiếng Anh",
+  "exampleVi": "dịch câu ví dụ trên sang tiếng Việt",
+  "dialoguePrompt": "Câu người A nói bằng tiếng Anh để người B đáp lại bằng mẫu câu này",
+  "dialoguePromptVi": "Mô tả ngắn tình huống hoặc dịch câu của A sang tiếng Việt",
+  "relatedTerms": ["2 cụm từ giao tiếp tương đương"]
+}`;
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ parts: [{ text: aiPrompt }] }] })
+            });
+            const data = await res.json();
+            let rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
+            if (rawText) {
+              const parsed = JSON.parse(rawText);
+              if (parsed.meaning && parsed.ipa) {
+                return {
+                  id: "custom_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+                  unit: unit || "Unit 5",
+                  word: cleanW,
+                  ipa: parsed.ipa || `/${lowerW}/`,
+                  pos: parsed.pos || "phr.",
+                  meaning: parsed.meaning,
+                  relatedTerms: Array.isArray(parsed.relatedTerms) ? parsed.relatedTerms : ["Daily conversation"],
+                  example: parsed.example || `In daily conversation, people often say "${cleanW}".`,
+                  exampleVi: parsed.exampleVi || `Trong giao tiếp hàng ngày, mọi người thường nói "${parsed.meaning}".`,
+                  clinicalNote: parsed.clinicalNote || `Mẫu câu giao tiếp tự nhiên (Được làm giàu bởi Gemini AI).`,
+                  dialoguePrompt: parsed.dialoguePrompt || `How would you respond in a situation where you want to say "${parsed.meaning}"?`,
+                  dialoguePromptVi: parsed.dialoguePromptVi || `Tình huống giao tiếp cần phản hồi: "${parsed.meaning}"`,
+                  srsLevel: 0,
+                  mistakeCount: 0
+                };
+              }
+            }
+          } catch (e) {
+            console.warn(`Gemini enrichment failed:`, e);
+          }
+        }
+      }
+
+      const detectedMeaning = meaning ? meaning.trim() : `Mẫu câu: ${cleanW}`;
       return {
-        ipa: `/${word.toLowerCase().replace(/[^a-z\s]/g, "")}/`,
-        pos: word.includes(" ") ? "phr." : "n.",
-        example: `In daily conversation, native speakers often say "${word}" to keep the interaction natural and friendly.`,
-        exampleVi: `Trong giao tiếp hàng ngày, người bản xứ thường nói "${word}" để giữ cuộc trò chuyện tự nhiên và thân thiện.`,
-        clinicalNote: `Thuật ngữ / mẫu câu thuộc ${unit} (${meaning}). Luyện phát âm liền mạch và phản xạ trong tình huống thực tế.`,
-        dialoguePrompt: `Someone starts a casual conversation with you regarding "${meaning}". How do you respond naturally?`,
-        dialoguePromptVi: `Ai đó bắt chuyện với bạn trong ngữ cảnh "${meaning}". Bạn phản hồi tự nhiên thế nào?`
+        id: "custom_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+        unit: unit || "Unit 5",
+        word: cleanW,
+        ipa: `/${lowerW}/`,
+        pos: cleanW.includes(" ") ? "phr." : "n.",
+        meaning: detectedMeaning,
+        relatedTerms: ["Daily expression"],
+        example: `In everyday conversation, native speakers often use "${cleanW}" to express themselves naturally.`,
+        exampleVi: `Trong giao tiếp hàng ngày, người bản xứ thường dùng "${cleanW}" (${detectedMeaning}) để diễn đạt tự nhiên.`,
+        clinicalNote: `Mẫu câu thuộc ${unit || "Unit 5"}. Hãy luyện phát âm nối âm và phản xạ trong 2 giây.`,
+        dialoguePrompt: `Someone talks to you in a daily conversation where you want to reply: "${detectedMeaning}".`,
+        dialoguePromptVi: `Tình huống bạn muốn phản hồi: "${detectedMeaning}"`,
+        srsLevel: 0,
+        mistakeCount: 0
       };
     }
 
     /* =========================================================================
-     * 12. QUẢN LÝ CÂY THƯ MỤC TỪ VỰNG & BỘ TỪ VỰNG (TAB 5 & MODAL)
+     * 12. QUẢN LÝ CÂY THƯ MỤC TỪ VỰNG & BỘ CHỦ ĐỀ (TAB 5 & MODAL)
      * ========================================================================= */
     function renderVocabTree(filterQuery = "") {
       const container = document.getElementById("vocabTreeContainer");
-      const q = filterQuery.trim().toLowerCase();
-      const units = getAllUnitsList();
+      if (!container) return;
       container.innerHTML = "";
-
-      const selectEl = document.getElementById("newWordUnitSelect");
-      const prevSelectVal = selectEl.value;
-      selectEl.innerHTML = "";
-      units.forEach(u => {
-        const opt = document.createElement("option");
-        opt.value = u;
-        opt.textContent = u;
-        selectEl.appendChild(opt);
-      });
-      if (prevSelectVal && units.includes(prevSelectVal)) selectEl.value = prevSelectVal;
-
-      let totalShown = 0;
+      const q = filterQuery.toLowerCase().trim();
+      const units = getAllUnits();
 
       units.forEach(u => {
-        const items = vocabDatabase.filter(v => v.unit === u && (
+        const words = vocabList.filter(v => v.unit === u && (
           !q ||
           v.word.toLowerCase().includes(q) ||
           v.meaning.toLowerCase().includes(q) ||
-          (v.ipa && v.ipa.toLowerCase().includes(q)) ||
+          (v.clinicalNote && v.clinicalNote.toLowerCase().includes(q)) ||
           (v.dialoguePrompt && v.dialoguePrompt.toLowerCase().includes(q))
         ));
-        if (items.length === 0) return;
-        totalShown += items.length;
+        if (words.length === 0) return;
+        const meta = UNIT_METADATA[u] || { shortTitle: "Học phần giao tiếp mở rộng", corePoints: "Các mẫu câu giao tiếp bổ sung." };
+        const boxId = `treeDetailBox_${u.replace(/\s+/g, '')}`;
+        const isExp = expandedUnitDetails.has(u);
 
-        const details = document.createElement("details");
-        details.open = q.length > 0 || u === "Unit 1";
-        details.className = "rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-50/40 dark:bg-slate-900/40";
-
-        const meta = UNIT_METADATA[u];
-        const unitLabel = meta ? `${u}: ${meta.shortTitle}` : u;
-
-        details.innerHTML = `
-          <summary class="px-4 py-2.5 cursor-pointer font-bold text-xs flex items-center justify-between bg-slate-100/80 dark:bg-slate-800/80 hover:bg-indigo-50/50 transition">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-folder-open text-indigo-500"></i> ${escapeHtml(unitLabel)}</span>
-            <span class="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200 text-[10px]">${items.length} mục</span>
-          </summary>
-          <div class="divide-y divide-slate-200/60 dark:divide-slate-700/60 max-h-64 overflow-y-auto px-3">
-            ${items.map(item => `
-              <div class="py-2.5 flex items-center justify-between gap-2 text-xs">
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <button type="button" onclick="speakEnglishText('${escapeHtml(item.word.replace(/'/g, "\\'"))}')" class="text-indigo-600 hover:text-indigo-500" title="Nghe phát âm"><i class="fa-solid fa-volume-high"></i></button>
-                    <span class="font-extrabold text-slate-800 dark:text-slate-100">${escapeHtml(item.word)}</span>
-                    <span class="text-[11px] font-mono text-slate-400">${escapeHtml(item.ipa || "")}</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${escapeHtml(item.pos || "phr.")}</span>
-                    ${(item.srsLevel || 0) >= 2 ? `<span class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-check-double"></i> Đã thuộc</span>` : ""}
-                    ${(item.mistakeCount || 0) > 0 ? `<span class="text-[10px] text-rose-500 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Sai ${item.mistakeCount}l</span>` : ""}
-                  </div>
-                  <p class="text-slate-600 dark:text-slate-300 font-medium truncate">${escapeHtml(item.meaning)}</p>
-                </div>
-                <div class="flex items-center gap-1 shrink-0">
-                  <button type="button" onclick="editVocabItem('${escapeHtml(item.id)}')" class="p-1.5 text-slate-400 hover:text-indigo-600 transition" title="Sửa mẫu câu"><i class="fa-solid fa-pen-to-square"></i></button>
-                  <button type="button" onclick="deleteVocabItem('${escapeHtml(item.id)}')" class="p-1.5 text-slate-400 hover:text-rose-500 transition" title="Xóa mẫu câu"><i class="fa-solid fa-trash-can"></i></button>
-                </div>
-              </div>
-            `).join("")}
+        const folder = document.createElement("div");
+        folder.className = "rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800 transition-all";
+        folder.innerHTML = `
+          <div class="bg-indigo-50/80 dark:bg-slate-700/70 px-4 py-2.5 flex items-center justify-between cursor-pointer" data-tree-toggle-unit="${u}">
+            <div class="flex items-center gap-2">
+              <button type="button" class="text-indigo-600 dark:text-indigo-400 p-0.5"><i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" style="transform: ${isExp ? 'rotate(180deg)' : 'rotate(0deg)'}"></i></button>
+              <span class="font-extrabold text-xs text-indigo-800 dark:text-indigo-300"><i class="fa-solid fa-folder-open mr-1.5"></i>${u} (${words.length} câu)</span>
+            </div>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[240px]">${meta.shortTitle}</span>
           </div>
+          <div id="${boxId}" class="collapse-content ${isExp ? 'expanded' : ''} bg-slate-50 dark:bg-slate-900/50 text-[10px] text-slate-600 dark:text-slate-400 px-4 py-2 border-b border-slate-200 dark:border-slate-700">
+            <strong>Trọng tâm:</strong> ${meta.corePoints}
+          </div>
+          <div class="divide-y divide-slate-100 dark:divide-slate-700/60 word-list-container"></div>
         `;
-        container.appendChild(details);
+
+        folder.querySelector(`[data-tree-toggle-unit="${u}"]`).onclick = function() {
+          const iconBtn = this.querySelector('button');
+          toggleUnitDetail(u, iconBtn);
+        };
+
+        const listDiv = folder.querySelector(".word-list-container");
+        words.forEach(w => {
+          const itemRow = document.createElement("div");
+          itemRow.className = "p-3 flex items-center justify-between gap-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition";
+          const isCustom = String(w.id).startsWith("custom_") || String(w.id).startsWith("auto_") || String(w.id).startsWith("doc_");
+          itemRow.innerHTML = `
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="font-bold text-xs text-slate-900 dark:text-white">${escapeHtml(w.word)}</span>
+                <span class="text-[11px] font-mono text-indigo-600 dark:text-indigo-400">${escapeHtml(w.ipa)}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${escapeHtml(w.pos)}</span>
+              </div>
+              <p class="text-xs font-semibold text-slate-700 dark:text-slate-200 mt-0.5">${escapeHtml(w.meaning)}</p>
+              <p class="text-[11px] text-slate-400 truncate">${escapeHtml(w.clinicalNote || "")}</p>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" data-tree-ai="${w.id}" class="w-8 h-8 rounded-full bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 flex items-center justify-center" title="Phân tích AI"><i class="fa-solid fa-wand-magic-sparkles text-xs"></i></button>
+              <button type="button" data-tree-spk="${w.id}" class="w-8 h-8 rounded-full bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 flex items-center justify-center" title="Nghe phát âm"><i class="fa-solid fa-volume-high text-xs"></i></button>
+              ${isCustom ? `<button type="button" data-tree-del="${w.id}" class="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center" title="Xóa câu này"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ""}
+            </div>
+          `;
+          listDiv.appendChild(itemRow);
+        });
+        container.appendChild(folder);
       });
 
-      document.getElementById("manageTotalWordsStat").textContent = `Hiển thị: ${totalShown} / Tổng: ${vocabDatabase.length} mục`;
+      container.querySelectorAll("[data-tree-spk]").forEach(btn => btn.onclick = () => {
+        const item = vocabList.find(v => v.id === btn.getAttribute("data-tree-spk"));
+        if (item) speakText(item.word);
+      });
+      container.querySelectorAll("[data-tree-ai]").forEach(btn => btn.onclick = async () => {
+        const item = vocabList.find(v => v.id === btn.getAttribute("data-tree-ai"));
+        if (item) {
+          const modal = document.getElementById("aiHubModal");
+          const box = document.getElementById("aiResponseBox");
+          modal.classList.remove("hidden");
+          box.textContent = `⏳ Đang phân tích sắc thái giao tiếp cho "${item.word}"...`;
+          box.textContent = await queryThreeTierAi(`Phân tích mẫu câu giao tiếp "${item.word}" (${item.meaning}), giải thích sắc thái sử dụng và cho 1 đoạn hội thoại ngắn thực tế.`);
+        }
+      });
+      container.querySelectorAll("[data-tree-del]").forEach(btn => btn.onclick = () => {
+        const delId = btn.getAttribute("data-tree-del");
+        vocabList = vocabList.filter(item => item.id !== delId);
+        saveDatabase(); syncAllViews(); showToast(`Đã xóa mẫu câu thành công!`);
+      });
     }
 
-    window.editVocabItem = function(id) {
-      const item = vocabDatabase.find(v => v.id === id);
-      if (!item) return;
-      document.getElementById("editWordId").value = item.id;
-      document.getElementById("newWordUnitSelect").value = item.unit;
-      document.getElementById("inputWordEn").value = item.word;
-      document.getElementById("inputWordVi").value = item.meaning;
-      document.getElementById("inputWordIpa").value = item.ipa || "";
-      document.getElementById("inputWordPos").value = item.pos || "";
-      document.getElementById("inputWordEx").value = item.example || "";
-      document.getElementById("inputWordNote").value = item.clinicalNote || "";
-      document.getElementById("btnCancelEditWord").classList.remove("hidden");
-      document.getElementById("inputWordEn").focus();
-    };
-
-    window.deleteVocabItem = function(id) {
-      vocabDatabase = vocabDatabase.filter(v => v.id !== id);
-      saveDatabase();
-      renderVocabTree(document.getElementById("searchManageInput").value);
-    };
-
     function renderSpecialtyList() {
-      const listEl = document.getElementById("specialtyListContainer");
-      listEl.innerHTML = "";
-      Object.keys(specialtiesRegistry).forEach(key => {
-        const spec = specialtiesRegistry[key];
-        const isCurrent = key === currentSpecialtyId;
+      const box = document.getElementById("specialtyListContainer");
+      if (!box) return;
+      box.innerHTML = "";
+      Object.values(specialtiesMap).forEach(spec => {
+        const isCurrent = spec.id === currentSpecialtyId;
+        const isDefault = spec.id === "comm_eng";
         const div = document.createElement("div");
-        div.className = `p-3 rounded-2xl border flex items-center justify-between gap-2 transition ${isCurrent ? "border-indigo-500 bg-indigo-50/70 dark:bg-indigo-950/40" : "border-slate-200 dark:border-slate-700"}`;
+        div.className = `p-3 rounded-2xl border flex items-center justify-between gap-2 ${isCurrent ? "bg-indigo-50 dark:bg-indigo-950/60 border-indigo-500" : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"}`;
+
+        let actionButtons = `<button type="button" data-switch-spec="${spec.id}" class="px-3 py-1.5 rounded-xl text-xs font-bold ${isCurrent ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-indigo-100"}">${isCurrent ? "Đang chọn" : "Chuyển sang"}</button>`;
+        if (!isDefault) {
+          actionButtons += `<button type="button" data-delete-spec="${spec.id}" class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 ml-1 flex items-center justify-center shrink-0"><i class="fa-solid fa-trash-can text-xs"></i></button>`;
+        }
+
         div.innerHTML = `
-          <div>
-            <p class="text-xs font-extrabold ${isCurrent ? "text-indigo-700 dark:text-indigo-300" : ""}">${escapeHtml(spec.name)}</p>
-            <p class="text-[11px] text-slate-400">${spec.data.length} mẫu câu & từ vựng</p>
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center"><i class="fa-solid ${spec.icon || "fa-comments"}"></i></div>
+            <div><p class="text-xs font-extrabold">${escapeHtml(spec.name)}</p><p class="text-[11px] text-slate-500">${(spec.vocab || []).length} mẫu câu</p></div>
           </div>
-          <div class="flex items-center gap-1.5">
-            ${isCurrent ? `<span class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white text-[10px] font-bold">Đang mở</span>` : `<button type="button" onclick="switchSpecialty('${escapeHtml(key)}')" class="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-indigo-600 hover:text-white text-[10px] font-bold transition">Chuyển sang</button>`}
-          </div>
+          <div class="flex items-center">${actionButtons}</div>
         `;
-        listEl.appendChild(div);
+        box.appendChild(div);
+      });
+
+      box.querySelectorAll("[data-switch-spec]").forEach(btn => btn.onclick = () => {
+        const specId = btn.getAttribute("data-switch-spec");
+        loadSpecialtyState(specId, true);
+        document.getElementById("specialtyModal").classList.add("hidden");
+        showToast(`Đã chuyển sang: ${specialtiesMap[specId].name}`);
+      });
+      box.querySelectorAll("[data-delete-spec]").forEach(btn => btn.onclick = () => {
+        const specId = btn.getAttribute("data-delete-spec");
+        if (confirm(`Xóa chủ đề ${specialtiesMap[specId].name}?`)) {
+          delete specialtiesMap[specId];
+          localStorage.setItem(STORAGE_KEY_SPECIALTIES, JSON.stringify(specialtiesMap));
+          if (currentSpecialtyId === specId) loadSpecialtyState("comm_eng", true);
+          else renderSpecialtyList();
+        }
       });
     }
 
     function loadSpecialtyState(specId, resetProgress = true) {
-      if (!specialtiesRegistry[specId]) return;
       currentSpecialtyId = specId;
-      localStorage.setItem(STORAGE_KEY_CURRENT_SPEC, currentSpecialtyId);
-      vocabDatabase = specialtiesRegistry[currentSpecialtyId].data;
-      document.getElementById("currentSpecialtyLabel").textContent = specialtiesRegistry[currentSpecialtyId].name;
-      const allUnits = getAllUnitsList();
-      selectedUnits = new Set(allUnits);
-      updateHeaderUnitSummary();
-      renderDashboard();
-      renderVocabTree();
+      localStorage.setItem(STORAGE_KEY_CURRENT_SPEC, specId);
+      const spec = specialtiesMap[specId];
+      vocabList = spec.vocab || [];
+      document.getElementById("currentSpecialtyName").textContent = spec.name;
+      document.getElementById("headerSpecIcon").className = `fa-solid ${spec.icon || "fa-comments"} text-lg`;
+
       if (resetProgress) {
-        initQuizSession();
-        initFlashcardSession();
-        initDictationSession();
+        selectedUnits = new Set(getAllUnits());
+        onlyMistakesFilter = false;
+        document.getElementById("chkOnlyMistakes").checked = false;
+        quizIndex = 0; quizScore = 0; fcIndex = 0; dictIndex = 0; quizPool = []; dictPool = [];
       }
+      syncAllViews();
+      renderSpecialtyList();
     }
 
-    window.switchSpecialty = function(specId) {
-      loadSpecialtyState(specId, true);
-      renderSpecialtyList();
-      saveStudyProgress();
-      document.getElementById("specialtyModal").classList.add("hidden");
-    };
-
     /* =========================================================================
-     * 13. KHỞI TẠO SỰ KIỆN & PHÍM TẮT TOÀN CỤC
+     * 13. KHỞI TẠO SỰ KIỆN & PHÍM TẮT TOÀN CỤC (ĐỒNG BỘ 100% ID HTML)
      * ========================================================================= */
     function initEverydayEnglishApp() {
       initDatabase();
+      checkNewVersionNotice();
 
-      document.getElementById("headerVersionBadge").textContent = VERSION_STATE.currentFullVersion;
-      document.getElementById("whatsNewTitle").textContent = `Everyday English Pro — ${VERSION_STATE.currentFullVersion}`;
+      function updateAiStatusUI() {
+        const k = localStorage.getItem(STORAGE_KEY_AI_KEY);
+        const dot = document.getElementById("aiStatusDot");
+        const badge = document.getElementById("aiKeyBadgeHeader");
+        const hint = document.getElementById("aiKeyStatusHint");
+        const input = document.getElementById("userGeminiKeyInput");
 
-      const whatsNewListEl = document.getElementById("whatsNewDynamicList");
-      if (whatsNewListEl) {
-        const badgeStyles = [
-          "bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-200/70 dark:border-indigo-800/50 text-indigo-600",
-          "bg-violet-50/70 dark:bg-violet-950/30 border-violet-200/70 dark:border-violet-800/50 text-violet-600",
-          "bg-purple-50/70 dark:bg-purple-950/30 border-purple-200/70 dark:border-purple-800/50 text-purple-600",
-          "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/70 dark:border-emerald-800/50 text-emerald-600"
-        ];
-        whatsNewListEl.innerHTML = VERSION_STATE.top4ImportantUpdates.map((item, idx) => {
-          const st = badgeStyles[idx % badgeStyles.length];
-          const subHtml = item.subUpdates.length > 0 ? `
-            <div class="mt-2 pt-2 border-t border-slate-200/60 dark:border-slate-700/60 space-y-1">
-              ${item.subUpdates.map(sub => `
-                <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-1.5">
-                  <span class="px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-mono text-[10px] font-bold shrink-0">${escapeHtml(sub.version)}</span>
-                  <span><strong>${escapeHtml(sub.title)}:</strong> ${escapeHtml(sub.desc)} <em class="opacity-75">(${escapeHtml(sub.date)})</em></span>
-                </div>
-              `).join("")}
-            </div>
-          ` : "";
-          return `
-            <div class="p-3.5 rounded-2xl border ${st} flex gap-3 items-start">
-              <i class="fa-solid ${escapeHtml(item.icon || "fa-star")} mt-0.5 text-sm"></i>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between gap-2 flex-wrap">
-                  <span class="font-extrabold text-slate-800 dark:text-slate-100">${escapeHtml(item.version)} — ${escapeHtml(item.title)}</span>
-                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/80 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700">${escapeHtml(item.date)}</span>
-                </div>
-                <p class="mt-1 text-slate-600 dark:text-slate-300">${escapeHtml(item.desc)}</p>
-                ${subHtml}
-              </div>
-            </div>
-          `;
-        }).join("");
+        if (input && k && !input.value) input.value = k;
+
+        if (k) {
+          if (dot) {
+            dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400";
+            dot.title = "Gemini Cloud AI: Đã kết nối Key";
+          }
+          if (badge) {
+            badge.textContent = "Đã kết nối Gemini AI";
+            badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold";
+          }
+          if (hint) {
+            hint.textContent = "✅ Đã lưu API Key. Mô hình Gemini 2.5 Flash đang sẵn sàng phục vụ!";
+            hint.className = "text-[11px] font-bold text-emerald-600 dark:text-emerald-400";
+          }
+        } else {
+          if (dot) {
+            dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400";
+            dot.title = "Chế độ Cẩm nang Nội tuyến Offline (Chưa có Key)";
+          }
+          if (badge) {
+            badge.textContent = "Chế độ Offline";
+            badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold";
+          }
+          if (hint) {
+            hint.textContent = "ℹ️ Đang chạy Chế độ Cẩm nang Nội tuyến Offline. Nhập API Key để mở khóa Gemini Cloud AI.";
+            hint.className = "text-[11px] font-semibold text-slate-500";
+          }
+        }
       }
 
-      const savedTheme = localStorage.getItem(STORAGE_KEY_THEME);
-      if (savedTheme === "dark") document.documentElement.classList.add("dark");
+      updateAiStatusUI();
 
-      const savedKey = localStorage.getItem(STORAGE_KEY_AI_KEY);
-      if (savedKey) document.getElementById("aiApiKeyInput").value = savedKey;
-
-      const seenVersion = localStorage.getItem(STORAGE_KEY_SEEN_VERSION);
-      if (seenVersion !== APP_BUILD_VERSION) {
-        document.getElementById("whatsNewModal").classList.remove("hidden");
-      }
-
-      const closeWhatsNew = () => {
-        const dontShowAgain = document.getElementById("chkDontShowWhatsNewAgain").checked;
-        if (dontShowAgain) {
+      // Modal Bản Cập Nhật Mới
+      const whatsNewModal = document.getElementById("whatsNewModal");
+      const chkDontShowAgain = document.getElementById("chkDontShowWhatsNewAgain");
+      const closeWhatsNew = (showWelcomeToast = false) => {
+        if (chkDontShowAgain && chkDontShowAgain.checked) {
           localStorage.setItem(STORAGE_KEY_SEEN_VERSION, APP_BUILD_VERSION);
         } else {
           localStorage.removeItem(STORAGE_KEY_SEEN_VERSION);
         }
-        document.getElementById("whatsNewModal").classList.add("hidden");
-      };
-      document.getElementById("btnAcknowledgeUpdate").onclick = closeWhatsNew;
-      document.getElementById("btnCloseWhatsNewModal").onclick = closeWhatsNew;
-      document.getElementById("btnOpenChangelog").onclick = () => {
-        document.getElementById("whatsNewModal").classList.remove("hidden");
+        if (whatsNewModal) whatsNewModal.classList.add("hidden");
+        if (showWelcomeToast) {
+          showToast(`Chào mừng bạn đến với Everyday English Pro ${VERSION_STATE.currentFullVersion}!`);
+        }
+        const bell = document.getElementById("whatsNewBellIcon");
+        if (bell) bell.classList.remove("animate-bounce");
       };
 
+      document.getElementById("btnAcknowledgeUpdate").onclick = () => closeWhatsNew(true);
+      document.getElementById("btnCloseWhatsNewModal").onclick = () => closeWhatsNew(false);
+      document.getElementById("btnOpenWhatsNewModal").onclick = () => {
+        if (isSprintActive && !isSprintPaused) pauseSprintGame();
+        if (chkDontShowAgain) {
+          chkDontShowAgain.checked = localStorage.getItem(STORAGE_KEY_SEEN_VERSION) === APP_BUILD_VERSION;
+        }
+        whatsNewModal.classList.remove("hidden");
+      };
+      whatsNewModal.addEventListener("click", e => { if (e.target === whatsNewModal) closeWhatsNew(false); });
+
+      // Chuyển Tab
       document.querySelectorAll(".mode-tab").forEach(btn => {
-        btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+        btn.onclick = () => {
+          const tab = btn.getAttribute("data-tab");
+          if (currentActiveTab === "sprint" && tab !== "sprint" && isSprintActive) {
+            pauseSprintGame();
+          }
+          triggerHaptic("light");
+          switchActiveTab(tab);
+          saveStudyProgress();
+        };
       });
 
-      const bindModal = (openBtnId, modalId, closeBtnId) => {
-        const openBtn = document.getElementById(openBtnId);
-        const modal = document.getElementById(modalId);
-        const closeBtn = document.getElementById(closeBtnId);
-        if (openBtn && modal) openBtn.onclick = () => modal.classList.remove("hidden");
-        if (closeBtn && modal) closeBtn.onclick = () => modal.classList.add("hidden");
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && isSprintActive) pauseSprintGame();
+      });
+
+      // Kết nối các Modal
+      const bindModal = (openId, modalId, closeId) => {
+        const ob = document.getElementById(openId), mod = document.getElementById(modalId), cb = document.getElementById(closeId);
+        if (ob && mod) ob.onclick = () => {
+          if (isSprintActive && !isSprintPaused) pauseSprintGame();
+          mod.classList.remove("hidden");
+        };
+        if (cb && mod) cb.onclick = () => mod.classList.add("hidden");
+        if (mod) mod.addEventListener("click", e => { if (e.target === mod) mod.classList.add("hidden"); });
       };
 
-      bindModal("btnOpenGuide", "guideModal", "btnCloseGuide");
-      bindModal("btnOpenAuthor", "authorModal", "btnCloseAuthor");
-      bindModal("btnFooterAuthor", "authorModal", "btnCloseAuthor");
-      bindModal("btnOpenSpecialtyModal", "specialtyModal", "btnCloseSpecialtyModal");
-      bindModal("btnOpenAiModal", "aiHubModal", "btnCloseAiModal");
-      bindModal("btnOpenPwaModal", "pwaModal", "btnClosePwaModal");
-      bindModal("btnCloseJsonModal", "jsonModal", "btnCloseJsonModal");
+      bindModal("btnFooterAuthor", "authorModal", "btnCloseAuthorModal");
+      document.getElementById("btnAuthorModalDone").onclick = () => document.getElementById("authorModal").classList.add("hidden");
 
-      document.getElementById("btnThemeToggle").onclick = () => {
-        document.documentElement.classList.toggle("dark");
-        const isDark = document.documentElement.classList.contains("dark");
+      bindModal("btnInstallPwa", "pwaModal", "btnClosePwaModal");
+      document.getElementById("btnDonePwaModal").onclick = () => document.getElementById("pwaModal").classList.add("hidden");
+
+      bindModal("btnOpenSpecialtyModal", "specialtyModal", "btnCloseSpecialtyModal");
+      bindModal("btnOpenAiHub", "aiHubModal", "btnCloseAiHubModal");
+
+      bindModal("btnOpenGuideModal", "guideModal", "btnCloseGuideModal");
+      bindModal("btnDashOpenFullGuide", "guideModal", "btnCloseGuideModal");
+      document.getElementById("btnGotItGuideModal").onclick = () => document.getElementById("guideModal").classList.add("hidden");
+
+      const jsonModalEl = document.getElementById("jsonModal");
+      document.getElementById("btnOpenJsonModal").onclick = () => {
+        if (isSprintActive && !isSprintPaused) pauseSprintGame();
+        document.getElementById("jsonTextBox").value = JSON.stringify(vocabList, null, 2);
+        jsonModalEl.classList.remove("hidden");
+      };
+      document.getElementById("btnCloseJsonModal").onclick = () => jsonModalEl.classList.add("hidden");
+      jsonModalEl.addEventListener("click", e => { if (e.target === jsonModalEl) jsonModalEl.classList.add("hidden"); });
+
+      // Theme, Tốc độ âm thanh & Tự động phát âm
+      document.getElementById("btnTheme").onclick = () => {
+        const isDark = document.documentElement.classList.toggle("dark");
         localStorage.setItem(STORAGE_KEY_THEME, isDark ? "dark" : "light");
+        document.getElementById("themeIcon").className = isDark ? "fa-solid fa-sun text-xs text-amber-400" : "fa-solid fa-moon text-xs";
       };
 
       document.getElementById("btnSpeedRate").onclick = () => {
-        if (speechRate === 1.0) speechRate = 0.75;
-        else if (speechRate === 0.75) speechRate = 1.2;
-        else speechRate = 1.0;
-        document.getElementById("speedRateLabel").textContent = `${speechRate}x`;
+        speechRate = speechRate === 1.0 ? 0.75 : 1.0;
+        document.getElementById("speedRateText").textContent = `${speechRate}x`;
         saveStudyProgress();
+        showToast(`Tốc độ phát âm: ${speechRate}x`, "info");
       };
 
       document.getElementById("btnAutoAudioToggle").onclick = () => {
-        autoPlayAudio = !autoPlayAudio;
-        document.getElementById("autoAudioStatus").textContent = autoPlayAudio ? "ON" : "OFF";
-        document.getElementById("btnAutoAudioToggle").classList.toggle("opacity-50", !autoPlayAudio);
+        autoAudio = !autoAudio;
+        document.getElementById("autoAudioIcon").className = autoAudio ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
         saveStudyProgress();
+        showToast(autoAudio ? "Đã BẬT tự động phát âm" : "Đã TẮT tự động phát âm", "info");
       };
 
-      // Unit Selector Accordion
-      document.getElementById("btnToggleUnitDrawer").onclick = () => {
-        const drawer = document.getElementById("unitDrawerPanel");
-        const chevron = document.getElementById("unitDrawerChevron");
-        const isHidden = drawer.classList.contains("hidden");
-        if (isHidden) {
-          renderUnitAccordion();
-          drawer.classList.remove("hidden");
-          chevron.classList.add("rotate-180");
-        } else {
-          drawer.classList.add("hidden");
-          chevron.classList.remove("rotate-180");
+      // Bộ lọc Unit Drawer
+      document.getElementById("unitDrawerHeader").onclick = () => {
+        const b = document.getElementById("unitDrawerBody"), c = document.getElementById("unitDrawerChevron"), h = document.getElementById("drawerActionHint");
+        triggerHaptic("light");
+        if (b.classList.contains("hidden")) { b.classList.remove("hidden"); c.classList.add("rotate-180"); if (h) h.textContent = "Thu gọn"; }
+        else { b.classList.add("hidden"); c.classList.remove("rotate-180"); if (h) h.textContent = "Mở danh sách"; }
+      };
+
+      document.getElementById("chkOnlyMistakes").onchange = e => {
+        onlyMistakesFilter = e.target.checked;
+        saveStudyProgress(); syncAllViews();
+      };
+      document.getElementById("btnSelectAllUnits").onclick = e => {
+        e.stopPropagation(); getAllUnits().forEach(u => selectedUnits.add(u));
+        saveStudyProgress(); syncAllViews(); showToast("Đã chọn tất cả 8 học phần!");
+      };
+      document.getElementById("btnSelectSupportUnit").onclick = e => {
+        e.stopPropagation();
+        const allU = getAllUnits();
+        const reflexUnits = ["Unit 5", "Unit 6", "Unit 7", "Unit 8"].filter(u => allU.includes(u));
+        selectedUnits = new Set(reflexUnits.length > 0 ? reflexUnits : [allU[0]]);
+        saveStudyProgress(); syncAllViews(); showToast("Đã chọn nhóm Unit Phản xạ (Unit 5 - 8)!");
+      };
+      document.getElementById("btnDeselectAllUnits").onclick = e => {
+        e.stopPropagation();
+        const allU = getAllUnits();
+        const targetUnit = allU.includes("Unit 1") ? "Unit 1" : allU[0];
+        selectedUnits = new Set([targetUnit]);
+        saveStudyProgress(); syncAllViews(); showToast(`Chỉ chọn ${targetUnit}`);
+      };
+
+      // Phím tắt nhanh trên Dashboard
+      document.getElementById("btnDashQuickMistakes").onclick = () => {
+        onlyMistakesFilter = true; document.getElementById("chkOnlyMistakes").checked = true;
+        saveStudyProgress(); syncAllViews(); switchActiveTab("quiz"); showToast("Bật chế độ Ôn các câu hay sai!", "info");
+      };
+      document.getElementById("btnDashQuickQuiz").onclick = () => switchActiveTab("quiz");
+      document.getElementById("btnDashQuickCBT").onclick = () => switchActiveTab("cbt");
+      document.getElementById("btnDashQuickFlashcard").onclick = () => switchActiveTab("flashcard");
+      document.getElementById("btnResetProgress").onclick = () => {
+        if (confirm("Bạn muốn đặt lại toàn bộ lịch sử ôn tập (SRS & Lỗi sai) của chủ đề này về 0?")) {
+          vocabList.forEach(v => { v.srsLevel = 0; v.mistakeCount = 0; });
+          saveDatabase(); syncAllViews(); showToast("Đã làm mới tiến độ học tập!");
         }
       };
 
-      document.getElementById("btnSelectAllUnits").onclick = () => {
-        selectedUnits = new Set(getAllUnitsList());
-        onUnitSelectionChanged();
-      };
-      document.getElementById("btnClearAllUnits").onclick = () => {
-        selectedUnits.clear();
-        onUnitSelectionChanged();
-      };
-      document.getElementById("btnSelectCoreUnits").onclick = () => {
-        selectedUnits = new Set(["Unit 1", "Unit 2", "Unit 3", "Unit 4"]);
-        onUnitSelectionChanged();
-      };
-      document.getElementById("btnSelectSupportUnit").onclick = () => {
-        selectedUnits = new Set(["Unit 5", "Unit 6", "Unit 7", "Unit 8"]);
-        onUnitSelectionChanged();
+      // Chế độ 1: Trắc nghiệm (Quiz)
+      document.getElementById("quizDirectionSelect").onchange = e => {
+        quizDirection = e.target.value;
+        syncQuizDirectionCheckboxes(quizDirection);
+        saveStudyProgress();
+        resetQuizPool();
+        showToast("Đã cập nhật chiều làm bài trắc nghiệm!", "info");
       };
 
-      // Dashboard Quick Actions
-      document.getElementById("btnDashWeakQuiz").onclick = () => {
-        onlyWeakWordsFilter = true;
-        switchTab("quiz");
-      };
-      document.getElementById("btnDashStartCBT").onclick = () => switchTab("cbt");
+      document.querySelectorAll(".quiz-dir-checkbox").forEach(chk => {
+        chk.onchange = () => {
+          const checkedValues = Array.from(document.querySelectorAll(".quiz-dir-checkbox"))
+            .filter(c => c.checked)
+            .map(c => c.value);
 
-      // Quiz Events
-      document.getElementById("quizDirectionSelect").onchange = () => { initQuizSession(); saveStudyProgress(); };
-      document.querySelectorAll(".quiz-dir-checkbox").forEach(cb => {
-        cb.addEventListener("change", () => {
-          const checkedCount = document.querySelectorAll(".quiz-dir-checkbox:checked").length;
-          if (checkedCount === 0) cb.checked = true;
-          initQuizSession();
+          if (checkedValues.length === 0) {
+            chk.checked = true;
+            showToast("Phải chọn ít nhất 1 chiều câu hỏi!", "error");
+            return;
+          }
+
+          quizDirection = encodeDirectionModes(checkedValues);
+          syncQuizDirectionCheckboxes(quizDirection);
           saveStudyProgress();
-        });
+          resetQuizPool();
+        };
       });
-      document.getElementById("quizOptionCountSelect").onchange = () => {
-        renderQuizQuestion();
+
+      document.getElementById("quizOptionCountSelect").onchange = e => {
+        quizOptionCount = parseInt(e.target.value, 10) || 4;
         saveStudyProgress();
+        loadQuizQuestion();
+        showToast(`Đã chuyển sang chế độ ${quizOptionCount} đáp án!`, "info");
       };
-      document.getElementById("quizDistractorModeSelect").onchange = () => {
-        renderQuizQuestion();
+
+      document.getElementById("quizDistractorModeSelect").onchange = e => {
+        distractorStrategy = e.target.value;
         saveStudyProgress();
+        loadQuizQuestion();
+        showToast("Đã cập nhật thuật toán tạo đáp án nhiễu!", "info");
       };
-      document.getElementById("btnShuffleQuiz").onclick = () => {
-        onlyWeakWordsFilter = false;
-        initQuizSession();
-        saveStudyProgress();
-      };
-      document.getElementById("chkQuizAutoNext").onchange = () => {
-        clearTimeout(quizAutoAdvanceTimer);
-        saveStudyProgress();
-      };
-      document.getElementById("btnNextQuizQuestion").onclick = () => {
-        clearTimeout(quizAutoAdvanceTimer);
-        quizIndex++;
-        renderQuizQuestion();
-        saveStudyProgress();
-      };
+
+      document.getElementById("btnShuffleQuiz").onclick = () => { resetQuizPool(); showToast("Đã đảo câu hỏi!"); };
+      document.getElementById("chkQuizAutoNext").onchange = e => { quizAutoNext = e.target.checked; saveStudyProgress(); };
+      document.getElementById("btnNextQuizQuestion").onclick = () => { quizIndex++; saveStudyProgress(); loadQuizQuestion(); };
       document.getElementById("btnSpeakQuizPrompt").onclick = () => {
         if (!currentQuizItem) return;
-        if (currentQuizModeType === "dialogue" && !currentQuizAnswered && currentQuizItem.dialoguePrompt) {
-          speakEnglishText(currentQuizItem.dialoguePrompt);
-        } else {
-          speakEnglishText(currentQuizItem.word);
+        if (!currentQuizAnswered && (currentQuizModeType === "vi-en" || currentQuizModeType === "context")) {
+          showToast("Hãy chọn đáp án trước khi nghe phát âm câu trả lời!", "info");
+          return;
         }
+        if (!currentQuizAnswered && currentQuizModeType === "dialogue" && currentQuizItem.dialoguePrompt) {
+          speakText(currentQuizItem.dialoguePrompt);
+          return;
+        }
+        speakText(currentQuizItem.word);
       };
-      document.getElementById("btnSpeakExample").onclick = () => {
-        if (currentQuizItem && currentQuizItem.example) speakEnglishText(currentQuizItem.example);
-      };
+      document.getElementById("btnSpeakExample").onclick = () => { if (currentQuizItem) speakText(currentQuizItem.example); };
       document.getElementById("btnShowQuizHint").onclick = () => {
         if (!currentQuizItem) return;
-        const hintEl = document.getElementById("quizHintText");
-        const firstChar = currentQuizItem.word.charAt(0).toUpperCase();
-        hintEl.textContent = `Gợi ý: Cụm từ bắt đầu bằng chữ "${firstChar}..." (${currentQuizItem.word.length} ký tự) — Từ loại: ${currentQuizItem.pos || "phr."}`;
+        const hintEl = document.getElementById("quizHintBox");
+        hintEl.textContent = `💡 Ngữ cảnh: "${maskWordInSentence(currentQuizItem.example, currentQuizItem.word)}" (${currentQuizItem.exampleVi})`;
         hintEl.classList.remove("hidden");
       };
       document.getElementById("btnAskAiQuiz").onclick = async () => {
-        if (!currentQuizItem) return;
-        const box = document.getElementById("quizAiExplanationBox");
-        box.classList.remove("hidden");
-        box.textContent = "⏳ Đang phân tích sắc thái giao tiếp & tình huống phản xạ...";
-        const prompt = `Giải thích ngắn gọn bằng tiếng Việt sắc thái giao tiếp, ngữ cảnh sử dụng và ví dụ hội thoại thực tế của mẫu câu tiếng Anh "${currentQuizItem.word}" (nghĩa: ${currentQuizItem.meaning}).`;
-        const res = await queryThreeTierAi(prompt);
-        box.textContent = `[${res.tier}]\n${res.text}`;
+        if (currentQuizItem) {
+          document.getElementById("aiHubModal").classList.remove("hidden");
+          document.getElementById("aiResponseBox").textContent = `⏳ Đang phân tích "${currentQuizItem.word}"...`;
+          document.getElementById("aiResponseBox").textContent = await queryThreeTierAi(`Phân tích mẫu câu giao tiếp "${currentQuizItem.word}" (${currentQuizItem.meaning}).`);
+        }
       };
 
-      // Flashcard Events
-      document.getElementById("fcCardInner").onclick = () => {
-        document.getElementById("fcCardInner").classList.toggle("is-flipped");
-      };
-      document.getElementById("btnFcSpeakFront").onclick = (e) => {
+      // Chế độ 2: Flashcard
+      document.getElementById("fcCardInner").onclick = function () { triggerHaptic("light"); this.classList.toggle("rotate-y-180"); };
+      document.getElementById("btnFcSpeakFront").onclick = e => { e.stopPropagation(); if (fcPool[fcIndex]) speakText(fcPool[fcIndex].word); };
+      document.getElementById("btnFcAiExplain").onclick = async e => {
         e.stopPropagation();
-        if (fcQueue[fcIndex]) speakEnglishText(fcQueue[fcIndex].word);
-      };
-      document.getElementById("btnFcAiExplain").onclick = async (e) => {
-        e.stopPropagation();
-        const item = fcQueue[fcIndex];
-        if (!item) return;
-        document.getElementById("aiHubModal").classList.remove("hidden");
-        document.getElementById("aiQuickQueryInput").value = item.word;
-        document.getElementById("btnSubmitAiQuery").click();
+        if (fcPool[fcIndex]) {
+          document.getElementById("aiHubModal").classList.remove("hidden");
+          document.getElementById("aiResponseBox").textContent = `⏳ Đang phân tích "${fcPool[fcIndex].word}"...`;
+          document.getElementById("aiResponseBox").textContent = await queryThreeTierAi(`Phân tích mẫu câu "${fcPool[fcIndex].word}".`);
+        }
       };
       document.getElementById("btnFcShuffle").onclick = () => {
-        fcQueue = shuffleArray(fcQueue);
-        fcIndex = 0;
-        renderFlashcard();
-        saveStudyProgress();
+        fcPool.sort(() => Math.random() - 0.5); fcIndex = 0; renderFlashcard(true); showToast("Đã trộn thẻ Flashcard!");
       };
-      document.getElementById("btnFcPrev").onclick = () => {
-        if (fcIndex > 0) { fcIndex--; renderFlashcard(); saveStudyProgress(); }
-      };
-      document.getElementById("btnFcNext").onclick = () => {
-        if (fcIndex < fcQueue.length - 1) { fcIndex++; renderFlashcard(); saveStudyProgress(); }
-        else { fcIndex = 0; renderFlashcard(); saveStudyProgress(); }
-      };
+      document.getElementById("btnFcPrev").onclick = () => { fcIndex--; saveStudyProgress(); renderFlashcard(); };
+      document.getElementById("btnFcNext").onclick = () => { fcIndex++; saveStudyProgress(); renderFlashcard(); };
 
-      const handleSrsRate = (level) => {
-        const item = fcQueue[fcIndex];
-        if (!item) return;
-        item.srsLevel = level;
-        if (level === 1) item.mistakeCount = (item.mistakeCount || 0) + 1;
-        saveDatabase();
-        if (fcIndex < fcQueue.length - 1) fcIndex++;
-        else fcIndex = 0;
-        renderFlashcard();
-        saveStudyProgress();
+      const bindSrs = (id, lvl) => {
+        document.getElementById(id).onclick = () => {
+          const item = fcPool[fcIndex];
+          if (!item) return;
+          item.srsLevel = lvl;
+          if (lvl === 3) item.mistakeCount = 0; else if (lvl === 1) item.mistakeCount = Math.max(1, item.mistakeCount || 0);
+          syncCrossUnitSrs(item);
+          saveDatabase(); triggerHaptic("success"); fcIndex++; saveStudyProgress(); renderFlashcard();
+          if (autoAudio && fcPool[fcIndex]) speakText(fcPool[fcIndex].word);
+        };
       };
-      document.getElementById("btnSrsHard").onclick = () => handleSrsRate(1);
-      document.getElementById("btnSrsGood").onclick = () => handleSrsRate(2);
-      document.getElementById("btnSrsEasy").onclick = () => handleSrsRate(3);
+      bindSrs("btnSrsHard", 1); bindSrs("btnSrsGood", 2); bindSrs("btnSrsEasy", 3);
 
-      // Dictation Events + Web Speech Recognition Microphone
+      // Chế độ 3: Chép chính tả & Luyện nói Microphone
       document.getElementById("btnDictSpeak").onclick = () => {
-        if (dictQueue[dictIndex]) speakEnglishText(dictQueue[dictIndex].word);
+        if (!dictPool || dictPool.length === 0) dictPool = getFilteredVocab();
+        if (dictPool[dictIndex]) speakText(dictPool[dictIndex].word);
       };
       document.getElementById("btnDictMic").onclick = toggleDictationMic;
       document.getElementById("btnDictShowAnswer").onclick = () => {
-        const item = dictQueue[dictIndex];
+        if (!dictPool || dictPool.length === 0) dictPool = getFilteredVocab();
+        const item = dictPool[dictIndex];
         if (!item) return;
-        const fb = document.getElementById("dictFeedbackBanner");
-        fb.className = "p-4 rounded-2xl text-xs font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-200 border border-amber-300";
-        fb.innerHTML = `<i class="fa-solid fa-eye mr-1"></i> Đáp án chuẩn: <strong class="underline">${escapeHtml(item.word)}</strong> ${escapeHtml(item.ipa || "")}`;
-        fb.classList.remove("hidden");
+        const fb = document.getElementById("dictFeedback");
+        fb.className = "text-xs font-extrabold text-amber-600 dark:text-amber-400";
+        fb.textContent = `💡 Đáp án: ${item.word} (${item.ipa})`;
+        speakText(item.word);
       };
-      document.getElementById("btnDictSkip").onclick = () => {
-        dictIndex++;
-        renderDictationItem();
-        saveStudyProgress();
-      };
-      document.getElementById("dictForm").onsubmit = (e) => {
+      document.getElementById("btnDictSkip").onclick = () => { dictIndex++; saveStudyProgress(); renderDictation(); };
+      document.getElementById("dictForm").onsubmit = e => {
         e.preventDefault();
-        const item = dictQueue[dictIndex];
+        if (isDictTransitioning) return;
+        if (!dictPool || dictPool.length === 0) dictPool = getFilteredVocab();
+        const item = dictPool[dictIndex];
         if (!item) return;
-        const userInput = document.getElementById("dictInput").value;
-        const fb = document.getElementById("dictFeedbackBanner");
-        fb.classList.remove("hidden");
+        const val = document.getElementById("dictInput").value.trim();
+        const fb = document.getElementById("dictFeedback");
 
-        if (checkDictationMatch(userInput, item.word)) {
-          handleDictationCorrect(item, "Chính xác tuyệt đối!");
+        if (checkDictationMatch(val, item)) {
+          handleDictationCorrect(item, "Chính xác");
         } else {
-          item.mistakeCount = (item.mistakeCount || 0) + 1;
-          saveDatabase();
-          fb.className = "p-4 rounded-2xl text-xs font-bold bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-200 border border-rose-300";
-          fb.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> Chưa khớp! Bạn nhập: "${escapeHtml(userInput)}" — Hãy nghe lại hoặc bấm nút <i class="fa-solid fa-microphone"></i> để phát âm lại.`;
-          speakEnglishText(item.word);
+          playTone(240, "sawtooth"); triggerHaptic("error"); recordStudyOutcome(item, false);
+          fb.className = "text-xs font-extrabold text-rose-600 dark:text-rose-400";
+          fb.textContent = `❌ Chưa khớp! Hãy nghe lại, bấm Mic đọc lại hoặc bấm "Xem đáp án"`;
         }
       };
 
-      // Sprint Events
-      document.getElementById("btnStartSprint").onclick = startSprintGame;
-      document.getElementById("btnSprintTrue").onclick = () => handleSprintChoice(true);
-      document.getElementById("btnSprintFalse").onclick = () => handleSprintChoice(false);
+      // Chế độ 4: Đua tốc độ 60s (Sprint)
+      document.getElementById("btnStartSprintGame").onclick = () => {
+        sprintSeconds = 60; sprintScore = 0; sprintCombo = 1;
+        isSprintActive = true; isSprintPaused = false;
+        document.getElementById("sprintPauseOverlay").classList.add("hidden");
+        document.getElementById("sprintTimeText").textContent = "60s";
+        document.getElementById("sprintScoreText").textContent = "0 điểm";
+        document.getElementById("sprintComboBadge").textContent = "Combo x1";
+        document.getElementById("sprintIntroView").classList.add("hidden");
+        document.getElementById("sprintPlayView").classList.remove("hidden");
+        document.getElementById("btnStopSprintGame").classList.remove("hidden");
+        nextSprintQuestion();
+        startSprintTicker();
+      };
+      document.getElementById("btnStopSprintGame").onclick = finishSprintGame;
+      document.getElementById("btnResumeSprintGame").onclick = resumeSprintGame;
+      document.getElementById("btnAbortSprintGame").onclick = finishSprintGame;
 
-      // Tab 5: Manage & AI Auto-Fill Events
-      document.getElementById("searchManageInput").oninput = (e) => renderVocabTree(e.target.value);
-
-      document.getElementById("btnAiAutoFillWord").onclick = async () => {
-        const w = document.getElementById("inputWordEn").value.trim();
-        const m = document.getElementById("inputWordVi").value.trim();
-        const u = document.getElementById("newWordUnitSelect").value;
-        if (!w) {
-          document.getElementById("inputWordEn").focus();
-          return;
-        }
-        const btn = document.getElementById("btnAiAutoFillWord");
-        btn.disabled = true;
-        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang tạo...`;
-        const enriched = await enrichWordWithAiFallback(w, m || "Mẫu câu giao tiếp", u);
-        document.getElementById("inputWordIpa").value = enriched.ipa || "";
-        document.getElementById("inputWordPos").value = enriched.pos || "phr.";
-        document.getElementById("inputWordEx").value = enriched.example || "";
-        document.getElementById("inputWordNote").value = enriched.clinicalNote || "";
-        btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> AI Điền tự động`;
+      // Chế độ 5: Quản lý & Nhập liệu AI
+      document.getElementById("btnToggleSingleAdd").onclick = () => {
+        document.getElementById("addWordForm").classList.remove("hidden"); document.getElementById("batchAddContainer").classList.add("hidden");
+        document.getElementById("btnToggleSingleAdd").className = "px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold transition";
+        document.getElementById("btnToggleBatchAdd").className = "px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition";
+      };
+      document.getElementById("btnToggleBatchAdd").onclick = () => {
+        document.getElementById("addWordForm").classList.add("hidden"); document.getElementById("batchAddContainer").classList.remove("hidden");
+        document.getElementById("btnToggleBatchAdd").className = "px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold transition";
+        document.getElementById("btnToggleSingleAdd").className = "px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition";
       };
 
-      document.getElementById("formAddSingleWord").onsubmit = (e) => {
+      document.getElementById("addWordForm").onsubmit = async e => {
         e.preventDefault();
-        const editId = document.getElementById("editWordId").value;
-        const unit = document.getElementById("newWordUnitSelect").value || "Unit 1";
-        const word = document.getElementById("inputWordEn").value.trim();
-        const meaning = document.getElementById("inputWordVi").value.trim();
-        const ipa = document.getElementById("inputWordIpa").value.trim();
-        const pos = document.getElementById("inputWordPos").value.trim() || "phr.";
-        const example = document.getElementById("inputWordEx").value.trim() || `In daily conversation, people often say "${word}".`;
-        const clinicalNote = document.getElementById("inputWordNote").value.trim() || `Mẫu câu thuộc ${unit} (${meaning}).`;
+        const btn = document.getElementById("btnSubmitSingleWord");
+        btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
 
-        if (!word || !meaning) return;
+        const u = normalizeUnitName(document.getElementById("newUnitInput").value.trim() || "Unit 5");
+        const w = document.getElementById("newWordInput").value.trim();
+        const m = document.getElementById("newMeaningInput").value.trim();
 
-        if (editId) {
-          const existing = vocabDatabase.find(v => v.id === editId);
-          if (existing) {
-            existing.unit = unit;
-            existing.word = word;
-            existing.meaning = meaning;
-            existing.ipa = ipa;
-            existing.pos = pos;
-            existing.example = example;
-            existing.clinicalNote = clinicalNote;
-          }
-        } else {
-          vocabDatabase.unshift({
-            id: "custom_" + Date.now(),
-            unit, word, ipa, pos, meaning,
-            relatedTerms: [],
-            example,
-            exampleVi: meaning,
-            clinicalNote,
-            dialoguePrompt: `Someone starts a conversation with you in the context of "${meaning}". How do you respond?`,
-            dialoguePromptVi: `Tình huống hội thoại liên quan đến: "${meaning}". Bạn đáp lại thế nào?`,
-            srsLevel: 0,
-            mistakeCount: 0
-          });
-          selectedUnits.add(unit);
+        if (w) {
+          const enriched = await enrichWordWithAiFallback(w, m, u);
+          vocabList.push(enriched);
+          selectedUnits.add(u);
+          saveDatabase(); syncAllViews(); e.target.reset();
+          showToast(`Đã làm giàu & lưu "${enriched.word}" vào ${u}!`);
         }
-
-        saveDatabase();
-        document.getElementById("formAddSingleWord").reset();
-        document.getElementById("editWordId").value = "";
-        document.getElementById("btnCancelEditWord").classList.add("hidden");
-        renderVocabTree(document.getElementById("searchManageInput").value);
+        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Lưu & Làm Giàu';
       };
 
-      document.getElementById("btnCancelEditWord").onclick = () => {
-        document.getElementById("formAddSingleWord").reset();
-        document.getElementById("editWordId").value = "";
-        document.getElementById("btnCancelEditWord").classList.add("hidden");
-      };
+      document.getElementById("btnRunBatchEnrich").onclick = async () => {
+        const rawText = document.getElementById("batchRawInput").value;
+        const unit = normalizeUnitName(document.getElementById("batchUnitInput").value.trim() || "Unit 5");
+        if (!rawText.trim()) return showToast("Vui lòng dán danh sách mẫu câu!", "error");
 
-      document.getElementById("btnProcessBulkImport").onclick = async () => {
-        const raw = document.getElementById("bulkImportTextarea").value.trim();
-        if (!raw) return;
-        const unitName = document.getElementById("bulkTargetUnitInput").value.trim() || "Unit 9 - Mở rộng";
-        const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-        const statusEl = document.getElementById("bulkImportStatus");
-        statusEl.classList.remove("hidden");
+        const btn = document.getElementById("btnRunBatchEnrich");
+        btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang xử lý...';
 
+        const lines = rawText.split("\n").map(l => l.trim()).filter(Boolean);
         let added = 0;
-        for (let i = 0; i < lines.length; i++) {
-          const parts = lines[i].split(/\||-|\t|:/);
-          if (parts.length >= 2) {
-            const w = parts[0].trim();
-            const m = parts.slice(1).join(" ").trim();
-            statusEl.textContent = `⏳ Đang chuẩn hóa AI (${i + 1}/${lines.length}): ${w}...`;
-            const enriched = await enrichWordWithAiFallback(w, m, unitName);
-            vocabDatabase.push({
-              id: `bulk_${Date.now()}_${i}`,
-              unit: unitName,
-              word: w,
-              ipa: enriched.ipa,
-              pos: enriched.pos,
-              meaning: m,
-              relatedTerms: [],
-              example: enriched.example,
-              exampleVi: enriched.exampleVi || m,
-              clinicalNote: enriched.clinicalNote,
-              dialoguePrompt: enriched.dialoguePrompt,
-              dialoguePromptVi: enriched.dialoguePromptVi,
-              srsLevel: 0,
-              mistakeCount: 0
-            });
-            added++;
+        for (const line of lines) {
+          const parts = line.split(/[:\-\t]/);
+          const word = parts[0].trim();
+          const meaning = parts.length > 1 ? parts.slice(1).join(" ").trim() : "";
+          if (word) {
+            const enriched = await enrichWordWithAiFallback(word, meaning, unit);
+            vocabList.push(enriched); added++;
           }
         }
-        selectedUnits.add(unitName);
-        saveDatabase();
-        renderVocabTree();
-        updateHeaderUnitSummary();
-        statusEl.textContent = `✅ Đã nạp thành công ${added} mẫu câu vào "${unitName}"!`;
-        document.getElementById("bulkImportTextarea").value = "";
+        selectedUnits.add(unit); saveDatabase(); syncAllViews();
+        document.getElementById("batchProgressStatus").textContent = `✅ Đã thêm ${added} mẫu câu vào ${unit}!`;
+        document.getElementById("batchRawInput").value = "";
+        showToast(`Đã làm giàu và lưu ${added} câu vào ${unit}!`);
+        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Tự Làm Giàu & Lưu Hàng Loạt';
+      };
+      document.getElementById("searchVocabInput").oninput = e => renderVocabTree(e.target.value);
+
+      // Chế độ 6: Phòng thi CBT
+      document.getElementById("btnGenerateCBT").onclick = () => {
+        const requestedCount = parseInt(document.getElementById("cbtQuestionCount").value, 10) || 40;
+        const examDir = document.getElementById("cbtExamDirection").value;
+        const isStrict = document.getElementById("chkStrictSyllabusMode")?.checked;
+        const syllabusInput = document.getElementById("cbtSyllabusInput").value.trim();
+
+        let candidatePool = [];
+        if (parsedSyllabusWords.length > 0 && isStrict) {
+          candidatePool = [...parsedSyllabusWords];
+        } else if (syllabusInput && isStrict) {
+          analyzeSyllabus(syllabusInput);
+          candidatePool = [...parsedSyllabusWords];
+        } else {
+          candidatePool = [...getFilteredVocab()];
+        }
+
+        if (candidatePool.length < Math.min(5, requestedCount)) {
+          candidatePool = [...getFilteredVocab()];
+          showToast("Số lượng câu khớp trong file ít hơn 5, hệ thống đã lấy từ các Unit đang chọn!", "info");
+        }
+
+        const shuffled = [...candidatePool].sort(() => Math.random() - 0.5).slice(0, requestedCount);
+        cbtTotalQuestions = shuffled.length; cbtTimeLeft = cbtTotalQuestions * 45;
+
+        const allowedCbtModes = resolveDirectionModes(examDir);
+        cbtPool = shuffled.map(q => {
+          const qType = allowedCbtModes[Math.floor(Math.random() * allowedCbtModes.length)];
+          const dist = getDistinctDistractors(q, 3, qType, distractorStrategy);
+          const lockedOptions = [q, ...dist].sort(() => Math.random() - 0.5);
+          return { ...q, qType, lockedOptions };
+        });
+
+        cbtAnswers = {}; cbtFlags = {}; cbtCurrentIndex = 0;
+        document.getElementById("cbtSetupView").classList.add("hidden"); document.getElementById("cbtResultView").classList.add("hidden");
+        document.getElementById("cbtExamView").classList.remove("hidden");
+
+        updateCBTTimerDisplay(); clearInterval(cbtTimerInterval);
+        cbtTimerInterval = setInterval(() => {
+          if (currentActiveTab !== "cbt" || document.hidden) return;
+          cbtTimeLeft--; updateCBTTimerDisplay(); saveCBTState();
+          if (cbtTimeLeft <= 0) { clearInterval(cbtTimerInterval); showToast("Hết giờ! Tự động thu bài.", "error"); submitCBTExam(); }
+        }, 1000);
+        renderCBTQuestion(); saveCBTState();
       };
 
-      // CBT Events
-      document.getElementById("btnLaunchCBT").onclick = launchCBTExam;
-      document.getElementById("btnCBTPrev").onclick = () => {
-        if (cbtCurrentIdx > 0) { cbtCurrentIdx--; renderCBTQuestion(); saveCBTProgressState(); }
+      document.getElementById("btnCBTPrev").onclick = () => { if (cbtCurrentIndex > 0) { cbtCurrentIndex--; saveCBTState(); renderCBTQuestion(); }};
+      document.getElementById("btnCBTNext").onclick = () => { if (cbtCurrentIndex < cbtTotalQuestions - 1) { cbtCurrentIndex++; saveCBTState(); renderCBTQuestion(); }};
+      document.getElementById("btnFlagCBT").onclick = () => { cbtFlags[cbtCurrentIndex] = !cbtFlags[cbtCurrentIndex]; saveCBTState(); renderCBTQuestion(); };
+      document.getElementById("btnSubmitCBT").onclick = () => {
+        const answered = Object.keys(cbtAnswers).length;
+        if (answered < cbtTotalQuestions && cbtTimeLeft > 0) {
+          if (!confirm(`Bạn mới làm ${answered}/${cbtTotalQuestions} câu. Bạn có chắc chắn muốn nộp bài sớm?`)) return;
+        }
+        submitCBTExam();
       };
-      document.getElementById("btnCBTNext").onclick = () => {
-        if (cbtCurrentIdx < cbtQuestions.length - 1) { cbtCurrentIdx++; renderCBTQuestion(); saveCBTProgressState(); }
-      };
-      document.getElementById("btnCBTFlag").onclick = () => {
-        if (cbtFlaggedSet.has(cbtCurrentIdx)) cbtFlaggedSet.delete(cbtCurrentIdx);
-        else cbtFlaggedSet.add(cbtCurrentIdx);
-        renderCBTQuestion();
-        renderCBTPalette();
-        saveCBTProgressState();
-      };
-      document.getElementById("btnSubmitCBTNow").onclick = submitCBTExam;
-      document.getElementById("btnCBTRetake").onclick = () => {
-        clearCBTProgressState();
-        document.getElementById("cbtResultScreen").classList.add("hidden");
-        document.getElementById("cbtSetupScreen").classList.remove("hidden");
+      document.getElementById("btnCBTRetry").onclick = () => {
+        localStorage.removeItem(STORAGE_KEY_CBT_STATE);
+        document.getElementById("cbtResultView").classList.add("hidden"); document.getElementById("cbtSetupView").classList.remove("hidden");
       };
       document.getElementById("btnCBTReviewMistakes").onclick = () => {
-        onlyWeakWordsFilter = true;
-        switchTab("quiz");
+        onlyMistakesFilter = true; document.getElementById("chkOnlyMistakes").checked = true;
+        saveStudyProgress(); syncAllViews(); switchActiveTab("quiz"); showToast("Bật Ôn tập các câu sai!", "info");
       };
 
-      // Specialty & AI Hub Modals
-      document.getElementById("formCreateSpecialty").onsubmit = (e) => {
+      // Modal Chủ đề & AI Hub
+      document.getElementById("createSpecialtyForm").onsubmit = e => {
         e.preventDefault();
-        const name = document.getElementById("newSpecialtyNameInput").value.trim();
+        const name = document.getElementById("newSpecName").value.trim(), icon = document.getElementById("newSpecIcon").value;
         if (!name) return;
         const newId = "spec_" + Date.now();
-        specialtiesRegistry[newId] = {
-          id: newId,
-          name,
-          data: [
-            {
-              id: newId + "_1",
-              unit: "Unit 1",
-              word: "How's it going?",
-              ipa: "/haʊz ɪt ˈɡəʊ.ɪŋ/",
-              pos: "phr.",
-              meaning: "Dạo này mọi thứ thế nào rồi? (Mẫu câu khởi tạo)",
-              relatedTerms: ["How are things?"],
-              example: "Hey! How's it going with your new English project?",
-              exampleVi: "Chào bạn! Dự án tiếng Anh mới của bạn dạo này thế nào rồi?",
-              clinicalNote: "Hãy vào mục Quản lý Từ để thêm từ vựng và mẫu câu mới cho chủ đề này.",
-              dialoguePrompt: "You meet a colleague in the hallway in the morning and want to greet them casually.",
-              dialoguePromptVi: "Bạn gặp đồng nghiệp ở hành lang vào buổi sáng và muốn chào hỏi thân mật:",
-              srsLevel: 0,
-              mistakeCount: 0
-            }
-          ]
+        specialtiesMap[newId] = { id: newId, name, icon, vocab: [] };
+        saveDatabase(); loadSpecialtyState(newId, true); e.target.reset();
+        document.getElementById("specialtyModal").classList.add("hidden"); showToast(`Đã tạo chủ đề "${name}"!`);
+      };
+
+      document.querySelectorAll("[data-quick-ai]").forEach(btn => {
+        btn.onclick = async () => {
+          const q = btn.getAttribute("data-quick-ai");
+          document.getElementById("aiCustomPromptInput").value = q;
+          document.getElementById("aiResponseBox").textContent = "⏳ Đang phân tích ngữ cảnh giao tiếp...";
+          document.getElementById("aiResponseBox").textContent = await queryThreeTierAi(q);
         };
-        localStorage.setItem(STORAGE_KEY_SPECIALTIES, JSON.stringify(specialtiesRegistry));
-        document.getElementById("newSpecialtyNameInput").value = "";
-        switchSpecialty(newId);
+      });
+
+      document.getElementById("aiCustomPromptForm").onsubmit = async e => {
+        e.preventDefault();
+        const q = document.getElementById("aiCustomPromptInput").value.trim();
+        if (!q) return;
+        document.getElementById("aiResponseBox").textContent = "⏳ Đang phân tích ngữ cảnh giao tiếp...";
+        document.getElementById("aiResponseBox").textContent = await queryThreeTierAi(q);
       };
 
       document.getElementById("btnSaveAiKey").onclick = () => {
-        const k = document.getElementById("aiApiKeyInput").value.trim();
+        const k = document.getElementById("userGeminiKeyInput").value.trim();
+        if (!k) return showToast("Vui lòng dán API Key!", "error");
         localStorage.setItem(STORAGE_KEY_AI_KEY, k);
-        const st = document.getElementById("aiKeySavedStatus");
-        st.textContent = k ? "✅ Đã lưu Gemini API Key vào trình duyệt (comm_eng_pro_ai_key)!" : "ℹ️ Đã xóa Key (Chuyển sang AI Tầng 2 & 3 Miễn phí).";
-        st.classList.remove("hidden");
+        updateAiStatusUI();
+        showToast("Đã lưu Gemini API Key! Bấm 'Thử kết nối' để kiểm tra.");
       };
 
-      document.getElementById("formAiQuickQuery").onsubmit = async (e) => {
-        e.preventDefault();
-        const q = document.getElementById("aiQuickQueryInput").value.trim();
-        if (!q) return;
-        const out = document.getElementById("aiQuickResponseBox");
-        out.classList.remove("hidden");
-        out.textContent = "⏳ Đang truy vấn hệ thống AI 3 tầng...";
-        const prompt = `Giải thích chi tiết mẫu câu / thuật ngữ tiếng Anh giao tiếp "${q}" cho người học Việt Nam: phiên âm IPA, nghĩa tiếng Việt, sắc thái giao tiếp (trang trọng hay thân mật), tình huống hội thoại thực tế (A nói gì - B đáp gì) và 2 câu ví dụ.`;
-        const res = await queryThreeTierAi(prompt);
-        out.textContent = `[Nguồn: ${res.tier}]\n\n${res.text}`;
+      document.getElementById("btnClearAiKey").onclick = () => {
+        localStorage.removeItem(STORAGE_KEY_AI_KEY);
+        document.getElementById("userGeminiKeyInput").value = "";
+        updateAiStatusUI();
+        showToast("Đã xóa API Key.", "info");
       };
 
-      // JSON Backup / Restore Modal
-      document.getElementById("btnExportJson").onclick = () => {
-        document.getElementById("jsonModalTitle").textContent = "Xuất Sao Lưu Dữ Liệu (JSON)";
-        document.getElementById("jsonModalTextarea").value = JSON.stringify(vocabDatabase, null, 2);
-        document.getElementById("btnConfirmJsonImport").classList.add("hidden");
-        document.getElementById("jsonModal").classList.remove("hidden");
-      };
-      document.getElementById("btnImportJson").onclick = () => {
-        document.getElementById("jsonModalTitle").textContent = "Nhập Dữ Liệu JSON Từ Bản Sao Lưu";
-        document.getElementById("jsonModalTextarea").value = "";
-        document.getElementById("btnConfirmJsonImport").classList.remove("hidden");
-        document.getElementById("jsonModal").classList.remove("hidden");
-      };
-      document.getElementById("btnCopyJsonClipboard").onclick = () => {
-        const txt = document.getElementById("jsonModalTextarea").value;
-        navigator.clipboard.writeText(txt);
-      };
-      document.getElementById("btnConfirmJsonImport").onclick = () => {
-        try {
-          const parsed = JSON.parse(document.getElementById("jsonModalTextarea").value);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            vocabDatabase = parsed;
-            saveDatabase();
-            renderVocabTree();
-            document.getElementById("jsonModal").classList.add("hidden");
-          }
-        } catch (err) {
-          alert("Dữ liệu JSON không hợp lệ. Vui lòng kiểm tra lại!");
-        }
-      };
-      document.getElementById("btnResetDefaultData").onclick = () => {
-        specialtiesRegistry["comm_eng"].data = JSON.parse(JSON.stringify(SEED_DATA));
-        if (currentSpecialtyId === "comm_eng") {
-          vocabDatabase = specialtiesRegistry["comm_eng"].data;
-        }
-        saveDatabase();
-        selectedUnits = new Set(getAllUnitsList());
-        renderVocabTree();
-        renderDashboard();
-      };
+      document.getElementById("btnTestAiKey").onclick = async () => {
+        const btnTestAiKey = document.getElementById("btnTestAiKey");
+        const k = document.getElementById("userGeminiKeyInput").value.trim() || localStorage.getItem(STORAGE_KEY_AI_KEY);
+        if (!k) return showToast("Vui lòng nhập hoặc lưu API Key trước khi thử kết nối!", "error");
 
-      /* =====================================================================
-       * 14. TAB 7: AI DOCUMENT EXAM STUDIO (TRÍCH XUẤT FILE & THI THỬ)
-       * ===================================================================== */
-      let docExamQuestions = [];
-      let docExamCurrentIdx = 0;
-      let docExamUserAnswers = {};
-      let docExamTimer = null;
-      let docExamSecondsLeft = 0;
+        btnTestAiKey.disabled = true;
+        btnTestAiKey.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang test...';
+        const respBox = document.getElementById("aiResponseBox");
+        respBox.textContent = "⏳ Đang gửi yêu cầu kiểm tra kết nối đến Google Gemini Cloud...";
 
-      const docFileInput = document.getElementById("docExamFileInput");
-      const docTextarea = document.getElementById("docExamRawTextarea");
-      const docStatusBadge = document.getElementById("docFileParseStatus");
+        const testModels = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest"];
+        let lastErrMsg = "", success = false;
 
-      if (docFileInput) {
-        docFileInput.addEventListener("change", async (e) => {
-          const file = e.target.files[0];
-          if (!file) return;
-          docStatusBadge.classList.remove("hidden");
-          docStatusBadge.textContent = `⏳ Đang đọc file "${file.name}"...`;
-
+        for (const model of testModels) {
           try {
-            const ext = file.name.split(".").pop().toLowerCase();
-            if (ext === "txt" || ext === "md" || ext === "csv") {
-              const text = await file.text();
-              docTextarea.value = text;
-              docStatusBadge.textContent = `✅ Đã trích xuất ${text.length.toLocaleString()} ký tự từ file TXT.`;
-            } else if (ext === "docx" && window.mammoth) {
-              const arrayBuffer = await file.arrayBuffer();
-              const result = await window.mammoth.extractRawText({ arrayBuffer });
-              docTextarea.value = result.value;
-              docStatusBadge.textContent = `✅ Đã trích xuất ${result.value.length.toLocaleString()} ký tự từ file Word (.docx).`;
-            } else if (ext === "pdf" && window.pdfjsLib) {
-              window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-              const arrayBuffer = await file.arrayBuffer();
-              const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-              let fullText = "";
-              for (let p = 1; p <= pdf.numPages; p++) {
-                const page = await pdf.getPage(p);
-                const content = await page.getTextContent();
-                fullText += content.items.map(it => it.str).join(" ") + "\n\n";
-              }
-              docTextarea.value = fullText.trim();
-              docStatusBadge.textContent = `✅ Đã trích xuất ${pdf.numPages} trang PDF (${fullText.length.toLocaleString()} ký tự).`;
-            } else {
-              const text = await file.text();
-              docTextarea.value = text;
-              docStatusBadge.textContent = `✅ Đã nạp nội dung văn bản từ "${file.name}".`;
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: "Trả lời ngắn gọn đúng 1 câu tiếng Việt xác nhận bạn là Gemini AI sẵn sàng hỗ trợ ứng dụng Everyday English Pro của tác giả Quốc Toản." }] }]
+              })
+            });
+            const data = await res.json();
+            if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+              localStorage.setItem(STORAGE_KEY_AI_KEY, k);
+              updateAiStatusUI();
+              respBox.textContent = `🎉 KẾT NỐI GEMINI API THÀNH CÔNG!\n\n✨ [Phản hồi trực tiếp từ Google ${model}]:\n"${data.candidates[0].content.parts[0].text.trim()}"`;
+              showToast(`Kết nối thành công với ${model}!`, "success");
+              success = true;
+              break;
+            } else if (data?.error?.message) {
+              lastErrMsg = data.error.message;
             }
           } catch (err) {
-            console.error("File extraction error:", err);
-            docStatusBadge.textContent = `⚠️ Không thể đọc định dạng file này tự động. Bạn vui lòng copy-paste văn bản vào ô bên phải.`;
+            lastErrMsg = err.message || "Lỗi mạng";
           }
-        });
+        }
+
+        if (!success) {
+          respBox.textContent = `❌ LỖI KẾT NỐI GEMINI API:\n${lastErrMsg}`;
+          showToast("API Key không hợp lệ hoặc lỗi kết nối!", "error");
+        }
+        btnTestAiKey.disabled = false;
+        btnTestAiKey.innerHTML = '<i class="fa-solid fa-bolt"></i> Thử kết nối';
+      };
+
+      document.getElementById("btnOpenAiHub").addEventListener("click", () => updateAiStatusUI());
+
+      // Sao lưu & Nạp JSON
+      document.getElementById("btnExportJsonText").onclick = () => {
+        document.getElementById("jsonTextBox").value = JSON.stringify(vocabList, null, 2);
+        showToast("Đã xuất JSON!");
+      };
+      document.getElementById("btnResetDefaultData").onclick = () => {
+        vocabList = SEED_DATA.map(i => ({ ...i })); selectedUnits = new Set(getAllUnits());
+        saveDatabase(); syncAllViews(); document.getElementById("jsonModal").classList.add("hidden"); showToast("Đã khôi phục bộ 8 Unit giao tiếp gốc!");
+      };
+      function normalizeImportedItem(item) {
+        if (!item || typeof item !== "object") return item;
+        const normalizedUnit = normalizeUnitName(item.unit);
+        const rawPos = (item.pos || "phr.").trim();
+        const normalizedPos = rawPos.endsWith(".") ? rawPos : `${rawPos}.`;
+        return {
+          ...item,
+          unit: normalizedUnit,
+          pos: normalizedPos,
+          srsLevel: item.srsLevel !== undefined ? item.srsLevel : 0,
+          mistakeCount: item.mistakeCount !== undefined ? item.mistakeCount : 0
+        };
       }
-
-      document.getElementById("btnClearDocText").onclick = () => {
-        docTextarea.value = "";
-        docStatusBadge.classList.add("hidden");
+      document.getElementById("btnImportJsonReplace").onclick = () => {
+        try {
+          const parsed = JSON.parse(document.getElementById("jsonTextBox").value);
+          const arr = (Array.isArray(parsed) ? parsed : (parsed.vocab || [])).map(normalizeImportedItem);
+          if (arr.length > 0) {
+            vocabList = arr; selectedUnits = new Set(getAllUnits());
+            saveDatabase(); syncAllViews(); document.getElementById("jsonModal").classList.add("hidden"); showToast(`Đã ghi đè ${arr.length} mẫu câu!`);
+          }
+        } catch (e) { showToast("Lỗi định dạng JSON!", "error"); }
       };
-
-      document.getElementById("btnLoadSampleDocText").onclick = () => {
-        docTextarea.value = `Everyday English Conversation & Workplace Communication Guidelines:
-1. Small Talk & Icebreakers: Starting a conversation with colleagues or international clients often begins with friendly small talk such as asking about their weekend, recent trips, or how their week is going ("How has your week been so far?").
-2. Polite Refusals (Rain Checks): When you are swamped with work or have a scheduling conflict, native speakers rarely say a blunt "No". Instead, they use polite expressions like "I'd love to, but I'm tied up right now" or "Can I take a rain check?".
-3. Active Listening & Emotional Reflexes: Showing empathy and enthusiasm keeps conversations flowing naturally. Expressions like "That makes sense", "I know the feeling", "Good for you!", and "Hang in there" build strong rapport and trust.
-4. Making Plans & Invitations: Suggesting a casual catch-up over coffee ("Are you free to grab a coffee sometime this week?") and confirming schedules ("Tuesday afternoon works best for me") are essential daily communication skills.`;
-        docStatusBadge.classList.remove("hidden");
-        docStatusBadge.textContent = "✅ Đã nạp đoạn văn mẫu Giao tiếp tiếng Anh để bạn trải nghiệm ngay!";
-      };
-
-      function buildOfflineDocQuestions(rawText, count, style) {
-        const cleanSentences = rawText
-          .replace(/\r?\n+/g, " ")
-          .split(/(?<=[.!?])\s+/)
-          .map(s => s.trim())
-          .filter(s => s.length >= 35 && /[a-zA-Z]{4,}/.test(s));
-
-        const stopWords = new Set(["about","above","after","again","against","all","almost","alone","along","already","also","although","always","among","around","because","become","before","behind","being","below","between","both","Could","could","during","either","enough","every","first","found","from","further","great","having","however","into","itself","might","moreover","mostly","never","often","other","others","otherwise","perhaps","quite","rather","really","several","should","since","somehow","someone","something","sometimes","somewhere","still","such","their","there","therefore","these","thing","things","think","those","though","through","throughout","together","toward","towards","under","unless","until","usually","various","where","whether","which","while","within","without","would"]);
-
-        const keyWordsPool = [];
-        cleanSentences.forEach(sent => {
-          const words = sent.match(/\b[A-Za-z][a-zA-Z-]{4,}\b/g) || [];
-          words.forEach(w => {
-            if (!stopWords.has(w.toLowerCase()) && !keyWordsPool.includes(w)) {
-              keyWordsPool.push(w);
+      document.getElementById("btnImportJsonMerge").onclick = () => {
+        try {
+          const parsed = JSON.parse(document.getElementById("jsonTextBox").value);
+          const arr = (Array.isArray(parsed) ? parsed : (parsed.vocab || [])).map(normalizeImportedItem);
+          const existingMap = new Map(vocabList.map((v, idx) => [v.id, idx]));
+          let added = 0, updated = 0;
+          arr.forEach(item => {
+            if (item && item.word) {
+              if (item.id && existingMap.has(item.id)) {
+                const idx = existingMap.get(item.id);
+                const prev = vocabList[idx];
+                vocabList[idx] = {
+                  ...item,
+                  srsLevel: prev.srsLevel !== undefined ? prev.srsLevel : item.srsLevel,
+                  mistakeCount: prev.mistakeCount !== undefined ? prev.mistakeCount : item.mistakeCount
+                };
+                if (item.unit) selectedUnits.add(item.unit);
+                updated++;
+              } else {
+                vocabList.push(item);
+                if (item.id) existingMap.set(item.id, vocabList.length - 1);
+                if (item.unit) selectedUnits.add(item.unit);
+                added++;
+              }
             }
           });
+          saveDatabase(); syncAllViews(); document.getElementById("jsonModal").classList.add("hidden"); showToast(`Đã hợp nhất ${added} câu mới${updated > 0 ? ` & cập nhật ${updated} câu` : ""}!`);
+        } catch (e) { showToast("Lỗi định dạng JSON!", "error"); }
+      };
+
+      // Chế độ 7: Quét tài liệu PDF/DOCX tạo đề thi
+      let docExamPool = [];
+      let docExamCurrentIndex = 0;
+      let docExamAnswers = {};
+      let docExamTimerInterval = null;
+      let docExamTimeLeft = 600;
+      let docExtractedVocabList = [];
+
+      const docExamDropZone = document.getElementById("docExamDropZone");
+      const docExamFileInput = document.getElementById("docExamFileInput");
+      const btnSelectDocFile = document.getElementById("btnSelectDocFile");
+      const btnClearDocFile = document.getElementById("btnClearDocFile");
+      const docUploadedNameBadge = document.getElementById("docUploadedNameBadge");
+
+      btnSelectDocFile.onclick = () => docExamFileInput.click();
+      btnClearDocFile.onclick = () => {
+        docExamFileInput.value = "";
+        btnClearDocFile.classList.add("hidden");
+        docUploadedNameBadge.classList.add("hidden");
+        document.getElementById("docExamTextInput").value = "";
+        showToast("Đã xóa file tải lên", "info");
+      };
+
+      if (docExamDropZone) {
+        docExamDropZone.addEventListener("dragover", e => {
+          e.preventDefault();
+          docExamDropZone.classList.add("border-indigo-500", "bg-indigo-100/70");
         });
-
-        const fallbackPool = vocabDatabase.map(v => v.word);
-        const questions = [];
-
-        for (let i = 0; i < count; i++) {
-          const sent = cleanSentences[i % Math.max(1, cleanSentences.length)] || "Effective communication requires active listening, natural expressions, and empathy in daily conversations.";
-          const wordsInSent = (sent.match(/\b[A-Za-z][a-zA-Z-]{4,}\b/g) || []).filter(w => !stopWords.has(w.toLowerCase()));
-          const targetWord = wordsInSent[0] || keyWordsPool[i % Math.max(1, keyWordsPool.length)] || "communication";
-
-          const distractors = shuffleArray(
-            [...keyWordsPool, ...fallbackPool].filter(w => w.toLowerCase() !== targetWord.toLowerCase())
-          ).slice(0, 3);
-
-          while (distractors.length < 3) {
-            distractors.push(["conversation", "schedule", "impression", "invitation"][distractors.length]);
+        docExamDropZone.addEventListener("dragleave", e => {
+          e.preventDefault();
+          docExamDropZone.classList.remove("border-indigo-500", "bg-indigo-100/70");
+        });
+        docExamDropZone.addEventListener("drop", e => {
+          e.preventDefault();
+          docExamDropZone.classList.remove("border-indigo-500", "bg-indigo-100/70");
+          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            docExamFileInput.files = e.dataTransfer.files;
+            docExamFileInput.dispatchEvent(new Event("change"));
           }
-
-          const options = shuffleArray([targetWord, ...distractors]);
-          const blankedSent = sent.replace(new RegExp(`\\b${escapeRegExp(targetWord)}\\b`, "i"), "_______");
-
-          questions.push({
-            question: style === "comprehension"
-              ? `According to the provided text, which key term best completes or reflects this statement?\n"${blankedSent}"`
-              : `Fill in the blank based on the document context:\n"${blankedSent}"`,
-            options,
-            answer: targetWord,
-            explanation: `Trích dẫn gốc trong tài liệu: "${sent}"`
-          });
-        }
-        return questions;
+        });
       }
 
-      document.getElementById("btnGenerateDocExam").onclick = async () => {
-        const rawText = docTextarea.value.trim();
-        if (rawText.length < 40) {
-          docStatusBadge.classList.remove("hidden");
-          docStatusBadge.textContent = "⚠️ Vui lòng tải file lên hoặc dán ít nhất 1 đoạn văn bản (tối thiểu 40 ký tự) để tạo đề thi!";
-          docTextarea.focus();
-          return;
-        }
+      docExamFileInput.onchange = async e => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-        const qCount = parseInt(document.getElementById("docExamCountSelect").value, 10) || 10;
-        const qStyle = document.getElementById("docExamStyleSelect").value;
-        const mins = parseInt(document.getElementById("docExamTimeSelect").value, 10) || 15;
+        btnClearDocFile.classList.remove("hidden");
+        docUploadedNameBadge.classList.remove("hidden");
+        docUploadedNameBadge.textContent = `📄 Đã nạp file: ${file.name}`;
 
-        const btn = document.getElementById("btnGenerateDocExam");
-        btn.disabled = true;
-        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> AI Đang Phân Tích Tài Liệu & Biên Soạn ${qCount} Câu Hỏi...`;
-
-        let generated = null;
-        const excerpt = rawText.slice(0, 3500);
-        const prompt = `Based on the following English text, generate ${qCount} multiple-choice questions (${qStyle}). Return ONLY a valid JSON array where each item has keys: "question" (string), "options" (array of 4 strings), "answer" (exact string from options), and "explanation" (short Vietnamese explanation referencing the text). Text:\n"""${excerpt}"""`;
+        const loadingBox = document.getElementById("docLoadingBox");
+        loadingBox.classList.remove("hidden");
+        document.getElementById("docLoadingStatusText").textContent = `Đang trích xuất văn bản từ ${file.name}...`;
 
         try {
-          const aiRes = await queryThreeTierAi(prompt);
-          const jsonMatch = aiRes.text.match(/\[[\s\S]*\]/);
-          if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
-            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].question && Array.isArray(parsed[0].options)) {
-              generated = parsed.slice(0, qCount);
+          let text = "";
+          const ext = file.name.split('.').pop().toLowerCase();
+          if (['txt', 'csv', 'json', 'md'].includes(ext)) {
+            text = await file.text();
+          } else if (ext === 'docx') {
+            const ab = await file.arrayBuffer();
+            const res = await mammoth.extractRawText({ arrayBuffer: ab });
+            text = res.value;
+          } else if (ext === 'pdf') {
+            const ab = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const content = await page.getTextContent();
+              text += content.items.map(it => it.str).join(" ") + " ";
             }
+          } else {
+            throw new Error("Định dạng file chưa được hỗ trợ.");
           }
+
+          document.getElementById("docExamTextInput").value = text.trim();
+          showToast(`Trích xuất thành công ${text.trim().split(/\s+/).filter(Boolean).length} từ từ file!`, "success");
         } catch (err) {
-          console.warn("AI Doc Exam JSON fallback to local NLP:", err);
+          showToast(`Lỗi đọc file: ${err.message}`, "error");
+        } finally {
+          loadingBox.classList.add("hidden");
         }
-
-        if (!generated || generated.length === 0) {
-          generated = buildOfflineDocQuestions(rawText, qCount, qStyle);
-        }
-
-        docExamQuestions = generated;
-        docExamCurrentIdx = 0;
-        docExamUserAnswers = {};
-        docExamSecondsLeft = mins * 60;
-
-        btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Phân Tích Tài Liệu & Khởi Tạo Phòng Thi Ngay`;
-
-        document.getElementById("docExamSetupScreen").classList.add("hidden");
-        document.getElementById("docExamResultScreen").classList.add("hidden");
-        document.getElementById("docExamActiveScreen").classList.remove("hidden");
-
-        renderDocExamQuestion();
-        renderDocExamPalette();
-
-        clearInterval(docExamTimer);
-        docExamTimer = setInterval(() => {
-          docExamSecondsLeft--;
-          const m = String(Math.floor(docExamSecondsLeft / 60)).padStart(2, "0");
-          const s = String(docExamSecondsLeft % 60).padStart(2, "0");
-          document.getElementById("docExamTimerDisplay").textContent = `${m}:${s}`;
-          if (docExamSecondsLeft <= 0) {
-            submitDocExam();
-          }
-        }, 1000);
       };
 
-      function renderDocExamQuestion() {
-        const q = docExamQuestions[docExamCurrentIdx];
-        if (!q) return;
-        document.getElementById("docExamQNumber").textContent = `CÂU HỎI ${docExamCurrentIdx + 1} / ${docExamQuestions.length}`;
-        document.getElementById("docExamPrompt").textContent = q.question;
-
-        const optsEl = document.getElementById("docExamOptionsContainer");
-        optsEl.innerHTML = "";
-        (q.options || []).forEach((optText, idx) => {
-          const isSelected = docExamUserAnswers[docExamCurrentIdx] === optText;
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = `w-full text-left p-4 rounded-2xl border-2 font-semibold text-sm flex items-center gap-3 transition ${
-            isSelected
-              ? "border-indigo-600 bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-200"
-              : "border-slate-200 dark:border-slate-700 hover:border-indigo-400"
-          }`;
-          btn.innerHTML = `
-            <span class="w-7 h-7 rounded-lg ${isSelected ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"} font-extrabold text-xs flex items-center justify-center shrink-0">${String.fromCharCode(65 + idx)}</span>
-            <span class="flex-1">${escapeHtml(optText)}</span>
-          `;
-          btn.onclick = () => {
-            docExamUserAnswers[docExamCurrentIdx] = optText;
-            renderDocExamQuestion();
-            renderDocExamPalette();
-          };
-          optsEl.appendChild(btn);
-        });
+      function updateDocExamTimer() {
+        const m = Math.max(0, Math.floor(docExamTimeLeft / 60));
+        const s = Math.max(0, docExamTimeLeft % 60);
+        document.getElementById("docExamTimerText").textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
       }
 
-      function renderDocExamPalette() {
-        const grid = document.getElementById("docExamPaletteGrid");
-        grid.innerHTML = "";
-        let answered = 0;
-        docExamQuestions.forEach((_, idx) => {
-          const hasAns = docExamUserAnswers[idx] !== undefined;
-          if (hasAns) answered++;
-          const isCurr = idx === docExamCurrentIdx;
-          const b = document.createElement("button");
-          b.type = "button";
-          b.className = `h-8 rounded-lg font-extrabold text-xs border transition ${
-            isCurr ? "ring-2 ring-indigo-500 border-indigo-600 " : ""
-          }${
-            hasAns
-              ? "bg-indigo-600 text-white border-indigo-600"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700"
-          }`;
-          b.textContent = idx + 1;
-          b.onclick = () => {
-            docExamCurrentIdx = idx;
+      function renderDocExamQuestion() {
+        const q = docExamPool[docExamCurrentIndex];
+        if (!q) return;
+
+        document.getElementById("docExamCounterText").textContent = `Câu ${docExamCurrentIndex + 1}/${docExamPool.length}`;
+        document.getElementById("docExamQuestionText").textContent = q.question;
+
+        const container = document.getElementById("docExamOptionsContainer");
+        container.innerHTML = "";
+        const userChoice = docExamAnswers[docExamCurrentIndex];
+        const rationaleBox = document.getElementById("docExamRationaleBox");
+
+        if (userChoice !== undefined && q.rationale) {
+          rationaleBox.textContent = `💡 Giải thích: ${q.rationale}`;
+          rationaleBox.classList.remove("hidden");
+        } else {
+          rationaleBox.classList.add("hidden");
+        }
+
+        q.options.forEach((opt, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          const isSelected = userChoice === optIdx;
+          let btnCls = "p-3.5 rounded-xl border text-left text-xs sm:text-sm font-semibold transition flex items-center justify-between ";
+
+          if (userChoice !== undefined) {
+            if (optIdx === q.correctIndex) {
+              btnCls += "bg-emerald-100 dark:bg-emerald-950/80 border-emerald-500 text-emerald-900 dark:text-emerald-200";
+            } else if (isSelected) {
+              btnCls += "bg-rose-100 dark:bg-rose-950/80 border-rose-500 text-rose-900 dark:text-rose-200";
+            } else {
+              btnCls += "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-60";
+            }
+          } else {
+            btnCls += "bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100";
+          }
+
+          btn.className = btnCls;
+          btn.innerHTML = `<span><strong>${String.fromCharCode(65 + optIdx)}.</strong> ${escapeHtml(opt)}</span>`;
+
+          btn.onclick = () => {
+            if (docExamAnswers[docExamCurrentIndex] !== undefined) return;
+            docExamAnswers[docExamCurrentIndex] = optIdx;
+            triggerHaptic(optIdx === q.correctIndex ? "success" : "error");
             renderDocExamQuestion();
-            renderDocExamPalette();
           };
-          grid.appendChild(b);
+          container.appendChild(btn);
         });
-        document.getElementById("docExamAnsweredStat").textContent = `${answered}/${docExamQuestions.length}`;
+
+        document.getElementById("btnDocExamPrev").disabled = docExamCurrentIndex === 0;
+        document.getElementById("btnDocExamNext").disabled = docExamCurrentIndex === docExamPool.length - 1;
       }
 
       function submitDocExam() {
-        clearInterval(docExamTimer);
-        document.getElementById("docExamActiveScreen").classList.add("hidden");
-        document.getElementById("docExamResultScreen").classList.remove("hidden");
+        clearInterval(docExamTimerInterval);
+        document.getElementById("docExamPlayView").classList.add("hidden");
+        document.getElementById("docExamResultView").classList.remove("hidden");
+        document.getElementById("docExamResultTitle").textContent = "Hoàn Thành Bài Thi Tài Liệu";
+        document.getElementById("btnDocImportAllExtracted").classList.add("hidden");
+        document.getElementById("btnDocRetryExam").classList.remove("hidden");
 
-        let right = 0;
-        const reviewList = document.getElementById("docExamReviewList");
-        reviewList.innerHTML = "";
+        let correct = 0;
+        docExamPool.forEach((q, idx) => {
+          if (docExamAnswers[idx] === q.correctIndex) correct++;
+        });
 
-        docExamQuestions.forEach((q, idx) => {
-          const uAns = docExamUserAnswers[idx] || "(Chưa chọn)";
-          const isOk = uAns === q.answer;
-          if (isOk) right++;
-
-          reviewList.innerHTML += `
-            <div class="p-3 rounded-xl border ${isOk ? "border-emerald-200 bg-emerald-50/40 dark:border-emerald-800/40 dark:bg-emerald-950/20" : "border-rose-200 bg-rose-50/40 dark:border-rose-800/40 dark:bg-rose-950/20"} space-y-1">
-              <p class="font-extrabold text-slate-800 dark:text-slate-100">Câu ${idx + 1}: ${escapeHtml(q.question)}</p>
-              <p>Bạn chọn: <strong class="${isOk ? "text-emerald-600" : "text-rose-500 line-through"}">${escapeHtml(uAns)}</strong> ${!isOk ? `➔ Đáp án đúng: <strong class="text-emerald-600">${escapeHtml(q.answer)}</strong>` : "✅"}</p>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 italic">${escapeHtml(q.explanation || "")}</p>
+        const totalQ = docExamPool.length || 1;
+        const pct = Math.round((correct / totalQ) * 100);
+        document.getElementById("docExamFinalScore").textContent = `Điểm số: ${correct} / ${docExamPool.length} câu đúng (${pct}%)`;
+        const reviewBox = document.getElementById("docExtractedVocabReviewBox");
+        reviewBox.innerHTML = "<p class='font-bold text-slate-700 dark:text-slate-200 mb-1'>Bảng đối chiếu câu hỏi & giải thích:</p>";
+        docExamPool.forEach((q, idx) => {
+          const isRight = docExamAnswers[idx] === q.correctIndex;
+          reviewBox.innerHTML += `
+            <div class="p-2.5 rounded-lg ${isRight ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300" : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300"}">
+              <p><strong>Câu ${idx + 1}:</strong> ${escapeHtml(q.question)}</p>
+              <p class="text-[11px] mt-0.5">Đáp án đúng: <strong>${escapeHtml(q.options[q.correctIndex])}</strong>. ${escapeHtml(q.rationale || "")}</p>
             </div>
           `;
         });
-
-        const score10 = ((right / Math.max(1, docExamQuestions.length)) * 10).toFixed(1);
-        document.getElementById("docExamFinalScore").textContent = `${score10} / 10 (${right}/${docExamQuestions.length} câu)`;
       }
 
-      document.getElementById("btnDocExamPrev").onclick = () => {
-        if (docExamCurrentIdx > 0) { docExamCurrentIdx--; renderDocExamQuestion(); renderDocExamPalette(); }
-      };
-      document.getElementById("btnDocExamNext").onclick = () => {
-        if (docExamCurrentIdx < docExamQuestions.length - 1) { docExamCurrentIdx++; renderDocExamQuestion(); renderDocExamPalette(); }
-      };
-      document.getElementById("btnSubmitDocExam").onclick = submitDocExam;
-      document.getElementById("btnDocExamBackSetup").onclick = () => {
-        document.getElementById("docExamResultScreen").classList.add("hidden");
-        document.getElementById("docExamSetupScreen").classList.remove("hidden");
+      document.getElementById("btnDocGenerateExam").onclick = async () => {
+        const rawContent = document.getElementById("docExamTextInput").value.trim();
+        if (!rawContent) return showToast("Vui lòng tải file hoặc dán nội dung bài học!", "error");
+
+        const loadingBox = document.getElementById("docLoadingBox");
+        loadingBox.classList.remove("hidden");
+        document.getElementById("docLoadingStatusText").textContent = "Đang phân tích nội dung và biên soạn đề thi 10 câu...";
+
+        const apiKey = localStorage.getItem(STORAGE_KEY_AI_KEY);
+        let examQuestions = [];
+
+        if (apiKey) {
+          const prompt = `Dựa trên nội dung tài liệu giao tiếp tiếng Anh sau:
+"${rawContent.slice(0, 3500)}"
+Hãy biên soạn 10 câu hỏi trắc nghiệm kiểm tra phản xạ hội thoại và từ vựng. Trả về DUY NHẤT mảng JSON hợp lệ:
+[{"question": "Câu hỏi", "options": ["A", "B", "C", "D"], "correctIndex": 0, "rationale": "Giải thích tiếng Việt"}]`;
+          const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest"];
+          for (const m of models) {
+            try {
+              const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+              });
+              const data = await res.json();
+              const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (raw) {
+                const clean = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
+                const parsed = JSON.parse(clean);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  examQuestions = parsed.filter(q => q && q.question && Array.isArray(q.options) && q.options.length >= 2);
+                  if (examQuestions.length > 0) break;
+                }
+              }
+            } catch (e) {}
+          }
+        }
+
+        if (!examQuestions || examQuestions.length === 0) {
+          const matched = vocabList.filter(v => {
+            const variants = extractAllVariants(v.word);
+            return variants.some(cleanW => cleanW.length >= 3 && rawContent.toLowerCase().includes(cleanW));
+          });
+          const pool = matched.length >= 5 ? matched : vocabList;
+          const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 10);
+          examQuestions = shuffled.map(item => {
+            const distractors = getDistinctDistractors(item, 3);
+            const opts = [item.meaning, ...distractors.map(d => d.meaning)].sort(() => Math.random() - 0.5);
+            return {
+              question: `Mẫu câu giao tiếp "${item.word}" (${item.ipa}) có ý nghĩa là gì?`,
+              options: opts,
+              correctIndex: Math.max(0, opts.indexOf(item.meaning)),
+              rationale: `${item.word}: ${item.meaning}. Ngữ cảnh: ${item.clinicalNote}`
+            };
+          });
+        }
+
+        loadingBox.classList.add("hidden");
+        if (examQuestions.length > 0) {
+          docExamPool = examQuestions;
+          docExamCurrentIndex = 0;
+          docExamAnswers = {};
+          docExamTimeLeft = docExamPool.length * 60;
+
+          document.getElementById("docExamSetupView").classList.add("hidden");
+          document.getElementById("docExamResultView").classList.add("hidden");
+          document.getElementById("docExamPlayView").classList.remove("hidden");
+
+          renderDocExamQuestion();
+          updateDocExamTimer();
+          clearInterval(docExamTimerInterval);
+          docExamTimerInterval = setInterval(() => {
+            if (currentActiveTab !== "docexam" || document.hidden) return;
+            docExamTimeLeft--;
+            updateDocExamTimer();
+            if (docExamTimeLeft <= 0) {
+              clearInterval(docExamTimerInterval);
+              submitDocExam();
+            }
+          }, 1000);
+          showToast(`Đã tạo đề thi ${docExamPool.length} câu!`, "success");
+        }
       };
 
-      // Tự động lưu tiến độ trước khi đóng / tải lại trang
+      document.getElementById("btnDocExamPrev").onclick = () => { if (docExamCurrentIndex > 0) { docExamCurrentIndex--; renderDocExamQuestion(); } };
+      document.getElementById("btnDocExamNext").onclick = () => { if (docExamCurrentIndex < docExamPool.length - 1) { docExamCurrentIndex++; renderDocExamQuestion(); } };
+      document.getElementById("btnDocExamSubmit").onclick = submitDocExam;
+      document.getElementById("btnQuitDocExam").onclick = () => {
+        clearInterval(docExamTimerInterval);
+        document.getElementById("docExamPlayView").classList.add("hidden");
+        document.getElementById("docExamSetupView").classList.remove("hidden");
+      };
+      document.getElementById("btnDocRetryExam").onclick = () => {
+        if (!docExamPool.length) return;
+        docExamCurrentIndex = 0; docExamAnswers = {}; docExamTimeLeft = docExamPool.length * 60;
+        document.getElementById("docExamResultView").classList.add("hidden");
+        document.getElementById("docExamPlayView").classList.remove("hidden");
+        renderDocExamQuestion(); updateDocExamTimer();
+      };
+      document.getElementById("btnDocNewExam").onclick = () => {
+        document.getElementById("docExamResultView").classList.add("hidden");
+        document.getElementById("docExamSetupView").classList.remove("hidden");
+      };
+
+      document.getElementById("btnDocExtractVocab").onclick = async () => {
+        const rawContent = document.getElementById("docExamTextInput").value.trim();
+        if (!rawContent) return showToast("Vui lòng tải file hoặc dán nội dung hội thoại!", "error");
+
+        const loadingBox = document.getElementById("docLoadingBox");
+        loadingBox.classList.remove("hidden");
+        document.getElementById("docLoadingStatusText").textContent = "Đang trích xuất các mẫu câu giao tiếp cốt lõi từ tài liệu...";
+
+        let extractedTerms = [];
+        const matched = vocabList.filter(v => {
+          const variants = extractAllVariants(v.word);
+          return variants.some(cleanW => cleanW.length >= 3 && rawContent.toLowerCase().includes(cleanW));
+        });
+        extractedTerms = matched.length > 0 ? matched.slice(0, 12) : vocabList.slice(0, 8);
+
+        loadingBox.classList.add("hidden");
+        docExtractedVocabList = extractedTerms;
+        document.getElementById("docExamSetupView").classList.add("hidden");
+        document.getElementById("docExamResultView").classList.remove("hidden");
+        document.getElementById("docExamResultTitle").textContent = "Kết Quả Trích Xuất Mẫu Câu";
+        document.getElementById("btnDocImportAllExtracted").classList.remove("hidden");
+        document.getElementById("btnDocRetryExam").classList.add("hidden");
+        document.getElementById("docExamFinalScore").textContent = `🎉 Đã nhận diện ${extractedTerms.length} mẫu câu giao tiếp!`;
+
+        const reviewBox = document.getElementById("docExtractedVocabReviewBox");
+        reviewBox.innerHTML = "";
+        extractedTerms.forEach(t => {
+          const row = document.createElement("div");
+          row.className = "p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-2";
+          row.innerHTML = `
+            <div>
+              <span class="font-bold text-slate-900 dark:text-white">${escapeHtml(t.word)}</span>
+              <span class="text-[11px] font-mono text-indigo-600 dark:text-indigo-400">${escapeHtml(t.ipa || "")}</span>
+              <p class="text-xs text-slate-600 dark:text-slate-300">${escapeHtml(t.meaning || "")}</p>
+            </div>
+          `;
+          reviewBox.appendChild(row);
+        });
+      };
+
+      document.getElementById("btnDocImportAllExtracted").onclick = () => {
+        showToast("Đã đồng bộ danh sách câu vào kho học tập!", "success");
+      };
+
       window.addEventListener("beforeunload", () => {
         saveStudyProgress();
-        if (!document.getElementById("cbtActiveScreen").classList.contains("hidden")) {
-          saveCBTProgressState();
-        }
+        saveDatabase();
+        saveCBTState();
       });
 
-      // Global Keyboard Shortcuts
-      window.addEventListener("keydown", (e) => {
+      // Phím tắt bàn phím toàn cục
+      window.addEventListener("keydown", e => {
         if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
+        const anyModalOpen = ["guideModal", "authorModal", "specialtyModal", "aiHubModal", "pwaModal", "jsonModal", "whatsNewModal"]
+          .some(id => {
+            const el = document.getElementById(id);
+            return el && !el.classList.contains("hidden");
+          });
+        if (anyModalOpen) return;
 
-        if (!document.getElementById("panel-quiz").classList.contains("hidden")) {
-          if (["1", "2", "3", "4", "5", "6"].includes(e.key)) {
-            const idx = parseInt(e.key, 10) - 1;
-            const btns = document.querySelectorAll("#quizOptionsGrid button");
-            if (btns[idx] && !btns[idx].disabled) btns[idx].click();
-          } else if (e.key === "Enter" && currentQuizAnswered) {
+        if (currentActiveTab === "quiz") {
+          if (["1", "2", "3", "4", "5", "6", "7", "8"].includes(e.key) && !currentQuizAnswered) {
+            const btns = document.querySelectorAll(".quiz-opt-btn");
+            if (btns[parseInt(e.key, 10) - 1]) btns[parseInt(e.key, 10) - 1].click();
+          } else if ((e.key === "Enter" || e.key === "ArrowRight") && currentQuizAnswered) {
             document.getElementById("btnNextQuizQuestion").click();
-          } else if (e.key.toLowerCase() === "r") {
-            document.getElementById("btnSpeakQuizPrompt").click();
+          } else if (e.code === "Space") {
+            e.preventDefault(); document.getElementById("btnSpeakQuizPrompt").click();
           }
-        } else if (!document.getElementById("panel-flashcard").classList.contains("hidden")) {
+        } else if (currentActiveTab === "flashcard") {
           if (e.code === "Space") {
-            e.preventDefault();
-            document.getElementById("fcCardInner").click();
+            e.preventDefault(); document.getElementById("btnFcSpeakFront").click();
           } else if (e.key === "ArrowRight") {
             document.getElementById("btnFcNext").click();
           } else if (e.key === "ArrowLeft") {
             document.getElementById("btnFcPrev").click();
-          } else if (e.key.toLowerCase() === "r") {
-            document.getElementById("btnFcSpeakFront").click();
+          } else if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) {
+            e.preventDefault(); document.getElementById("fcCardInner").click();
           }
-        } else if (!document.getElementById("panel-sprint").classList.contains("hidden")) {
-          if (!document.getElementById("sprintPlayState").classList.contains("hidden")) {
-            if (e.key === "ArrowLeft") handleSprintChoice(true);
-            else if (e.key === "ArrowRight") handleSprintChoice(false);
+        } else if (currentActiveTab === "sprint" && isSprintActive && !isSprintPaused) {
+          if (["1", "2", "3", "4"].includes(e.key)) {
+            const btns = document.querySelectorAll("#sprintOptionsBox button");
+            if (btns[parseInt(e.key, 10) - 1]) btns[parseInt(e.key, 10) - 1].click();
+          }
+        } else if (currentActiveTab === "cbt" && !document.getElementById("cbtExamView").classList.contains("hidden")) {
+          const key = e.key.toUpperCase();
+          const optMap = { "A": 0, "B": 1, "C": 2, "D": 3, "1": 0, "2": 1, "3": 2, "4": 3 };
+          if (optMap[key] !== undefined) {
+            const btns = document.querySelectorAll("#cbtOptionsContainer button");
+            if (btns[optMap[key]]) btns[optMap[key]].click();
+          } else if (key === "F") {
+            e.preventDefault(); document.getElementById("btnFlagCBT").click();
+          } else if (e.key === "ArrowRight" || e.key === "Enter") {
+            e.preventDefault(); document.getElementById("btnCBTNext").click();
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault(); document.getElementById("btnCBTPrev").click();
           }
         }
       });
-
-      // Khôi phục toàn bộ tiến độ học tập đã lưu từ phiên trước
-      const restored = restoreStudyProgress();
-      updateHeaderUnitSummary();
-      renderDashboard();
-      renderVocabTree();
-      renderSpecialtyList();
-      if (!restored) {
-        initQuizSession();
-        initFlashcardSession();
-        initDictationSession();
-      }
     }
 
-    document.addEventListener("DOMContentLoaded", initEverydayEnglishApp);
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initEverydayEnglishApp);
+    } else {
+      initEverydayEnglishApp();
+    }
   </script>
 </body>
 </html>
