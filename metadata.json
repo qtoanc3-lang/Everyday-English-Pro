@@ -1,0 +1,6 @@
+{
+  "name": "Everyday English Pro — Giao Tiếp & Phản Xạ",
+  "description": "Ứng dụng luyện Tiếng Anh Giao Tiếp & Phản Xạ Hội Thoại đa chiều (SRS, Flashcard 3D, Luyện nói Microphone, Đua tốc độ 60s, Phòng thi CBT & AI) — Tác giả: Quốc Toản.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

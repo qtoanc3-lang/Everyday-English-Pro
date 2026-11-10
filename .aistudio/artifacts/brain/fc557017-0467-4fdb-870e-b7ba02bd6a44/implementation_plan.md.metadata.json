@@ -1,0 +1,6 @@
+{
+  "summary":  "Kế hoạch triển khai chuyển đổi ứng dụng sang Everyday English Pro — Giao Tiếp & Phản Xạ (Tác giả: Quốc Toản) theo kiến trúc Single-File HTML5, tách biệt hoàn toàn LocalStorage, giao diện Indigo/Violet, bổ sung chiều câu hỏi Phản xạ hội thoại (A hỏi -> B đáp), tích hợp nhận diện giọng nói Microphone ở chế độ Chép chính tả và bộ dữ liệu 8 Unit giao tiếp.",
+  "updatedAt":  "2026-11-10T04:17:31.497968506Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
