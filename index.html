@@ -708,13 +708,19 @@
             <span class="text-[10px] text-indigo-600">Nhấn để xem / ẩn</span>
           </summary>
           <p class="mt-1.5 text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
-            Bấm vào biểu tượng <strong>Loa lớn</strong> để nghe câu mẫu tiếng Anh, sau đó bạn có thể <strong>gõ phím</strong> vào ô nhập hoặc bấm nút <strong>Microphone <i class="fa-solid fa-microphone"></i></strong> cạnh ô nhập để phát âm trực tiếp. Khi bạn nói khớp đáp án, hệ thống sẽ tự động điền và chấm điểm Đúng ngay lập tức!
+            Bấm vào biểu tượng <strong>Loa lớn</strong> để nghe câu mẫu tiếng Anh, sau đó bạn có thể <strong>gõ phím</strong> vào ô nhập hoặc bấm nút <strong>Microphone <i class="fa-solid fa-microphone"></i></strong> cạnh ô nhập để phát âm trực tiếp. Sau khi kiểm tra hoặc nói xong, hệ thống sẽ <strong>phân tích chi tiết đúng/sai từng từ và chỉ rõ chỗ cần sửa</strong> ngay bên dưới (bạn có thể bật nút tích <em>"Tự qua câu khi đúng"</em> nếu muốn tự động chuyển sang câu mới).
           </p>
         </details>
 
-        <div class="flex items-center justify-between text-xs border-b border-slate-100 dark:border-slate-700 pb-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2 text-xs border-b border-slate-100 dark:border-slate-700 pb-2.5">
           <span class="font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Luyện Nghe, Gõ Phím &amp; Phát Âm Trực Tiếp</span>
-          <span id="dictProgressText" class="font-bold text-slate-400">Câu 1 / ...</span>
+          <div class="flex items-center gap-3">
+            <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 cursor-pointer select-none">
+              <input type="checkbox" id="chkDictAutoNext" class="rounded text-indigo-600 focus:ring-indigo-500" />
+              <span>Tự qua câu khi đúng</span>
+            </label>
+            <span id="dictProgressText" class="font-bold text-slate-400">Câu 1 / ...</span>
+          </div>
         </div>
         <div class="py-2">
           <button id="btnDictSpeak" type="button" class="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 text-white text-2xl shadow-lg hover:scale-105 transition flex items-center justify-center mx-auto">
@@ -735,9 +741,15 @@
           <button id="btnDictSubmit" type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shrink-0">Kiểm tra</button>
         </form>
         <div id="dictFeedback" class="text-xs font-bold min-h-[24px]"></div>
-        <div class="flex justify-center gap-4">
+
+        <!-- Khung phân tích chi tiết Đúng / Sai & Chỗ cần sửa -->
+        <div id="dictAnalysisBox" class="hidden text-left p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 space-y-3 transition-all"></div>
+
+        <div class="flex items-center justify-center gap-4 pt-1">
           <button id="btnDictShowAnswer" type="button" class="text-xs text-amber-600 dark:text-amber-400 font-semibold hover:underline">Xem đáp án</button>
-          <button id="btnDictSkip" type="button" class="text-xs text-slate-400 hover:text-indigo-600 underline">Câu tiếp theo ➔</button>
+          <button id="btnDictSkip" type="button" class="px-4 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-indigo-700 dark:text-indigo-300 text-xs font-extrabold transition flex items-center gap-1.5">
+            <span>Câu tiếp theo</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
         </div>
       </div>
     </section>
@@ -1603,7 +1615,7 @@
       { "id": "u3_10", "unit": "Unit 3", "word": "Please call me [Name] / Just call me", "ipa": "/pliːz kɔːl miː / dʒʌst kɔːl miː/", "pos": "phr.", "meaning": "Cứ gọi tôi là... (tên thân mật)", "relatedTerms": ["You can call me", "My friends call me"], "example": "My full name is Elizabeth, but please call me Liz.", "exampleVi": "Tên đầy đủ của tôi là Elizabeth, nhưng cứ gọi tôi là Liz nhé.", "clinicalNote": "Giúp rút ngắn khoảng cách trang trọng khi đối tác hoặc đồng nghiệp nước ngoài gọi họ của bạn.", "dialoguePrompt": "Good morning, Mr. Nguyen. Thank you for joining our international project call today.", "dialoguePromptVi": "Đối tác gọi bạn một cách trang trọng là 'Mr. Nguyen' và bạn muốn họ gọi tên thân mật của mình cho gần gũi:", "srsLevel": 0, "mistakeCount": 0 },
       { "id": "u3_11", "unit": "Unit 3", "word": "It was great catching up with you", "ipa": "/ɪt wɒz ɡreɪt ˈkætʃ.ɪŋ ʌp wɪð juː/", "pos": "phr.", "meaning": "Rất vui khi được trò chuyện hỏi thăm lại bạn", "relatedTerms": ["Lovely talking to you", "Let's stay in touch"], "example": "I have to head back to the office now, but it was great catching up with you!", "exampleVi": "Giờ mình phải quay lại văn phòng rồi, nhưng thật tuyệt khi được trò chuyện hàn huyên với bạn!", "clinicalNote": "Câu kết thúc cuộc trò chuyện cực kỳ lịch sự và ấm áp trước khi chào tạm biệt.", "dialoguePrompt": "Oh, look at the time—my train leaves in ten minutes, so I should probably get going!", "dialoguePromptVi": "Sau buổi trò chuyện vui vẻ, bạn của bạn nhìn đồng hồ báo sắp tới giờ tàu chạy:", "srsLevel": 0, "mistakeCount": 0 },
       { "id": "u3_12", "unit": "Unit 3", "word": "I've got to get going / I should head out", "ipa": "/aɪv ɡɒt tuː ɡet ˈɡəʊ.ɪŋ / aɪ ʃʊd hed aʊt/", "pos": "phr.", "meaning": "Tôi phải đi bây giờ rồi / Tôi xin phép về trước nhé", "relatedTerms": ["I'd better be off", "I need to run"], "example": "It's getting late and I have an early flight tomorrow, so I've got to get going.", "exampleVi": "Trời cũng muộn rồi mà sáng mai mình có chuyến bay sớm, nên mình phải xin phép về bây giờ đây.", "clinicalNote": "Cách xin phép rời khỏi bữa tiệc hoặc kết thúc cuộc trò chuyện tự nhiên, không bị đột ngột.", "dialoguePrompt": "It's already 10:00 PM at the party and you need to wake up early tomorrow morning. How do you politely signal you're leaving?", "dialoguePromptVi": "Đã 10 giờ tối ở buổi tiệc và bạn cần về nghỉ sớm để sáng mai dậy sớm, bạn nói câu gì để xin phép ra về?", "srsLevel": 0, "mistakeCount": 0 },
-      { "id": "u3_13", "unit": "Unit 3", "word": "Keep in touch / Stay in touch", "ipa": "/kiːp ɪn tʌtʃ / steɪ ɪn tʌtʃ/", "ipa": "/kiːp ɪn tʌtʃ/", "pos": "phr.", "meaning": "Giữ liên lạc nhé!", "relatedTerms": ["Don't be a stranger", "Drop me a line"], "example": "Here is my business card—let's definitely keep in touch!", "exampleVi": "Đây là danh thiếp của tôi—chúng ta nhất định giữ liên lạc nhé!", "clinicalNote": "Dùng khi chia tay bạn bè hoặc đối tác mới quen để hẹn tiếp tục kết nối trong tương lai.", "dialoguePrompt": "Here's my phone number and LinkedIn profile before we head to our gates!", "dialoguePromptVi": "Trước khi tạm biệt ở sân bay, người bạn mới quen đưa thông tin liên hệ cho bạn:", "srsLevel": 0, "mistakeCount": 0 },
+      { "id": "u3_13", "unit": "Unit 3", "word": "Keep in touch / Stay in touch", "ipa": "/kiːp ɪn tʌtʃ / steɪ ɪn tʌtʃ/", "pos": "phr.", "meaning": "Giữ liên lạc nhé!", "relatedTerms": ["Don't be a stranger", "Drop me a line"], "example": "Here is my business card—let's definitely keep in touch!", "exampleVi": "Đây là danh thiếp của tôi—chúng ta nhất định giữ liên lạc nhé!", "clinicalNote": "Dùng khi chia tay bạn bè hoặc đối tác mới quen để hẹn tiếp tục kết nối trong tương lai.", "dialoguePrompt": "Here's my phone number and LinkedIn profile before we head to our gates!", "dialoguePromptVi": "Trước khi tạm biệt ở sân bay, người bạn mới quen đưa thông tin liên hệ cho bạn:", "srsLevel": 0, "mistakeCount": 0 },
       { "id": "u3_14", "unit": "Unit 3", "word": "See you around / Catch you later", "ipa": "/siː juː əˈraʊnd / kætʃ juː ˈleɪ.tər/", "pos": "phr.", "meaning": "Hẹn gặp lại sau nhé!", "relatedTerms": ["See you soon", "Talk to you later"], "example": "Have a wonderful weekend! I'll catch you later on Monday.", "exampleVi": "Chúc cuối tuần vui vẻ nhé! Hẹn gặp lại bạn vào thứ Hai.", "clinicalNote": "Cách chào tạm biệt trẻ trung, năng động thay cho chữ 'Goodbye' vốn nghe hơi xa cách.", "dialoguePrompt": "I'm heading to my next class now—have a great afternoon!", "dialoguePromptVi": "Bạn cùng lớp vẫy tay chào bạn để sang lớp học tiếp theo: 'Mình sang lớp tiếp theo đây—chúc buổi chiều vui vẻ nhé!'", "srsLevel": 0, "mistakeCount": 0 },
       { "id": "u3_15", "unit": "Unit 3", "word": "Say hello to [Someone] for me", "ipa": "/seɪ həˈləʊ tuː fɔːr miː/", "pos": "phr.", "meaning": "Cho tôi gửi lời hỏi thăm tới... nhé", "relatedTerms": ["Give my regards to", "Send my best to"], "example": "Have a safe trip home, and please say hello to your parents for me!", "exampleVi": "Chúc bạn thượng lộ bình an về nhà, và cho mình gửi lời hỏi thăm tới bố mẹ bạn nhé!", "clinicalNote": "Câu nhắn gửi lịch sự, tình cảm tới gia đình hoặc bạn chung khi kết thúc cuộc gặp.", "dialoguePrompt": "I'm flying back to Hanoi tonight to spend the weekend with my family.", "dialoguePromptVi": "Người bạn thân báo tin: 'Tối nay mình bay về Hà Nội để nghỉ cuối tuần cùng bố mẹ và gia đình.'", "srsLevel": 0, "mistakeCount": 0 },
 
@@ -1706,7 +1718,7 @@
     let selectedUnits = new Set();
     let expandedUnitDetails = new Set();
     let onlyMistakesFilter = false;
-    let speechRate = 1.0, autoAudio = true, quizAutoNext = false;
+    let speechRate = 1.0, autoAudio = true, quizAutoNext = false, dictAutoNext = false;
     let currentActiveTab = "dashboard";
 
     let quizPool = [], quizIndex = 0, quizScore = 0, quizDirection = "en-vi";
@@ -1714,7 +1726,7 @@
     let quizOptionCount = 4;
     let distractorStrategy = "smart";
     let fcPool = [], fcIndex = 0;
-    let dictPool = [], dictIndex = 0, isDictTransitioning = false;
+    let dictPool = [], dictIndex = 0, isDictTransitioning = false, dictAutoNextTimer = null;
     let speechRecognition = null, isMicRecording = false;
 
     let sprintTimer = null, sprintSeconds = 60, sprintScore = 0, sprintCombo = 1, currentSprintItem = null;
@@ -1789,6 +1801,7 @@
         speechRate,
         autoAudio,
         quizAutoNext,
+        dictAutoNext,
         quizDirection,
         quizOptionCount,
         distractorStrategy,
@@ -1809,6 +1822,7 @@
         if (s.speechRate) speechRate = s.speechRate;
         if (s.autoAudio !== undefined) autoAudio = s.autoAudio;
         if (s.quizAutoNext !== undefined) quizAutoNext = s.quizAutoNext;
+        if (s.dictAutoNext !== undefined) dictAutoNext = s.dictAutoNext;
         if (s.quizDirection) quizDirection = s.quizDirection;
         if (s.quizOptionCount !== undefined) quizOptionCount = s.quizOptionCount;
         if (s.distractorStrategy) distractorStrategy = s.distractorStrategy;
@@ -1845,6 +1859,8 @@
         document.getElementById("speedRateText").textContent = `${speechRate}x`;
         document.getElementById("autoAudioIcon").className = autoAudio ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
         document.getElementById("chkQuizAutoNext").checked = quizAutoNext;
+        const chkDictEl = document.getElementById("chkDictAutoNext");
+        if (chkDictEl) chkDictEl.checked = dictAutoNext;
         syncQuizDirectionCheckboxes(quizDirection);
         const optCountEl = document.getElementById("quizOptionCountSelect");
         if (optCountEl) optCountEl.value = String(quizOptionCount);
@@ -2828,6 +2844,18 @@
         .trim();
     }
 
+    function getCleanDisplayVariants(rawWord) {
+      if (!rawWord) return [""];
+      const list = [];
+      rawWord.split("/").forEach(part => {
+        const cleanNoOpt = part.replace(/\[[^\]]*\]/g, "").replace(/\([^)]*\)/g, "").replace(/\s+/g, " ").trim();
+        if (cleanNoOpt && !list.includes(cleanNoOpt)) list.push(cleanNoOpt);
+        const cleanWithOpt = part.replace(/\[[^\]]*\]/g, "").replace(/[()]/g, "").replace(/\s+/g, " ").trim();
+        if (cleanWithOpt && !list.includes(cleanWithOpt)) list.push(cleanWithOpt);
+      });
+      return list.length > 0 ? list : [rawWord.trim()];
+    }
+
     function getAcceptedDictationTargets(rawWord) {
       const targets = new Set();
       if (!rawWord) return [""];
@@ -2851,29 +2879,275 @@
       return Array.from(targets).filter(Boolean);
     }
 
+    function computeEditDistance(a, b) {
+      const s1 = String(a || "");
+      const s2 = String(b || "");
+      const m = s1.length, n = s2.length;
+      const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+      for (let i = 0; i <= m; i++) dp[i][0] = i;
+      for (let j = 0; j <= n; j++) dp[0][j] = j;
+      for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+          const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
+          dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+        }
+      }
+      return dp[m][n];
+    }
+
+    function computeStringSimilarity(a, b) {
+      const s1 = normalizeDictString(a);
+      const s2 = normalizeDictString(b);
+      if (!s1 && !s2) return 1;
+      if (!s1 || !s2) return 0;
+      if (s1 === s2) return 1;
+      const dist = computeEditDistance(s1, s2);
+      return Math.max(0, 1 - dist / Math.max(s1.length, s2.length));
+    }
+
     function checkDictationMatch(userRawInput, item) {
       if (!item || !userRawInput) return false;
       const normUser = normalizeDictString(userRawInput);
       if (!normUser) return false;
       const accepted = getAcceptedDictationTargets(item.word);
       if (accepted.includes(normUser)) return true;
-      return accepted.some(target => target.length >= 4 && (normUser.includes(target) || target.includes(normUser)));
+      return accepted.some(target => target.length >= 4 && normUser === target);
     }
 
-    function handleDictationCorrect(item, sourceLabel = "Chính xác") {
-      if (isDictTransitioning) return;
-      isDictTransitioning = true;
-      playTone(780, "sine");
-      triggerHaptic("success");
-      recordStudyOutcome(item, true);
+    function highlightWordCharDiff(userWord, targetWord) {
+      const u = String(userWord || "");
+      const t = String(targetWord || "");
+      let out = "";
+      for (let i = 0; i < t.length; i++) {
+        const ch = t[i];
+        if (u[i] && u[i].toLowerCase() === ch.toLowerCase()) {
+          out += `<span>${escapeHtml(ch)}</span>`;
+        } else {
+          out += `<span class="underline decoration-2 decoration-rose-500 text-rose-600 dark:text-rose-300 font-black">${escapeHtml(ch)}</span>`;
+        }
+      }
+      return out;
+    }
+
+    function buildDictationDiffAnalysis(userRawInput, item, mode = "type") {
+      const variants = getCleanDisplayVariants(item.word);
+      let bestVariant = variants[0];
+      let bestSim = -1;
+      variants.forEach(v => {
+        const sim = computeStringSimilarity(userRawInput, v);
+        if (sim > bestSim) {
+          bestSim = sim;
+          bestVariant = v;
+        }
+      });
+
+      const isExact = checkDictationMatch(userRawInput, item);
+      const accuracyPct = isExact ? 100 : Math.round(Math.max(0, bestSim * 100));
+
+      const targetTokens = bestVariant.split(/\s+/).filter(Boolean);
+      const userTokens = String(userRawInput || "").trim().split(/\s+/).filter(Boolean);
+
+      const cleanWord = w => String(w || "").toLowerCase().replace(/[?.!,;:'"“”‘’\-–—]/g, "");
+
+      // Quy hoạch động căn chỉnh từng từ giữa câu người dùng và câu mẫu chuẩn
+      const m = targetTokens.length;
+      const n = userTokens.length;
+      const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+      for (let i = 0; i <= m; i++) dp[i][0] = i;
+      for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+      for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+          const tw = cleanWord(targetTokens[i - 1]);
+          const uw = cleanWord(userTokens[j - 1]);
+          const cost = tw === uw ? 0 : (computeStringSimilarity(tw, uw) >= 0.45 ? 0.6 : 1);
+          dp[i][j] = Math.min(
+            dp[i - 1][j] + 1,
+            dp[i][j - 1] + 1,
+            dp[i - 1][j - 1] + cost
+          );
+        }
+      }
+
+      const ops = [];
+      let i = m, j = n;
+      while (i > 0 || j > 0) {
+        if (i > 0 && j > 0) {
+          const tw = cleanWord(targetTokens[i - 1]);
+          const uw = cleanWord(userTokens[j - 1]);
+          const cost = tw === uw ? 0 : (computeStringSimilarity(tw, uw) >= 0.45 ? 0.6 : 1);
+          if (Math.abs(dp[i][j] - (dp[i - 1][j - 1] + cost)) < 1e-6) {
+            if (tw === uw) {
+              ops.unshift({ type: "ok", target: targetTokens[i - 1], user: userTokens[j - 1] });
+            } else {
+              ops.unshift({ type: "replace", target: targetTokens[i - 1], user: userTokens[j - 1] });
+            }
+            i--; j--;
+            continue;
+          }
+        }
+        if (i > 0 && Math.abs(dp[i][j] - (dp[i - 1][j] + 1)) < 1e-6) {
+          ops.unshift({ type: "missing", target: targetTokens[i - 1] });
+          i--;
+        } else {
+          ops.unshift({ type: "extra", user: userTokens[j - 1] });
+          j--;
+        }
+      }
+
+      const actionLabel = mode === "speak" ? "phát âm" : "gõ phím";
+      const fixTips = [];
+
+      ops.forEach((op, idx) => {
+        if (op.type === "replace") {
+          fixTips.push(
+            `<li>Tại vị trí từ thứ <strong>${idx + 1}</strong>: Bạn ${actionLabel} là <span class="px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-mono line-through">${escapeHtml(op.user)}</span> ➔ Cần sửa thành <strong class="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-mono">${highlightWordCharDiff(cleanWord(op.user), op.target)}</strong>.</li>`
+          );
+        } else if (op.type === "missing") {
+          fixTips.push(
+            `<li>Còn <strong>thiếu từ</strong>: Bạn chưa ${actionLabel} từ <strong class="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-mono">${escapeHtml(op.target)}</strong>.</li>`
+          );
+        } else if (op.type === "extra") {
+          fixTips.push(
+            `<li><strong>Thừa từ</strong>: Bạn đã ${actionLabel} dư từ <span class="px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-mono line-through">${escapeHtml(op.user)}</span> (cần lược bỏ).</li>`
+          );
+        }
+      });
+
+      const tokensHtml = ops.map(op => {
+        if (op.type === "ok") {
+          return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 text-xs font-extrabold"><i class="fa-solid fa-check text-[10px]"></i>${escapeHtml(op.target)}</span>`;
+        }
+        if (op.type === "replace") {
+          return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700 text-xs font-bold"><span class="line-through opacity-75">${escapeHtml(op.user)}</span><i class="fa-solid fa-arrow-right text-[9px] text-slate-400"></i><strong class="text-emerald-700 dark:text-emerald-300">${highlightWordCharDiff(cleanWord(op.user), op.target)}</strong></span>`;
+        }
+        if (op.type === "missing") {
+          return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-dashed border-amber-400 dark:border-amber-700 text-xs font-bold"><i class="fa-solid fa-plus text-[9px]"></i>Thiếu: <strong>${escapeHtml(op.target)}</strong></span>`;
+        }
+        return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-200/80 dark:bg-slate-800 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 text-xs font-semibold line-through">Dư: ${escapeHtml(op.user)}</span>`;
+      }).join(" ");
+
+      return {
+        isExact,
+        accuracyPct,
+        bestVariant,
+        tokensHtml,
+        fixTips,
+        mode
+      };
+    }
+
+    function evaluateDictationAttempt(userRawInput, mode = "type") {
+      if (dictAutoNextTimer) {
+        clearTimeout(dictAutoNextTimer);
+        dictAutoNextTimer = null;
+      }
+      if (!dictPool || dictPool.length === 0) dictPool = getFilteredVocab();
+      const item = dictPool[dictIndex];
+      if (!item) return;
+
+      const cleanVal = String(userRawInput || "").trim();
       const fb = document.getElementById("dictFeedback");
-      fb.className = "text-xs font-extrabold text-emerald-600 dark:text-emerald-400";
-      fb.textContent = `✅ ${sourceLabel}! ${item.word} (${item.ipa})`;
-      setTimeout(() => {
-        dictIndex++;
-        saveStudyProgress();
-        renderDictation();
-      }, 1000);
+      const analysisBox = document.getElementById("dictAnalysisBox");
+
+      if (!cleanVal) {
+        fb.className = "text-xs font-extrabold text-amber-600 dark:text-amber-400";
+        fb.textContent = "⚠️ Bạn hãy gõ câu tiếng Anh hoặc bấm nút Microphone để nói trước khi kiểm tra nhé!";
+        return;
+      }
+
+      const analysis = buildDictationDiffAnalysis(cleanVal, item, mode);
+
+      if (analysis.isExact) {
+        playTone(780, "sine");
+        triggerHaptic("success");
+        recordStudyOutcome(item, true);
+        fb.className = "text-xs font-extrabold text-emerald-600 dark:text-emerald-400";
+        fb.textContent = `✅ ${mode === "speak" ? "Phát âm chuẩn xác 100%" : "Chép chính tả chính xác 100%"}! (${analysis.accuracyPct}%)`;
+      } else {
+        playTone(240, "sawtooth");
+        triggerHaptic("error");
+        recordStudyOutcome(item, false);
+        fb.className = "text-xs font-extrabold text-rose-600 dark:text-rose-400";
+        fb.textContent = `🔍 Độ khớp ${mode === "speak" ? "phát âm" : "chính tả"}: ${analysis.accuracyPct}% — Xem chi tiết vị trí đúng/sai và chỗ cần sửa bên dưới:`;
+      }
+
+      if (analysisBox) {
+        analysisBox.classList.remove("hidden");
+        const badgeColor = analysis.isExact
+          ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700"
+          : (analysis.accuracyPct >= 70
+            ? "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700"
+            : "bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700");
+
+        analysisBox.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border ${badgeColor}">
+                ${analysis.isExact ? "🎯 Đạt 100%" : `Độ chính xác: ${analysis.accuracyPct}%`}
+              </span>
+              <span class="text-xs font-bold text-slate-600 dark:text-slate-300">
+                ${mode === "speak" ? '<i class="fa-solid fa-microphone-lines text-violet-600 mr-1"></i>Phân tích giọng đọc của bạn' : '<i class="fa-solid fa-keyboard text-indigo-600 mr-1"></i>Phân tích câu bạn vừa gõ'}
+              </span>
+            </div>
+            <button type="button" id="btnDictReplayStandard" class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-300 text-[11px] font-bold transition flex items-center gap-1">
+              <i class="fa-solid fa-volume-high"></i> Nghe lại câu chuẩn
+            </button>
+          </div>
+
+          <div class="space-y-1.5">
+            <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">So sánh từng từ (Đúng / Sai ở đâu):</p>
+            <div class="flex flex-wrap items-center gap-1.5 p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700">
+              ${analysis.tokensHtml}
+            </div>
+          </div>
+
+          <div class="space-y-1.5 text-xs">
+            <p class="text-[11px] font-extrabold uppercase tracking-wider ${analysis.isExact ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+              ${analysis.isExact ? '✨ Nhận xét:' : '🛠️ Cần sửa ở đâu:'}
+            </p>
+            ${
+              analysis.isExact
+                ? `<p class="text-emerald-700 dark:text-emerald-300 font-semibold bg-emerald-50/70 dark:bg-emerald-950/30 p-2.5 rounded-xl border border-emerald-200/60 dark:border-emerald-800/50">Tuyệt vời! Bạn đã ${mode === "speak" ? "phát âm" : "gõ"} chuẩn xác từng từ của mẫu câu <strong>"${escapeHtml(analysis.bestVariant)}"</strong>.</p>`
+                : `<ul class="list-disc pl-5 space-y-1.5 text-slate-700 dark:text-slate-200 bg-rose-50/50 dark:bg-rose-950/20 p-3 rounded-xl border border-rose-200/60 dark:border-rose-800/40">${analysis.fixTips.join("")}</ul>`
+            }
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-indigo-50/60 dark:bg-slate-800/90 border border-indigo-200/60 dark:border-slate-700 text-xs space-y-1">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p><strong class="text-slate-800 dark:text-white">Đáp án chuẩn:</strong> <span class="font-extrabold text-indigo-700 dark:text-indigo-300">${escapeHtml(item.word)}</span> <span class="font-mono text-indigo-600 dark:text-indigo-400">${escapeHtml(item.ipa)}</span></p>
+              <button type="button" id="btnDictNextWordInline" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition flex items-center gap-1.5">
+                <span>Sang từ mới</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-300"><strong>Ví dụ:</strong> ${escapeHtml(item.example)} <span class="italic text-slate-400">(${escapeHtml(item.exampleVi)})</span></p>
+          </div>
+        `;
+
+        const replayBtn = document.getElementById("btnDictReplayStandard");
+        if (replayBtn) replayBtn.onclick = () => speakText(item.word);
+        const nextInlineBtn = document.getElementById("btnDictNextWordInline");
+        if (nextInlineBtn) {
+          nextInlineBtn.onclick = () => {
+            if (dictAutoNextTimer) { clearTimeout(dictAutoNextTimer); dictAutoNextTimer = null; }
+            dictIndex++;
+            saveStudyProgress();
+            renderDictation();
+          };
+        }
+      }
+
+      // Chỉ tự động nhảy sang từ mới nếu người dùng tích chọn "Tự qua câu khi đúng" VÀ làm đúng 100%
+      if (analysis.isExact && dictAutoNext) {
+        isDictTransitioning = true;
+        dictAutoNextTimer = setTimeout(() => {
+          dictIndex++;
+          saveStudyProgress();
+          renderDictation();
+        }, 1200);
+      } else {
+        isDictTransitioning = false;
+      }
     }
 
     function setMicButtonUI(recording) {
@@ -2915,6 +3189,8 @@
 
         const fb = document.getElementById("dictFeedback");
         const inputEl = document.getElementById("dictInput");
+        let evaluatedInSession = false;
+        let latestTranscript = "";
 
         speechRecognition.onstart = () => {
           setMicButtonUI(true);
@@ -2930,17 +3206,21 @@
             if (event.results[i].isFinal) isFinal = true;
           }
           const cleanTranscript = transcript.trim();
-          if (cleanTranscript && inputEl) {
-            inputEl.value = cleanTranscript;
+          if (cleanTranscript) {
+            latestTranscript = cleanTranscript;
+            if (inputEl) inputEl.value = cleanTranscript;
           }
 
           if (checkDictationMatch(cleanTranscript, item)) {
+            evaluatedInSession = true;
             try { speechRecognition.stop(); } catch (e) {}
             setMicButtonUI(false);
-            handleDictationCorrect(item, "Phát âm chuẩn xác");
+            evaluateDictationAttempt(cleanTranscript, "speak");
           } else if (isFinal && cleanTranscript) {
-            fb.className = "text-xs font-bold text-amber-600 dark:text-amber-400";
-            fb.textContent = `🎙️ Nhận diện: "${cleanTranscript}" — Chưa khớp hoàn toàn, bạn có thể bấm Kiểm tra hoặc bấm Mic nói lại!`;
+            evaluatedInSession = true;
+            try { speechRecognition.stop(); } catch (e) {}
+            setMicButtonUI(false);
+            evaluateDictationAttempt(cleanTranscript, "speak");
           }
         };
 
@@ -2954,6 +3234,10 @@
 
         speechRecognition.onend = () => {
           setMicButtonUI(false);
+          if (!evaluatedInSession && latestTranscript) {
+            evaluatedInSession = true;
+            evaluateDictationAttempt(latestTranscript, "speak");
+          }
         };
 
         speechRecognition.start();
@@ -2964,6 +3248,10 @@
     }
 
     function renderDictation() {
+      if (dictAutoNextTimer) {
+        clearTimeout(dictAutoNextTimer);
+        dictAutoNextTimer = null;
+      }
       if (!dictPool || dictPool.length === 0) dictPool = getFilteredVocab();
       const list = dictPool;
       if (!list.length) return;
@@ -2990,6 +3278,11 @@
       document.getElementById("dictWordMask").textContent = masked;
       document.getElementById("dictInput").value = "";
       document.getElementById("dictFeedback").textContent = "";
+      const analysisBox = document.getElementById("dictAnalysisBox");
+      if (analysisBox) {
+        analysisBox.classList.add("hidden");
+        analysisBox.innerHTML = "";
+      }
       saveStudyProgress();
     }
 
@@ -4024,6 +4317,14 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
       bindSrs("btnSrsHard", 1); bindSrs("btnSrsGood", 2); bindSrs("btnSrsEasy", 3);
 
       // Chế độ 3: Chép chính tả & Luyện nói Microphone
+      const chkDictAutoNextEl = document.getElementById("chkDictAutoNext");
+      if (chkDictAutoNextEl) {
+        chkDictAutoNextEl.onchange = e => {
+          dictAutoNext = e.target.checked;
+          saveStudyProgress();
+          showToast(dictAutoNext ? "Đã bật tự động nhảy sang từ mới khi đúng 100%" : "Đã tắt tự động qua câu (Giữ lại màn hình phân tích lỗi)", "info");
+        };
+      }
       document.getElementById("btnDictSpeak").onclick = () => {
         if (!dictPool || dictPool.length === 0) dictPool = getFilteredVocab();
         if (dictPool[dictIndex]) speakText(dictPool[dictIndex].word);
@@ -4035,26 +4336,20 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         if (!item) return;
         const fb = document.getElementById("dictFeedback");
         fb.className = "text-xs font-extrabold text-amber-600 dark:text-amber-400";
-        fb.textContent = `💡 Đáp án: ${item.word} (${item.ipa})`;
+        fb.textContent = `💡 Đáp án chuẩn: ${item.word} (${item.ipa})`;
         speakText(item.word);
       };
-      document.getElementById("btnDictSkip").onclick = () => { dictIndex++; saveStudyProgress(); renderDictation(); };
+      document.getElementById("btnDictSkip").onclick = () => {
+        if (dictAutoNextTimer) { clearTimeout(dictAutoNextTimer); dictAutoNextTimer = null; }
+        dictIndex++;
+        saveStudyProgress();
+        renderDictation();
+      };
       document.getElementById("dictForm").onsubmit = e => {
         e.preventDefault();
         if (isDictTransitioning) return;
-        if (!dictPool || dictPool.length === 0) dictPool = getFilteredVocab();
-        const item = dictPool[dictIndex];
-        if (!item) return;
         const val = document.getElementById("dictInput").value.trim();
-        const fb = document.getElementById("dictFeedback");
-
-        if (checkDictationMatch(val, item)) {
-          handleDictationCorrect(item, "Chính xác");
-        } else {
-          playTone(240, "sawtooth"); triggerHaptic("error"); recordStudyOutcome(item, false);
-          fb.className = "text-xs font-extrabold text-rose-600 dark:text-rose-400";
-          fb.textContent = `❌ Chưa khớp! Hãy nghe lại, bấm Mic đọc lại hoặc bấm "Xem đáp án"`;
-        }
+        evaluateDictationAttempt(val, "type");
       };
 
       // Chế độ 4: Đua tốc độ 60s (Sprint)
@@ -4635,12 +4930,40 @@ Hãy biên soạn 10 câu hỏi trắc nghiệm kiểm tra phản xạ hội tho
         loadingBox.classList.remove("hidden");
         document.getElementById("docLoadingStatusText").textContent = "Đang trích xuất các mẫu câu giao tiếp cốt lõi từ tài liệu...";
 
+        const apiKey = localStorage.getItem(STORAGE_KEY_AI_KEY);
         let extractedTerms = [];
-        const matched = vocabList.filter(v => {
-          const variants = extractAllVariants(v.word);
-          return variants.some(cleanW => cleanW.length >= 3 && rawContent.toLowerCase().includes(cleanW));
-        });
-        extractedTerms = matched.length > 0 ? matched.slice(0, 12) : vocabList.slice(0, 8);
+
+        if (apiKey) {
+          const prompt = `Đọc tài liệu sau và trích xuất 8-12 mẫu câu hoặc cụm từ tiếng Anh giao tiếp hay nhất:
+"${rawContent.slice(0, 3500)}"
+Trả về DUY NHẤT một mảng JSON hợp lệ:
+[{"word": "Mẫu câu tiếng Anh", "ipa": "/IPA/", "pos": "phr.", "meaning": "Nghĩa tiếng Việt", "clinicalNote": "Ngữ cảnh & sắc thái", "example": "Câu ví dụ tiếng Anh", "exampleVi": "Dịch ví dụ", "dialoguePrompt": "Câu A hỏi bằng tiếng Anh", "dialoguePromptVi": "Tình huống A hỏi"}]`;
+          const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest"];
+          for (const m of models) {
+            try {
+              const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+              });
+              const data = await res.json();
+              const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (raw) {
+                const clean = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
+                const parsed = JSON.parse(clean);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  extractedTerms = parsed.filter(item => item && item.word);
+                  if (extractedTerms.length > 0) break;
+                }
+              }
+            } catch (e) {}
+          }
+        }
+
+        if (!extractedTerms.length) {
+          const matched = vocabList.filter(v => extractAllVariants(v.word).some(cw => cw.length >= 3 && rawContent.toLowerCase().includes(cw)));
+          extractedTerms = matched.length > 0 ? matched.slice(0, 12) : vocabList.slice(0, 8);
+        }
 
         loadingBox.classList.add("hidden");
         docExtractedVocabList = extractedTerms;
@@ -4668,7 +4991,36 @@ Hãy biên soạn 10 câu hỏi trắc nghiệm kiểm tra phản xạ hội tho
       };
 
       document.getElementById("btnDocImportAllExtracted").onclick = () => {
-        showToast("Đã đồng bộ danh sách câu vào kho học tập!", "success");
+        if (!docExtractedVocabList || !docExtractedVocabList.length) return;
+        const unitName = "Tài Liệu Mới";
+        let added = 0;
+        const existingWords = new Set(vocabList.map(v => (v.word || "").toLowerCase().trim()));
+        docExtractedVocabList.forEach(item => {
+          const cleanKey = (item.word || "").toLowerCase().trim();
+          if (cleanKey && !existingWords.has(cleanKey)) {
+            existingWords.add(cleanKey);
+            vocabList.push({
+              id: "doc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+              unit: unitName,
+              word: item.word.trim(),
+              ipa: item.ipa || `/${cleanKey}/`,
+              pos: item.pos || "phr.",
+              meaning: item.meaning || item.word.trim(),
+              relatedTerms: ["Document Extraction"],
+              example: item.example || `In daily conversation, people often say "${item.word.trim()}".`,
+              exampleVi: item.exampleVi || item.meaning || "",
+              clinicalNote: item.clinicalNote || "Trích xuất từ tài liệu giao tiếp.",
+              dialoguePrompt: item.dialoguePrompt || `How would you respond naturally in a conversation about "${item.meaning}"?`,
+              dialoguePromptVi: item.dialoguePromptVi || item.meaning || "",
+              srsLevel: 0,
+              mistakeCount: 0
+            });
+            added++;
+          }
+        });
+        selectedUnits.add(unitName);
+        saveDatabase(); syncAllViews();
+        showToast(added > 0 ? `Đã nạp ${added} câu mới vào "${unitName}"!` : "Các câu này đã có sẵn trong kho học tập!", "success");
       };
 
       window.addEventListener("beforeunload", () => {
