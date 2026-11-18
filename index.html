@@ -528,8 +528,8 @@
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button id="btnSelectAllUnits" type="button" class="px-2.5 py-1 rounded-lg bg-indigo-100/80 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold hover:bg-indigo-200 transition">Chọn tất cả</button>
-            <button id="btnSelectSupportUnit" type="button" class="px-2.5 py-1 rounded-lg bg-violet-100/80 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 font-bold hover:bg-violet-200 transition">Chỉ chọn Phản xạ (Unit 5-6)</button>
-            <button id="btnDeselectAllUnits" type="button" class="px-2.5 py-1 rounded-lg bg-slate-200/70 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-300 transition">Chỉ chọn Unit 1</button>
+            <button id="btnSelectSupportUnit" type="button" class="px-2.5 py-1 rounded-lg bg-violet-100/80 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 font-bold hover:bg-violet-200 transition">Chỉ chọn 1E-1F (Ngữ pháp &amp; Phản xạ)</button>
+            <button id="btnDeselectAllUnits" type="button" class="px-2.5 py-1 rounded-lg bg-slate-200/70 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-300 transition">Chỉ chọn Unit 1A</button>
           </div>
         </div>
         <div id="unitAccordionContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
@@ -1519,7 +1519,8 @@
     const STORAGE_KEY_STREAK = "comm_eng_pro_streak";
     const STORAGE_KEY_CBT_HISTORY = "comm_eng_pro_cbt_history";
     const STORAGE_KEY_SYNCED_UNITS_VER = "comm_eng_pro_synced_units_ver";
-    const STORAGE_KEY_SEED_SIMPLE_PRESENT_V1 = "comm_eng_pro_seed_sp_v2";
+    const STORAGE_KEY_EMPTY_PURGE_V2 = "comm_eng_pro_purged_empty_v2";
+    const STORAGE_KEY_SEED_HA1_U1_V1 = "comm_eng_pro_seed_ha1_u1_v1";
 
     const BASE_VERSION = { major: 8, minor: 0, patch: 0 };
 
@@ -1547,13 +1548,6 @@
       },
       {
         type: "important",
-        date: "10/11/2026 • 10:30",
-        icon: "fa-layer-group",
-        title: "Cập Nhật Trọn Bộ 8 Unit Giao Tiếp Từ Siêu Cơ Bản Đến Phản Xạ Cảm Xúc",
-        desc: "Bao phủ đầy đủ 8 học phần: Siêu cơ bản, Cơ bản, Chào hỏi, Hỏi thăm, Rủ rê, Đồng ý, Từ chối khéo léo và Phản xạ cảm xúc kèm Ngữ cảnh & Sắc thái giao tiếp chi tiết."
-      },
-      {
-        type: "important",
         date: "18/11/2026 • 09:00",
         icon: "fa-clock-rotate-left",
         title: "Nâng Cấp SRS Giãn Cách Thời Gian (Ebbinghaus Time-Decay) & Lộ Trình 4 Chặng",
@@ -1561,10 +1555,10 @@
       },
       {
         type: "important",
-        date: "18/11/2026 • 11:30",
-        icon: "fa-book-open-reader",
-        title: "Nạp Trọn Bộ Học Phần Thì Hiện Tại Đơn (Simple Present — 6 Unit / 60 Mục)",
-        desc: "Tích hợp sẵn 6 Unit (60 mẫu câu & từ vựng chuẩn Thì Hiện Tại Đơn): Trạng từ tần suất, Sinh hoạt hàng ngày, Công việc & Lịch trình, Động từ trạng thái, Trợ động từ & Phản xạ hội thoại A-B."
+        date: "19/11/2026 • 08:00",
+        icon: "fa-graduation-cap",
+        title: "Tích Hợp Trọn Bộ Unit 1: Me and You (HA 1 + Speakout A2 — 6 Chuyên Đề / 80 Mục)",
+        desc: "Nạp sẵn 80 mục từ vựng, cụm động từ, bẫy ngữ pháp Hiện tại đơn & mẫu câu phản xạ Nói - Viết chuẩn đề cương Tiếng Anh Học Phần 1 (Unit 1A ➔ Unit 1F)."
       }
     ];
 
@@ -1605,1355 +1599,1880 @@
     const VERSION_STATE = computeVersionState();
     const APP_BUILD_VERSION = VERSION_STATE.lastImportantVersion;
 
-    const UNIT_METADATA = {
-      "Unit 1: Trạng từ & Cụm tần suất": {
-        "shortTitle": "Trạng từ & Cụm chỉ tần suất",
-        "corePoints": "Vị trí đứng trước động từ thường, sau động từ 'to be' (always, usually, often, sometimes, rarely, never) và cuối câu (every day, once a week, on weekends)."
-      },
-      "Unit 2: Sinh hoạt & Thói quen hàng ngày": {
-        "shortTitle": "Động từ sinh hoạt hàng ngày",
-        "corePoints": "Diễn tả thói quen lặp đi lặp lại mỗi ngày với ngôi I/You/We/They giữ nguyên và He/She/It thêm -s/-es."
-      },
-      "Unit 3: Công việc, Lịch trình & Sự thật": {
-        "shortTitle": "Công việc, Lịch trình & Sự thật",
-        "corePoints": "Dùng Thì hiện tại đơn cho nghề nghiệp, lịch trình cố định (giờ mở/đóng cửa, tàu xe) và sự thật hiển nhiên."
-      },
-      "Unit 4: Động từ Trạng thái (Stative Verbs)": {
-        "shortTitle": "Động từ Trạng thái",
-        "corePoints": "Nhóm động từ chỉ nhận thức, cảm xúc, sở hữu (know, believe, prefer, belong to, seem) luôn chia ở Hiện tại đơn, không dùng dạng -ing."
-      },
-      "Unit 5: Trợ động từ & Dấu hiệu câu hỏi": {
-        "shortTitle": "Trợ động từ & Dấu hiệu ngữ pháp",
-        "corePoints": "Cách dùng do/does/don't/doesn't trong câu phủ định, câu hỏi Yes/No và câu hỏi Wh- (How often, What time) ở Hiện tại đơn."
-      },
-      "Unit 6: Phản xạ Hội thoại Hiện tại đơn": {
-        "shortTitle": "Mẫu câu phản xạ giao tiếp A-B",
-        "corePoints": "Các mẫu câu hỏi thăm công việc, thói quen, quan điểm và cách đáp tự nhiên trong hội thoại đời thường."
-      }
-    };
+// ======================================================================
+// EVERYDAY ENGLISH PRO — TRỌN BỘ UNIT 1: ME AND YOU (HA 1 + SPEAKOUT A2)
+// 80 mục chuẩn hóa 100% tương thích Context Masking, Dictation & Mic, SRS
+// ======================================================================
 
-    const SEED_DATA = [
-      {
-        "id": "sp_u1_01",
-        "unit": "Unit 1: Trạng từ & Cụm tần suất",
-        "word": "always",
-        "ipa": "/ˈɔːl.weɪz/",
-        "pos": "adv.",
-        "meaning": "luôn luôn (100%)",
-        "relatedTerms": [
-          "all the time",
-          "constantly"
-        ],
-        "example": "I always drink a glass of warm water in the morning.",
-        "exampleVi": "Tôi luôn uống một cốc nước ấm vào buổi sáng.",
-        "clinicalNote": "Đứng trước động từ thường (always drink) và sau động từ to be (is always).",
-        "dialoguePrompt": "Do you drink coffee right after waking up?",
-        "dialoguePromptVi": "Bạn có uống cà phê ngay sau khi thức dậy không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u1_02",
-        "unit": "Unit 1: Trạng từ & Cụm tần suất",
-        "word": "usually",
-        "ipa": "/ˈjuː.ʒu.ə.li/",
-        "pos": "adv.",
-        "meaning": "thường xuyên (80-90%)",
-        "relatedTerms": [
-          "normally",
-          "typically"
-        ],
-        "example": "She usually leaves home at 7:30 a.m.",
-        "exampleVi": "Cô ấy thường rời nhà lúc 7 giờ 30 sáng.",
-        "clinicalNote": "Dùng cho thói quen ổn định nhất. Có thể đứng đầu câu để nhấn mạnh.",
-        "dialoguePrompt": "What time do you normally get to the office?",
-        "dialoguePromptVi": "Mấy giờ bạn thường đến văn phòng?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u1_03",
-        "unit": "Unit 1: Trạng từ & Cụm tần suất",
-        "word": "often",
-        "ipa": "/ˈɒf.ən/",
-        "pos": "adv.",
-        "meaning": "hay, thường hay (60-70%)",
-        "relatedTerms": [
-          "frequently",
-          "regularly"
-        ],
-        "example": "We often eat lunch together near the office.",
-        "exampleVi": "Chúng tôi hay ăn trưa cùng nhau ở gần văn phòng.",
-        "clinicalNote": "Phổ biến trong cả câu khẳng định, phủ định (don't often) và câu hỏi.",
-        "dialoguePrompt": "Do you cook at home on weekdays?",
-        "dialoguePromptVi": "Bạn có hay nấu ăn ở nhà vào các ngày trong tuần không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u1_04",
-        "unit": "Unit 1: Trạng từ & Cụm tần suất",
-        "word": "sometimes",
-        "ipa": "/ˈsʌm.taɪmz/",
-        "pos": "adv.",
-        "meaning": "thỉnh thoảng (40-50%)",
-        "relatedTerms": [
-          "occasionally",
-          "now and then"
-        ],
-        "example": "He sometimes works from home on Fridays.",
-        "exampleVi": "Anh ấy thỉnh thoảng làm việc tại nhà vào thứ Sáu.",
-        "clinicalNote": "Linh hoạt nhất: có thể đứng đầu câu, giữa câu hoặc cuối câu.",
-        "dialoguePrompt": "Do you always go to the gym after work?",
-        "dialoguePromptVi": "Bạn có luôn đi tập gym sau giờ làm không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u1_05",
-        "unit": "Unit 1: Trạng từ & Cụm tần suất",
-        "word": "rarely",
-        "ipa": "/ˈreə.li/",
-        "pos": "adv.",
-        "meaning": "hiếm khi (10-20%)",
-        "relatedTerms": [
-          "seldom",
-          "hardly ever"
-        ],
-        "example": "They rarely watch television during the week.",
-        "exampleVi": "Họ hiếm khi xem tivi trong tuần.",
-        "clinicalNote": "Bản thân từ mang nghĩa phủ định, không dùng kèm don't/doesn't.",
-        "dialoguePrompt": "How often do you eat fast food?",
-        "dialoguePromptVi": "Bạn có hay ăn đồ ăn nhanh không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u1_06",
-        "unit": "Unit 1: Trạng từ & Cụm tần suất",
-        "word": "never",
-        "ipa": "/ˈnev.ər/",
-        "pos": "adv.",
-        "meaning": "không bao giờ (0%)",
-        "relatedTerms": [
-          "not ever",
-          "at no time"
-        ],
-        "example": "I never skip breakfast before a busy day.",
-        "exampleVi": "Tôi không bao giờ bỏ bữa sáng trước một ngày bận rộn.",
-        "clinicalNote": "Dùng với động từ khẳng định (I never go, không nói I don't never go).",
-        "dialoguePrompt": "Do you ever drink soda late at night?",
-        "dialoguePromptVi": "Bạn có bao giờ uống nước ngọt khuya không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u1_07",
-        "unit": "Unit 1: Trạng từ & Cụm tần suất",
-        "word": "every day",
-        "ipa": "/ˈev.ri deɪ/",
-        "pos": "phr.",
-        "meaning": "mỗi ngày, hằng ngày",
-        "relatedTerms": [
-          "daily",
-          "each day"
-        ],
-        "example": "My father reads the news every day after breakfast.",
-        "exampleVi": "Bố tôi đọc tin tức mỗi ngày sau bữa sáng.",
-        "clinicalNote": "Cụm trạng ngữ chỉ tần suất, thường đặt ở cuối câu (hoặc đầu câu). Phân biệt với tính từ 'everyday' viết liền.",
-        "dialoguePrompt": "How often do you practice English?",
-        "dialoguePromptVi": "Bạn luyện tập tiếng Anh bao lâu một lần?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u1_08",
-        "unit": "Unit 1: Trạng từ & Cụm tần suất",
-        "word": "once a week",
-        "ipa": "/wʌns ə wiːk/",
-        "pos": "phr.",
-        "meaning": "một lần một tuần",
-        "relatedTerms": [
-          "weekly",
-          "twice a week"
-        ],
-        "example": "We hold a team sync once a week on Monday.",
-        "exampleVi": "Chúng tôi họp đồng bộ nhóm một tuần một lần vào thứ Hai.",
-        "clinicalNote": "Cấu trúc đếm số lần: once (1 lần), twice (2 lần), three times (3 lần) + a week/month/year.",
-        "dialoguePrompt": "How often does your team have a review meeting?",
-        "dialoguePromptVi": "Nhóm bạn họp rà soát công việc bao lâu một lần?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u1_09",
-        "unit": "Unit 1: Trạng từ & Cụm tần suất",
-        "word": "on weekends",
-        "ipa": "/ɒn ˈwiːk.endz/",
-        "pos": "phr.",
-        "meaning": "vào các ngày cuối tuần",
-        "relatedTerms": [
-          "at weekends",
-          "every weekend"
-        ],
-        "example": "I visit my parents on weekends whenever I can.",
-        "exampleVi": "Tôi về thăm bố mẹ vào các ngày cuối tuần bất cứ khi nào có thể.",
-        "clinicalNote": "Thêm -s vào 'weekends' để diễn tả thói quen lặp lại mọi cuối tuần (Anh-Mỹ dùng 'on', Anh-Anh hay dùng 'at').",
-        "dialoguePrompt": "What do you usually do when you're off work?",
-        "dialoguePromptVi": "Bạn thường làm gì khi được nghỉ làm?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u1_10",
-        "unit": "Unit 1: Trạng từ & Cụm tần suất",
-        "word": "from time to time",
-        "ipa": "/frəm taɪm tə taɪm/",
-        "pos": "phr.",
-        "meaning": "thỉnh thoảng, đôi lúc",
-        "relatedTerms": [
-          "occasionally",
-          "every now and then"
-        ],
-        "example": "She still checks in with her old mentor from time to time.",
-        "exampleVi": "Cô ấy vẫn thỉnh thoảng hỏi thăm người hướng dẫn cũ.",
-        "clinicalNote": "Cụm giao tiếp tự nhiên thay cho 'sometimes', thường đặt ở cuối câu.",
-        "dialoguePrompt": "Do you still keep in touch with your college friends?",
-        "dialoguePromptVi": "Bạn có còn giữ liên lạc với bạn đại học không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u2_01",
-        "unit": "Unit 2: Sinh hoạt & Thói quen hàng ngày",
-        "word": "wake up",
-        "ipa": "/weɪk ʌp/",
-        "pos": "v.phr.",
-        "meaning": "thức dậy (tỉnh giấc)",
-        "relatedTerms": [
-          "get up",
-          "sleep in"
-        ],
-        "example": "I wake up at 6:30 a.m. without an alarm.",
-        "exampleVi": "Tôi thức dậy lúc 6 giờ 30 sáng mà không cần báo thức.",
-        "clinicalNote": "'Wake up' là mở mắt tỉnh giấc; 'get up' là bước ra khỏi giường.",
-        "dialoguePrompt": "Are you an early bird or a night owl?",
-        "dialoguePromptVi": "Bạn là người dậy sớm hay cú đêm?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u2_02",
-        "unit": "Unit 2: Sinh hoạt & Thói quen hàng ngày",
-        "word": "commute to work",
-        "ipa": "/kəˈmjuːt tuː wɜːk/",
-        "pos": "v.phr.",
-        "meaning": "đi làm (di chuyển đi làm)",
-        "relatedTerms": [
-          "go to work",
-          "travel to the office"
-        ],
-        "example": "Many people commute to work by motorbike in Hanoi.",
-        "exampleVi": "Nhiều người đi làm bằng xe máy ở Hà Nội.",
-        "clinicalNote": "Dùng tự nhiên hơn 'go to work' khi nói về quãng đường hoặc phương tiện đi làm hằng ngày.",
-        "dialoguePrompt": "How do you usually get to your office?",
-        "dialoguePromptVi": "Bạn thường đến văn phòng bằng cách nào?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u2_03",
-        "unit": "Unit 2: Sinh hoạt & Thói quen hàng ngày",
-        "word": "check emails",
-        "ipa": "/tʃek ˈiː.meɪlz/",
-        "pos": "v.phr.",
-        "meaning": "kiểm tra email",
-        "relatedTerms": [
-          "read messages",
-          "reply to emails"
-        ],
-        "example": "He checks emails first thing every morning.",
-        "exampleVi": "Anh ấy kiểm tra email đầu tiên vào mỗi sáng.",
-        "clinicalNote": "Khi chủ ngữ là He/She/It nhớ chia thành 'checks emails'.",
-        "dialoguePrompt": "What is the first thing you do at your desk?",
-        "dialoguePromptVi": "Việc đầu tiên bạn làm khi ngồi vào bàn làm việc là gì?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u2_04",
-        "unit": "Unit 2: Sinh hoạt & Thói quen hàng ngày",
-        "word": "take a break",
-        "ipa": "/teɪk ə breɪk/",
-        "pos": "v.phr.",
-        "meaning": "nghỉ giải lao",
-        "relatedTerms": [
-          "have a rest",
-          "pause"
-        ],
-        "example": "We take a break for ten minutes every afternoon.",
-        "exampleVi": "Chúng tôi nghỉ giải lao mười phút mỗi buổi chiều.",
-        "clinicalNote": "Cụm cố định (collocation): dùng 'take a break' hoặc 'have a break', không dùng 'do a break'.",
-        "dialoguePrompt": "You've been staring at the screen for hours!",
-        "dialoguePromptVi": "Bạn nhìn màn hình mấy tiếng liền rồi đấy!",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u2_05",
-        "unit": "Unit 2: Sinh hoạt & Thói quen hàng ngày",
-        "word": "have lunch",
-        "ipa": "/hæv lʌntʃ/",
-        "pos": "v.phr.",
-        "meaning": "ăn trưa",
-        "relatedTerms": [
-          "eat lunch",
-          "grab lunch"
-        ],
-        "example": "She usually has lunch at a small cafe nearby.",
-        "exampleVi": "Cô ấy thường ăn trưa tại một quán nhỏ gần đó.",
-        "clinicalNote": "Lưu ý ngôi thứ 3 số ít: 'have' đổi thành 'has' (không viết 'haves').",
-        "dialoguePrompt": "Where do you normally eat at noon?",
-        "dialoguePromptVi": "Buổi trưa bạn thường ăn ở đâu?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u2_06",
-        "unit": "Unit 2: Sinh hoạt & Thói quen hàng ngày",
-        "word": "work out",
-        "ipa": "/wɜːk aʊt/",
-        "pos": "v.phr.",
-        "meaning": "tập thể dục, tập gym",
-        "relatedTerms": [
-          "exercise",
-          "stay in shape"
-        ],
-        "example": "I work out three times a week to stay healthy.",
-        "exampleVi": "Tôi tập thể dục ba lần một tuần để giữ sức khỏe.",
-        "clinicalNote": "Cụm động từ rất thông dụng trong giao tiếp khi nói về thói quen rèn luyện.",
-        "dialoguePrompt": "How do you stay so energetic every day?",
-        "dialoguePromptVi": "Làm sao bạn giữ được năng lượng mỗi ngày vậy?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u2_07",
-        "unit": "Unit 2: Sinh hoạt & Thói quen hàng ngày",
-        "word": "cook dinner",
-        "ipa": "/kʊk ˈdɪn.ər/",
-        "pos": "v.phr.",
-        "meaning": "nấu bữa tối",
-        "relatedTerms": [
-          "make dinner",
-          "prepare a meal"
-        ],
-        "example": "My husband cooks dinner when I get home late.",
-        "exampleVi": "Chồng tôi nấu bữa tối khi tôi về nhà muộn.",
-        "clinicalNote": "Không dùng 'the' trước các bữa ăn (breakfast, lunch, dinner) trong thói quen hằng ngày.",
-        "dialoguePrompt": "Do you eat out after work or eat at home?",
-        "dialoguePromptVi": "Sau giờ làm bạn hay ăn ngoài hay ăn ở nhà?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u2_08",
-        "unit": "Unit 2: Sinh hoạt & Thói quen hàng ngày",
-        "word": "hang out",
-        "ipa": "/hæŋ aʊt/",
-        "pos": "v.phr.",
-        "meaning": "đi chơi, tụ tập bạn bè",
-        "relatedTerms": [
-          "chill out",
-          "meet friends"
-        ],
-        "example": "They hang out at a coffee shop every Sunday.",
-        "exampleVi": "Họ tụ tập ở quán cà phê vào mỗi Chủ nhật.",
-        "clinicalNote": "Sắc thái thân mật, tự nhiên trong văn nói bạn bè.",
-        "dialoguePrompt": "What do you and your friends do on Sundays?",
-        "dialoguePromptVi": "Bạn và hội bạn hay làm gì vào Chủ nhật?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u2_09",
-        "unit": "Unit 2: Sinh hoạt & Thói quen hàng ngày",
-        "word": "go to bed",
-        "ipa": "/ɡəʊ tə bed/",
-        "pos": "v.phr.",
-        "meaning": "đi ngủ",
-        "relatedTerms": [
-          "fall asleep",
-          "stay up late"
-        ],
-        "example": "He goes to bed before 11 p.m. on weekdays.",
-        "exampleVi": "Anh ấy đi ngủ trước 11 giờ đêm các ngày trong tuần.",
-        "clinicalNote": "Động từ tận cùng bằng -o ('go') khi chia với He/She/It thêm -es thành 'goes'.",
-        "dialoguePrompt": "Why do you look so fresh this morning?",
-        "dialoguePromptVi": "Sao sáng nay trông bạn tỉnh táo thế?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u2_10",
-        "unit": "Unit 2: Sinh hoạt & Thói quen hàng ngày",
-        "word": "run errands",
-        "ipa": "/rʌn ˈer.əndz/",
-        "pos": "v.phr.",
-        "meaning": "chạy việc vặt (mua đồ, gửi thư...)",
-        "relatedTerms": [
-          "do chores",
-          "handle tasks"
-        ],
-        "example": "I usually run errands on Saturday mornings.",
-        "exampleVi": "Tôi thường đi giải quyết các việc vặt vào sáng thứ Bảy.",
-        "clinicalNote": "Rất hữu ích khi mô tả việc đi siêu thị, ngân hàng, bưu điện vào cuối tuần.",
-        "dialoguePrompt": "Are you free this Saturday morning?",
-        "dialoguePromptVi": "Sáng thứ Bảy này bạn có rảnh không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u3_01",
-        "unit": "Unit 3: Công việc, Lịch trình & Sự thật",
-        "word": "work as",
-        "ipa": "/wɜːk æz/",
-        "pos": "v.phr.",
-        "meaning": "làm nghề gì đó",
-        "relatedTerms": [
-          "be employed as",
-          "serve as"
-        ],
-        "example": "She works as a dentist in a private clinic.",
-        "exampleVi": "Cô ấy làm bác sĩ nha khoa tại một phòng khám tư.",
-        "clinicalNote": "Luôn đi kèm mạo từ 'a/an' trước danh từ nghề nghiệp số ít (work as a...).",
-        "dialoguePrompt": "What does your sister do for a living?",
-        "dialoguePromptVi": "Chị gái bạn làm nghề gì vậy?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u3_02",
-        "unit": "Unit 3: Công việc, Lịch trình & Sự thật",
-        "word": "manage",
-        "ipa": "/ˈmæn.ɪdʒ/",
-        "pos": "v.",
-        "meaning": "quản lý, điều hành",
-        "relatedTerms": [
-          "run",
-          "supervise"
-        ],
-        "example": "He manages a small team of five engineers.",
-        "exampleVi": "Anh ấy quản lý một nhóm nhỏ gồm năm kỹ sư.",
-        "clinicalNote": "Mô tả trách nhiệm công việc cố định nên luôn dùng Hiện tại đơn.",
-        "dialoguePrompt": "What is his main responsibility at the company?",
-        "dialoguePromptVi": "Trách nhiệm chính của anh ấy ở công ty là gì?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u3_03",
-        "unit": "Unit 3: Công việc, Lịch trình & Sự thật",
-        "word": "attend meetings",
-        "ipa": "/əˈtend ˈmiː.tɪŋz/",
-        "pos": "v.phr.",
-        "meaning": "tham dự các cuộc họp",
-        "relatedTerms": [
-          "join meetings",
-          "take part in"
-        ],
-        "example": "Our director attends meetings almost every morning.",
-        "exampleVi": "Giám đốc của chúng tôi tham dự họp gần như mỗi sáng.",
-        "clinicalNote": "'Attend' là ngoại động từ, đi thẳng với danh từ, không dùng 'attend to meeting'.",
-        "dialoguePrompt": "Why is the manager not at his desk right now?",
-        "dialoguePromptVi": "Sao giờ này quản lý lại không ngồi ở bàn thế?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u3_04",
-        "unit": "Unit 3: Công việc, Lịch trình & Sự thật",
-        "word": "start at",
-        "ipa": "/stɑːt æt/",
-        "pos": "v.phr.",
-        "meaning": "bắt đầu vào lúc (giờ)",
-        "relatedTerms": [
-          "begin at",
-          "open at"
-        ],
-        "example": "The morning shift starts at 8:00 a.m. sharp.",
-        "exampleVi": "Ca sáng bắt đầu lúc 8 giờ đúng.",
-        "clinicalNote": "Dùng Hiện tại đơn cho thời gian biểu và lịch trình cố định dù nói về ngày mai.",
-        "dialoguePrompt": "What time should I arrive for the morning session?",
-        "dialoguePromptVi": "Mấy giờ tôi nên có mặt cho buổi sáng vậy?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u3_05",
-        "unit": "Unit 3: Công việc, Lịch trình & Sự thật",
-        "word": "close at",
-        "ipa": "/kləʊz æt/",
-        "pos": "v.phr.",
-        "meaning": "đóng cửa vào lúc",
-        "relatedTerms": [
-          "shut at",
-          "end at"
-        ],
-        "example": "This pharmacy closes at 10 p.m. every night.",
-        "exampleVi": "Hiệu thuốc này đóng cửa lúc 10 giờ tối mỗi đêm.",
-        "clinicalNote": "Động từ 'close' chia ngôi 3 số ít phát âm đuôi /zɪz/ ('closes').",
-        "dialoguePrompt": "Do we still have time to buy medicine tonight?",
-        "dialoguePromptVi": "Tối nay chúng ta còn kịp mua thuốc không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u3_06",
-        "unit": "Unit 3: Công việc, Lịch trình & Sự thật",
-        "word": "arrive on time",
-        "ipa": "/əˈraɪv ɒn taɪm/",
-        "pos": "v.phr.",
-        "meaning": "đến đúng giờ",
-        "relatedTerms": [
-          "be punctual",
-          "show up on time"
-        ],
-        "example": "The express train always arrives on time.",
-        "exampleVi": "Chuyến tàu tốc hành luôn đến đúng giờ.",
-        "clinicalNote": "'On time' là đúng giờ theo lịch; 'in time' là kịp lúc trước khi quá muộn.",
-        "dialoguePrompt": "Is the airport shuttle reliable?",
-        "dialoguePromptVi": "Xe trung chuyển sân bay có đáng tin cậy không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u3_07",
-        "unit": "Unit 3: Công việc, Lịch trình & Sự thật",
-        "word": "take place",
-        "ipa": "/teɪk pleɪs/",
-        "pos": "v.phr.",
-        "meaning": "diễn ra, được tổ chức",
-        "relatedTerms": [
-          "happen",
-          "occur"
-        ],
-        "example": "The annual conference takes place in November.",
-        "exampleVi": "Hội nghị thường niên diễn ra vào tháng Mười Một.",
-        "clinicalNote": "Không dùng dạng bị động (không nói 'is taken place').",
-        "dialoguePrompt": "When is the next dental workshop?",
-        "dialoguePromptVi": "Hội thảo nha khoa tiếp theo tổ chức khi nào vậy?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u3_08",
-        "unit": "Unit 3: Công việc, Lịch trình & Sự thật",
-        "word": "depend on",
-        "ipa": "/dɪˈpend ɒn/",
-        "pos": "v.phr.",
-        "meaning": "phụ thuộc vào, tùy thuộc vào",
-        "relatedTerms": [
-          "rely on",
-          "be based on"
-        ],
-        "example": "The total price depends on the material you choose.",
-        "exampleVi": "Tổng giá tiền phụ thuộc vào vật liệu bạn chọn.",
-        "clinicalNote": "Luôn đi với giới từ 'on' (hoặc 'upon'). Hay dùng ở dạng câu trả lời ngắn: 'It depends.'",
-        "dialoguePrompt": "How long does this treatment take?",
-        "dialoguePromptVi": "Quá trình điều trị này mất bao lâu?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u3_09",
-        "unit": "Unit 3: Công việc, Lịch trình & Sự thật",
-        "word": "cost",
-        "ipa": "/kɒst/",
-        "pos": "v.",
-        "meaning": "có giá là, tốn kém",
-        "relatedTerms": [
-          "be priced at",
-          "charge"
-        ],
-        "example": "A routine check-up costs much less than an emergency visit.",
-        "exampleVi": "Khám định kỳ tốn ít chi phí hơn nhiều so với khám cấp cứu.",
-        "clinicalNote": "Chủ ngữ là vật/dịch vụ ('It costs...'), không dùng 'I cost...' để nói tôi trả tiền.",
-        "dialoguePrompt": "Is the consultation fee expensive?",
-        "dialoguePromptVi": "Phí tư vấn có đắt không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u3_10",
-        "unit": "Unit 3: Công việc, Lịch trình & Sự thật",
-        "word": "require",
-        "ipa": "/rɪˈkwaɪər/",
-        "pos": "v.",
-        "meaning": "đòi hỏi, yêu cầu",
-        "relatedTerms": [
-          "need",
-          "demand"
-        ],
-        "example": "This software requires an active internet connection.",
-        "exampleVi": "Phần mềm này yêu cầu kết nối internet ổn định.",
-        "clinicalNote": "Trang trọng hơn 'need', dùng nhiều trong hướng dẫn kỹ thuật và quy định.",
-        "dialoguePrompt": "Can I run this tool completely offline?",
-        "dialoguePromptVi": "Tôi có thể chạy công cụ này hoàn toàn ngoại tuyến không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u4_01",
-        "unit": "Unit 4: Động từ Trạng thái (Stative Verbs)",
-        "word": "know",
-        "ipa": "/nəʊ/",
-        "pos": "v.",
-        "meaning": "biết, quen biết",
-        "relatedTerms": [
-          "be aware of",
-          "recognize"
-        ],
-        "example": "I know a reliable technician near our district.",
-        "exampleVi": "Tôi biết một kỹ thuật viên đáng tin cậy gần quận mình.",
-        "clinicalNote": "Động từ trạng thái: tuyệt đối không chia 'I am knowing'.",
-        "dialoguePrompt": "Do you know anyone who can fix this printer?",
-        "dialoguePromptVi": "Bạn có quen ai sửa được cái máy in này không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u4_02",
-        "unit": "Unit 4: Động từ Trạng thái (Stative Verbs)",
-        "word": "believe",
-        "ipa": "/bɪˈliːv/",
-        "pos": "v.",
-        "meaning": "tin tưởng, cho rằng",
-        "relatedTerms": [
-          "trust",
-          "think"
-        ],
-        "example": "She believes that daily practice builds fluency.",
-        "exampleVi": "Cô ấy tin rằng luyện tập hằng ngày tạo nên sự trôi chảy.",
-        "clinicalNote": "Diễn tả quan điểm cá nhân; không dùng 'am believing'.",
-        "dialoguePrompt": "Do you think practicing 15 minutes a day works?",
-        "dialoguePromptVi": "Bạn có nghĩ luyện 15 phút mỗi ngày hiệu quả không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u4_03",
-        "unit": "Unit 4: Động từ Trạng thái (Stative Verbs)",
-        "word": "understand",
-        "ipa": "/ˌʌn.dəˈstænd/",
-        "pos": "v.",
-        "meaning": "hiểu, nắm bắt được",
-        "relatedTerms": [
-          "get it",
-          "comprehend"
-        ],
-        "example": "Now I understand how this grammar rule works.",
-        "exampleVi": "Giờ tôi đã hiểu quy tắc ngữ pháp này hoạt động thế nào.",
-        "clinicalNote": "Dùng Hiện tại đơn ngay cả khi nói về trạng thái 'ngay lúc này tôi hiểu'.",
-        "dialoguePrompt": "Does this explanation make sense to you?",
-        "dialoguePromptVi": "Lời giải thích này có dễ hiểu với bạn không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u4_04",
-        "unit": "Unit 4: Động từ Trạng thái (Stative Verbs)",
-        "word": "prefer",
-        "ipa": "/prɪˈfɜːr/",
-        "pos": "v.",
-        "meaning": "thích hơn, ưu tiên hơn",
-        "relatedTerms": [
-          "like better",
-          "favor"
-        ],
-        "example": "I prefer tea to coffee in the late afternoon.",
-        "exampleVi": "Tôi thích trà hơn cà phê vào cuối buổi chiều.",
-        "clinicalNote": "Cấu trúc chuẩn: 'prefer A to B' (thích A hơn B), không dùng 'prefer A than B'.",
-        "dialoguePrompt": "Would you like coffee or green tea?",
-        "dialoguePromptVi": "Bạn muốn uống cà phê hay trà xanh?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u4_05",
-        "unit": "Unit 4: Động từ Trạng thái (Stative Verbs)",
-        "word": "belong to",
-        "ipa": "/bɪˈlɒŋ tuː/",
-        "pos": "v.phr.",
-        "meaning": "thuộc về (quyền sở hữu)",
-        "relatedTerms": [
-          "be owned by",
-          "be part of"
-        ],
-        "example": "That black notebook belongs to the receptionist.",
-        "exampleVi": "Quyển sổ đen kia thuộc về bạn lễ tân.",
-        "clinicalNote": "Không bao giờ dùng dạng tiếp diễn ('is belonging') hay bị động ('is belonged').",
-        "dialoguePrompt": "Whose notebook is lying on the counter?",
-        "dialoguePromptVi": "Quyển sổ của ai đang để trên quầy thế?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u4_06",
-        "unit": "Unit 4: Động từ Trạng thái (Stative Verbs)",
-        "word": "own",
-        "ipa": "/əʊn/",
-        "pos": "v.",
-        "meaning": "sở hữu, làm chủ",
-        "relatedTerms": [
-          "possess",
-          "have"
-        ],
-        "example": "They own a cozy homestay in Da Lat.",
-        "exampleVi": "Họ sở hữu một homestay ấm cúng ở Đà Lạt.",
-        "clinicalNote": "Chỉ quyền sở hữu lâu dài, luôn chia ở thì đơn.",
-        "dialoguePrompt": "Do they rent that house or is it theirs?",
-        "dialoguePromptVi": "Họ thuê căn nhà đó hay là nhà của họ?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u4_07",
-        "unit": "Unit 4: Động từ Trạng thái (Stative Verbs)",
-        "word": "seem",
-        "ipa": "/siːm/",
-        "pos": "v.",
-        "meaning": "có vẻ như, dường như",
-        "relatedTerms": [
-          "appear",
-          "look"
-        ],
-        "example": "This plan seems practical for a solo team.",
-        "exampleVi": "Kế hoạch này có vẻ khả thi cho một đội ngũ một người.",
-        "clinicalNote": "Động từ nối (linking verb), đi kèm tính từ (seems practical), không đi với trạng từ.",
-        "dialoguePrompt": "What do you think of our new workflow?",
-        "dialoguePromptVi": "Bạn thấy quy trình làm việc mới thế nào?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u4_08",
-        "unit": "Unit 4: Động từ Trạng thái (Stative Verbs)",
-        "word": "mean",
-        "ipa": "/miːn/",
-        "pos": "v.",
-        "meaning": "có nghĩa là, có ý định",
-        "relatedTerms": [
-          "signify",
-          "stand for"
-        ],
-        "example": "What does this abbreviation mean in English?",
-        "exampleVi": "Chữ viết tắt này có nghĩa là gì trong tiếng Anh?",
-        "clinicalNote": "Mẫu câu hỏi nghĩa từ vựng kinh điển ở Hiện tại đơn.",
-        "dialoguePrompt": "I keep seeing 'RSVP' on the invitation card.",
-        "dialoguePromptVi": "Tôi cứ thấy chữ 'RSVP' trên thiệp mời.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u4_09",
-        "unit": "Unit 4: Động từ Trạng thái (Stative Verbs)",
-        "word": "remember",
-        "ipa": "/rɪˈmem.bər/",
-        "pos": "v.",
-        "meaning": "nhớ, ghi nhớ",
-        "relatedTerms": [
-          "recall",
-          "keep in mind"
-        ],
-        "example": "I remember his face, but I forget his name.",
-        "exampleVi": "Tôi nhớ khuôn mặt anh ấy, nhưng quên mất tên rồi.",
-        "clinicalNote": "Không dùng 'I am remembering' khi nói nhớ ra một thông tin.",
-        "dialoguePrompt": "Have we met that client before?",
-        "dialoguePromptVi": "Trước đây mình gặp khách hàng đó chưa nhỉ?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u4_10",
-        "unit": "Unit 4: Động từ Trạng thái (Stative Verbs)",
-        "word": "matter",
-        "ipa": "/ˈmæt.ər/",
-        "pos": "v.",
-        "meaning": "quan trọng, có ý nghĩa",
-        "relatedTerms": [
-          "count",
-          "be important"
-        ],
-        "example": "Consistency matters more than speed when learning.",
-        "exampleVi": "Sự đều đặn quan trọng hơn tốc độ khi học tập.",
-        "clinicalNote": "Thường dùng trong câu: 'It doesn't matter.' (Không sao đâu / Không quan trọng).",
-        "dialoguePrompt": "Should I study three hours once a week or 15 minutes daily?",
-        "dialoguePromptVi": "Tôi nên học 3 tiếng một tuần hay 15 phút mỗi ngày?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u5_01",
-        "unit": "Unit 5: Trợ động từ & Dấu hiệu câu hỏi",
-        "word": "do not",
-        "ipa": "/duː nɒt/",
-        "pos": "aux.",
-        "meaning": "không (phủ định cho I/You/We/They)",
-        "relatedTerms": [
-          "don't",
-          "never"
-        ],
-        "example": "I do not eat spicy food for dinner.",
-        "exampleVi": "Tôi không ăn đồ cay vào bữa tối.",
-        "clinicalNote": "Trong văn nói thường rút gọn thành 'don't'. Động từ phía sau giữ nguyên mẫu.",
-        "dialoguePrompt": "Do you want extra chili in your noodles?",
-        "dialoguePromptVi": "Bạn có muốn thêm ớt vào bát mì không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u5_02",
-        "unit": "Unit 5: Trợ động từ & Dấu hiệu câu hỏi",
-        "word": "does not",
-        "ipa": "/dʌz nɒt/",
-        "pos": "aux.",
-        "meaning": "không (phủ định cho He/She/It)",
-        "relatedTerms": [
-          "doesn't",
-          "fails to"
-        ],
-        "example": "The printer does not work without paper.",
-        "exampleVi": "Máy in không hoạt động nếu không có giấy.",
-        "clinicalNote": "Lỗi hay gặp nhất: sau 'doesn't', động từ chính KHÔNG thêm -s/-es nữa (doesn't work, không viết doesn't works).",
-        "dialoguePrompt": "Why isn't anything coming out of the printer?",
-        "dialoguePromptVi": "Sao máy in chẳng ra giấy gì thế?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u5_03",
-        "unit": "Unit 5: Trợ động từ & Dấu hiệu câu hỏi",
-        "word": "do you",
-        "ipa": "/duː juː/",
-        "pos": "phr.",
-        "meaning": "bạn có... không? (câu hỏi Yes/No)",
-        "relatedTerms": [
-          "are you",
-          "would you"
-        ],
-        "example": "Do you speak any other foreign languages?",
-        "exampleVi": "Bạn có nói thêm ngoại ngữ nào khác không?",
-        "clinicalNote": "Dùng 'Do you + V-nguyên mẫu' cho hành động; tránh nhầm với 'Are you + V' (sai ngữ pháp).",
-        "dialoguePrompt": "I'm curious about your language background.",
-        "dialoguePromptVi": "Tôi tò mò về nền tảng ngoại ngữ của bạn đấy.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u5_04",
-        "unit": "Unit 5: Trợ động từ & Dấu hiệu câu hỏi",
-        "word": "does it",
-        "ipa": "/dʌz ɪt/",
-        "pos": "phr.",
-        "meaning": "nó có... không? (ngôi thứ 3 số ít)",
-        "relatedTerms": [
-          "is it",
-          "can it"
-        ],
-        "example": "Does it take long to drive from here to the airport?",
-        "exampleVi": "Lái xe từ đây ra sân bay có mất nhiều thời gian không?",
-        "clinicalNote": "Cấu trúc 'Does it take + thời gian + to V...' cực kỳ hay dùng để hỏi thời lượng.",
-        "dialoguePrompt": "I have a flight at 5 p.m. today.",
-        "dialoguePromptVi": "Hôm nay tôi có chuyến bay lúc 5 giờ chiều.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u5_05",
-        "unit": "Unit 5: Trợ động từ & Dấu hiệu câu hỏi",
-        "word": "how often",
-        "ipa": "/haʊ ˈɒf.ən/",
-        "pos": "phr.",
-        "meaning": "bao lâu một lần (hỏi tần suất)",
-        "relatedTerms": [
-          "how frequently",
-          "every how many days"
-        ],
-        "example": "How often do you back up your files?",
-        "exampleVi": "Bạn sao lưu dữ liệu của mình bao lâu một lần?",
-        "clinicalNote": "Câu trả lời thường dùng các cụm ở Unit 1 (every day, once a week, rarely...).",
-        "dialoguePrompt": "I want to ask about your data backup habit.",
-        "dialoguePromptVi": "Tôi muốn hỏi về thói quen sao lưu dữ liệu của bạn.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u5_06",
-        "unit": "Unit 5: Trợ động từ & Dấu hiệu câu hỏi",
-        "word": "what time",
-        "ipa": "/wɒt taɪm/",
-        "pos": "phr.",
-        "meaning": "mấy giờ (hỏi giờ cụ thể)",
-        "relatedTerms": [
-          "when",
-          "at what hour"
-        ],
-        "example": "What time does the clinic open on Mondays?",
-        "exampleVi": "Phòng khám mở cửa lúc mấy giờ vào các ngày thứ Hai?",
-        "clinicalNote": "Hỏi giờ chính xác dùng 'What time', hỏi chung ngày/tháng/buổi dùng 'When'.",
-        "dialoguePrompt": "I need to book an early appointment next Monday.",
-        "dialoguePromptVi": "Tôi cần đặt lịch hẹn sớm vào thứ Hai tới.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u5_07",
-        "unit": "Unit 5: Trợ động từ & Dấu hiệu câu hỏi",
-        "word": "every morning",
-        "ipa": "/ˈev.ri ˈmɔː.nɪŋ/",
-        "pos": "phr.",
-        "meaning": "mỗi buổi sáng",
-        "relatedTerms": [
-          "each morning",
-          "every day at dawn"
-        ],
-        "example": "He waters the plants on the balcony every morning.",
-        "exampleVi": "Anh ấy tưới cây ngoài ban công vào mỗi buổi sáng.",
-        "clinicalNote": "Dấu hiệu nhận biết rõ ràng nhất của Thì hiện tại đơn.",
-        "dialoguePrompt": "Your balcony garden looks so green!",
-        "dialoguePromptVi": "Vườn ban công nhà bạn trông xanh tốt quá!",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u5_08",
-        "unit": "Unit 5: Trợ động từ & Dấu hiệu câu hỏi",
-        "word": "nowadays",
-        "ipa": "/ˈnaʊ.ə.deɪz/",
-        "pos": "adv.",
-        "meaning": "ngày nay, dạo này",
-        "relatedTerms": [
-          "these days",
-          "currently"
-        ],
-        "example": "People nowadays pay by QR code almost everywhere.",
-        "exampleVi": "Ngày nay mọi người thanh toán bằng mã QR gần như ở khắp nơi.",
-        "clinicalNote": "Dùng cho thói quen hoặc xu hướng phổ biến ở hiện tại (viết liền một từ, có chữ -s ở cuối).",
-        "dialoguePrompt": "Do I need to carry a lot of cash in Vietnam?",
-        "dialoguePromptVi": "Ở Việt Nam tôi có cần mang nhiều tiền mặt không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u5_09",
-        "unit": "Unit 5: Trợ động từ & Dấu hiệu câu hỏi",
-        "word": "in general",
-        "ipa": "/ɪn ˈdʒen.ər.əl/",
-        "pos": "phr.",
-        "meaning": "nhìn chung, nói chung",
-        "relatedTerms": [
-          "generally",
-          "overall"
-        ],
-        "example": "In general, mornings are quieter than afternoons here.",
-        "exampleVi": "Nhìn chung, buổi sáng ở đây yên tĩnh hơn buổi chiều.",
-        "clinicalNote": "Mở đầu câu nhận xét tổng quát bằng Hiện tại đơn rất tự nhiên.",
-        "dialoguePrompt": "When is the best time to visit this neighborhood?",
-        "dialoguePromptVi": "Thời điểm nào tốt nhất để ghé khu này vậy?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u5_10",
-        "unit": "Unit 5: Trợ động từ & Dấu hiệu câu hỏi",
-        "word": "as a rule",
-        "ipa": "/æz ə ruːl/",
-        "pos": "phr.",
-        "meaning": "theo thông lệ, thường thì",
-        "relatedTerms": [
-          "usually",
-          "by and large"
-        ],
-        "example": "As a rule, I don't answer work calls after 9 p.m.",
-        "exampleVi": "Theo nguyên tắc, tôi không nghe cuộc gọi công việc sau 9 giờ tối.",
-        "clinicalNote": "Hay dùng để nói về nguyên tắc sống hoặc quy định cá nhân lặp lại ổn định.",
-        "dialoguePrompt": "Can clients reach you late at night?",
-        "dialoguePromptVi": "Khách hàng có gọi được cho bạn vào đêm muộn không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u6_01",
-        "unit": "Unit 6: Phản xạ Hội thoại Hiện tại đơn",
-        "word": "What do you do?",
-        "ipa": "/wɒt duː juː duː/",
-        "pos": "sent.",
-        "meaning": "Bạn làm nghề gì?",
-        "relatedTerms": [
-          "What's your job?",
-          "What do you do for a living?"
-        ],
-        "example": "Hi, I'm Minh. What do you do?",
-        "exampleVi": "Chào bạn, mình là Minh. Bạn làm nghề gì thế?",
-        "clinicalNote": "Câu hỏi thăm nghề nghiệp chuẩn mực nhất; không hỏi 'What is your job?' vì nghe hơi gượng.",
-        "dialoguePrompt": "Nice to meet you! We haven't talked about work yet.",
-        "dialoguePromptVi": "Rất vui được gặp bạn! Mình chưa nói chuyện về công việc nhỉ.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u6_02",
-        "unit": "Unit 6: Phản xạ Hội thoại Hiện tại đơn",
-        "word": "Where do you live?",
-        "ipa": "/weə duː juː lɪv/",
-        "pos": "sent.",
-        "meaning": "Bạn sống ở đâu?",
-        "relatedTerms": [
-          "Where are you based?",
-          "Which area do you live in?"
-        ],
-        "example": "Where do you live in Hanoi?",
-        "exampleVi": "Bạn sống ở khu nào tại Hà Nội vậy?",
-        "clinicalNote": "Hỏi nơi cư trú hiện tại cố định bằng Hiện tại đơn (phân biệt với 'Where are you staying?' hỏi chỗ ở tạm).",
-        "dialoguePrompt": "We seem to take the same bus route every day.",
-        "dialoguePromptVi": "Hình như ngày nào tụi mình cũng đi chung tuyến xe buýt.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u6_03",
-        "unit": "Unit 6: Phản xạ Hội thoại Hiện tại đơn",
-        "word": "It depends on...",
-        "ipa": "/ɪt dɪˈpendz ɒn/",
-        "pos": "sent.",
-        "meaning": "Cái đó còn tùy vào...",
-        "relatedTerms": [
-          "That depends",
-          "It varies by"
-        ],
-        "example": "It depends on the traffic and the weather.",
-        "exampleVi": "Cái đó còn tùy vào tình hình giao thông và thời tiết.",
-        "clinicalNote": "Nhớ bật âm /z/ ở 'depends' vì chủ ngữ là 'It'.",
-        "dialoguePrompt": "How long does it take to get to your clinic?",
-        "dialoguePromptVi": "Đi đến phòng khám của bạn mất bao lâu?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u6_04",
-        "unit": "Unit 6: Phản xạ Hội thoại Hiện tại đơn",
-        "word": "I usually...",
-        "ipa": "/aɪ ˈjuː.ʒu.ə.li/",
-        "pos": "sent.",
-        "meaning": "Tôi thường...",
-        "relatedTerms": [
-          "Most days I...",
-          "Normally I..."
-        ],
-        "example": "I usually grab a quick coffee before starting work.",
-        "exampleVi": "Tôi thường mua nhanh một ly cà phê trước khi bắt đầu làm.",
-        "clinicalNote": "Khung mở đầu câu trả lời an toàn cho mọi câu hỏi về thói quen.",
-        "dialoguePrompt": "What's your morning routine like?",
-        "dialoguePromptVi": "Buổi sáng của bạn thường diễn ra thế nào?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u6_05",
-        "unit": "Unit 6: Phản xạ Hội thoại Hiện tại đơn",
-        "word": "I don't really...",
-        "ipa": "/aɪ dəʊnt ˈrɪə.li/",
-        "pos": "sent.",
-        "meaning": "Tôi không hẳn là / Tôi ít khi...",
-        "relatedTerms": [
-          "Not really",
-          "I rarely..."
-        ],
-        "example": "I don't really watch movies on weeknights.",
-        "exampleVi": "Tôi ít khi xem phim vào các tối trong tuần.",
-        "clinicalNote": "Cách từ chối hoặc phủ nhận nhẹ nhàng, lịch sự hơn hẳn 'No, I don't.' cộc lốc.",
-        "dialoguePrompt": "Do you like going to the cinema after work?",
-        "dialoguePromptVi": "Bạn có thích đi xem phim sau giờ làm không?",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u6_06",
-        "unit": "Unit 6: Phản xạ Hội thoại Hiện tại đơn",
-        "word": "How does it work?",
-        "ipa": "/haʊ dʌz ɪt wɜːk/",
-        "pos": "sent.",
-        "meaning": "Cái này hoạt động thế nào?",
-        "relatedTerms": [
-          "How do you use this?",
-          "What's the process?"
-        ],
-        "example": "This app looks useful. How does it work?",
-        "exampleVi": "Ứng dụng này trông hữu ích đấy. Nó hoạt động thế nào vậy?",
-        "clinicalNote": "Cực kỳ hữu dụng khi hỏi cách vận hành phần mềm, máy móc hoặc quy trình.",
-        "dialoguePrompt": "Let me show you our new appointment system.",
-        "dialoguePromptVi": "Để mình chỉ cho bạn hệ thống đặt lịch mới của bên mình.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u6_07",
-        "unit": "Unit 6: Phản xạ Hội thoại Hiện tại đơn",
-        "word": "Do you mind if...",
-        "ipa": "/duː juː maɪnd ɪf/",
-        "pos": "sent.",
-        "meaning": "Bạn có phiền nếu... không?",
-        "relatedTerms": [
-          "Is it okay if...",
-          "Would it bother you if..."
-        ],
-        "example": "Do you mind if I open the window for some fresh air?",
-        "exampleVi": "Bạn có phiền nếu tôi mở cửa sổ cho thoáng không?",
-        "clinicalNote": "Xin phép lịch sự. Lưu ý: người đồng ý sẽ trả lời 'No, not at all' (Không phiền đâu) chứ không nói 'Yes'.",
-        "dialoguePrompt": "It feels a bit warm inside this room.",
-        "dialoguePromptVi": "Trong phòng này hơi ấm một chút nhỉ.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u6_08",
-        "unit": "Unit 6: Phản xạ Hội thoại Hiện tại đơn",
-        "word": "That sounds great!",
-        "ipa": "/ðæt saʊndz ɡreɪt/",
-        "pos": "sent.",
-        "meaning": "Nghe tuyệt đấy!",
-        "relatedTerms": [
-          "Sounds good!",
-          "That makes sense!"
-        ],
-        "example": "A quick coffee at 4 p.m.? That sounds great!",
-        "exampleVi": "Làm ly cà phê nhanh lúc 4 giờ chiều nhé? Nghe tuyệt đấy!",
-        "clinicalNote": "'Sounds' luôn thêm -s vì đi với chủ ngữ số ít 'That' (ẩn).",
-        "dialoguePrompt": "Let's review the vocabulary list together after work.",
-        "dialoguePromptVi": "Sau giờ làm tụi mình cùng ôn danh sách từ vựng nhé.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u6_09",
-        "unit": "Unit 6: Phản xạ Hội thoại Hiện tại đơn",
-        "word": "I agree with you.",
-        "ipa": "/aɪ əˈɡriː wɪð juː/",
-        "pos": "sent.",
-        "meaning": "Tôi đồng ý với bạn.",
-        "relatedTerms": [
-          "I totally agree",
-          "You're right"
-        ],
-        "example": "I agree with you on keeping the workflow simple.",
-        "exampleVi": "Tôi đồng ý với bạn về việc giữ quy trình đơn giản.",
-        "clinicalNote": "'Agree' là động từ thường, tuyệt đối KHÔNG nói 'I am agree with you'.",
-        "dialoguePrompt": "Short daily sessions work better than cramming.",
-        "dialoguePromptVi": "Học ngắn mỗi ngày hiệu quả hơn học nhồi nhét.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      },
-      {
-        "id": "sp_u6_10",
-        "unit": "Unit 6: Phản xạ Hội thoại Hiện tại đơn",
-        "word": "What does it mean?",
-        "ipa": "/wɒt dʌz ɪt miːn/",
-        "pos": "sent.",
-        "meaning": "Nó có nghĩa là gì vậy?",
-        "relatedTerms": [
-          "What's the meaning of that?",
-          "Can you explain that?"
-        ],
-        "example": "I've never heard that phrase before. What does it mean?",
-        "exampleVi": "Tôi chưa nghe cụm đó bao giờ. Nó có nghĩa là gì vậy?",
-        "clinicalNote": "Câu hỏi phản xạ sống còn khi giao tiếp gặp từ lạ.",
-        "dialoguePrompt": "We need to do a quick 'rain check' for tomorrow.",
-        "dialoguePromptVi": "Ngày mai mình đành 'rain check' (hẹn dịp khác) nhé.",
-        "srsLevel": 0,
-        "mistakeCount": 0,
-        "lastReviewedAt": null,
-        "nextReviewAt": null,
-        "reviewIntervalDays": 0
-      }
-    ];
+const UNIT_METADATA = {
+  "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)": {
+    "shortTitle": "1A · Nghề nghiệp & Học tập",
+    "corePoints": "Present simple (I/you/we/they) • Từ vựng nghề nghiệp, ngành học & phát âm/trọng âm đề HA 1"
+  },
+  "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)": {
+    "shortTitle": "1B · Thói quen & Cụm động từ",
+    "corePoints": "Present simple (he/she/it) • Cụm động từ đi thi Vocabulary & Reading HA 1"
+  },
+  "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)": {
+    "shortTitle": "1C · Cảm xúc & Rủ rê",
+    "corePoints": "Tính từ cảm xúc • Cụm từ chỉ thời gian • Mẫu câu rủ rê & đáp lại (Social English)"
+  },
+  "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)": {
+    "shortTitle": "1D · Gia đình & Sở hữu cách",
+    "corePoints": "Từ vựng gia đình (VB1D) • Sở hữu cách 's / s' / danh từ bất quy tắc (children's)"
+  },
+  "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)": {
+    "shortTitle": "1E · Bẫy Ngữ pháp HA 1",
+    "corePoints": "Phủ định doesn't + V • Nghi vấn Does + S + V • Phân biệt to be vs do/does • Đuôi -es/-ies • Trả lời ngắn"
+  },
+  "Unit 1F: Phản xạ Nói & Viết HA 1 (Speaking & Writing)": {
+    "shortTitle": "1F · Phản xạ Nói & Viết",
+    "corePoints": "Speaking Set 1 (Family) & Set 2 (Study, Future Job, Voluntary Work) • Viết câu HA 1"
+  }
+};
+
+const SEED_DATA = [
+  {
+    "id": "ha1_u1a_01",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "doctor",
+    "ipa": "/ˈdɒk.tər/",
+    "pos": "n.",
+    "meaning": "bác sĩ",
+    "relatedTerms": [
+      "hospital",
+      "nurse",
+      "patient"
+    ],
+    "example": "My mother is a doctor and she works in a hospital.",
+    "exampleVi": "Mẹ tôi là bác sĩ và bà làm việc ở bệnh viện.",
+    "clinicalNote": "HA 1 Vocab câu 1: dấu hiệu 'works in a hospital'. Trọng âm rơi vào âm tiết 1.",
+    "dialoguePrompt": "What does your mother do?",
+    "dialoguePromptVi": "Mẹ bạn làm nghề gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_02",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "nurse",
+    "ipa": "/nɜːs/",
+    "pos": "n.",
+    "meaning": "y tá, điều dưỡng",
+    "relatedTerms": [
+      "look after",
+      "ill people",
+      "hospital"
+    ],
+    "example": "A nurse looks after ill people in a hospital.",
+    "exampleVi": "Y tá chăm sóc người bệnh trong bệnh viện.",
+    "clinicalNote": "HA 1 Phonetics câu 5 (/ɜː/ khác bus, unemployed, husband /ʌ/) & Vocab câu 2.",
+    "dialoguePrompt": "Who looks after ill people in a hospital?",
+    "dialoguePromptVi": "Ai chăm sóc người bệnh trong bệnh viện?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_03",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "actor",
+    "ipa": "/ˈæk.tər/",
+    "pos": "n.",
+    "meaning": "diễn viên",
+    "relatedTerms": [
+      "movie",
+      "film",
+      "Hollywood"
+    ],
+    "example": "He is a famous Hollywood actor and he plays in many movies.",
+    "exampleVi": "Anh ấy là một diễn viên Hollywood nổi tiếng và đóng nhiều phim.",
+    "clinicalNote": "HA 1 Phonetics câu 2 ('a' đọc /æ/ giống flat, laptop; khác late /eɪ/) & Vocab câu 5.",
+    "dialoguePrompt": "What is Sam's job in the reading text?",
+    "dialoguePromptVi": "Công việc của Sam trong bài đọc là gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_04",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "singer",
+    "ipa": "/ˈsɪŋ.ər/",
+    "pos": "n.",
+    "meaning": "ca sĩ",
+    "relatedTerms": [
+      "song",
+      "music",
+      "band"
+    ],
+    "example": "Taylor Swift is a famous singer with a lot of great songs.",
+    "exampleVi": "Taylor Swift là một ca sĩ nổi tiếng với rất nhiều bài hát hay.",
+    "clinicalNote": "HA 1 Vocab câu 3: nhận diện qua 'great songs'. Dùng mạo từ 'a' trước 'singer'.",
+    "dialoguePrompt": "Do you know any famous singers?",
+    "dialoguePromptVi": "Bạn có biết ca sĩ nổi tiếng nào không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_05",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "shop assistant",
+    "ipa": "/ˈʃɒp əˌsɪs.tənt/",
+    "pos": "n.",
+    "meaning": "nhân viên bán hàng",
+    "relatedTerms": [
+      "shop",
+      "customer",
+      "buy"
+    ],
+    "example": "You can ask a shop assistant for help when you buy something.",
+    "exampleVi": "Bạn có thể nhờ nhân viên bán hàng giúp đỡ khi mua đồ.",
+    "clinicalNote": "HA 1 Vocab câu 6: cụm danh từ cố định trong Speakout 1A (VB1A).",
+    "dialoguePrompt": "Who can you ask for help in a shop?",
+    "dialoguePromptVi": "Bạn có thể nhờ ai giúp đỡ trong cửa hàng?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_06",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "police officer",
+    "ipa": "/pəˈliːs ˌɒf.ɪ.sər/",
+    "pos": "n.",
+    "meaning": "cảnh sát",
+    "relatedTerms": [
+      "policeman",
+      "law",
+      "safety"
+    ],
+    "example": "I would like to become a police officer in the future.",
+    "exampleVi": "Tôi muốn trở thành cảnh sát trong tương lai.",
+    "clinicalNote": "HA 1 Writing câu 12: 'I would like to become a police officer.' (nhớ mạo từ 'a').",
+    "dialoguePrompt": "What job would you like to do in the future?",
+    "dialoguePromptVi": "Bạn muốn làm nghề gì trong tương lai?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_07",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "engineer",
+    "ipa": "/ˌen.dʒɪˈnɪər/",
+    "pos": "n.",
+    "meaning": "kỹ sư",
+    "relatedTerms": [
+      "engineering company",
+      "tech",
+      "design"
+    ],
+    "example": "My brother is an engineer and he works for an engineering company.",
+    "exampleVi": "Anh trai tôi là kỹ sư và anh ấy làm cho một công ty kỹ thuật.",
+    "clinicalNote": "HA 1 Vocab câu 43 & Writing câu 1: dùng 'an' trước 'engineer / engineering'.",
+    "dialoguePrompt": "What's your job?",
+    "dialoguePromptVi": "Công việc của bạn là gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_08",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "lawyer",
+    "ipa": "/ˈlɔː.jər/",
+    "pos": "n.",
+    "meaning": "luật sư",
+    "relatedTerms": [
+      "study law",
+      "university",
+      "office"
+    ],
+    "example": "My best friend is a lawyer and she often works late.",
+    "exampleVi": "Bạn thân nhất của tôi là luật sư và cô ấy thường làm việc muộn.",
+    "clinicalNote": "HA 1 Reading câu 8, 10, 18 & Speakout 1A: 'study law' (học luật) → 'lawyer' (luật sư).",
+    "dialoguePrompt": "What does Greta do?",
+    "dialoguePromptVi": "Greta làm nghề gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_09",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "digital designer",
+    "ipa": "/ˌdɪdʒ.ɪ.təl dɪˈzaɪ.nər/",
+    "pos": "n.",
+    "meaning": "nhà thiết kế kỹ thuật số",
+    "relatedTerms": [
+      "work from home",
+      "website",
+      "laptop"
+    ],
+    "example": "Emma is a digital designer and she works from home.",
+    "exampleVi": "Emma là nhà thiết kế kỹ thuật số và cô ấy làm việc tại nhà.",
+    "clinicalNote": "HA 1 Reading 'My friend Emma' (trang 97) & Speakout 1A.",
+    "dialoguePrompt": "What is Emma's job?",
+    "dialoguePromptVi": "Công việc của Emma là gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_10",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "businessman",
+    "ipa": "/ˈbɪz.nɪs.mæn/",
+    "pos": "n.",
+    "meaning": "doanh nhân",
+    "relatedTerms": [
+      "business manager",
+      "company",
+      "earn money"
+    ],
+    "example": "My uncle is a businessman and he has his own company.",
+    "exampleVi": "Chú tôi là doanh nhân và chú có công ty riêng.",
+    "clinicalNote": "HA 1 Vocab câu 13 & Reading câu 3, 11 ('start-up company', 'self-employed').",
+    "dialoguePrompt": "What does your uncle do?",
+    "dialoguePromptVi": "Chú bạn làm nghề gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_11",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "retired",
+    "ipa": "/rɪˈtaɪəd/",
+    "pos": "adj.",
+    "meaning": "đã nghỉ hưu",
+    "relatedTerms": [
+      "stop working",
+      "pension",
+      "grandmother"
+    ],
+    "example": "My grandmother is retired and she lives on her pension now.",
+    "exampleVi": "Bà tôi đã nghỉ hưu và hiện bà sống bằng lương hưu.",
+    "clinicalNote": "HA 1 Vocab câu 4: phân biệt 'retired' (nghỉ hưu theo tuổi) với 'unemployed' (thất nghiệp).",
+    "dialoguePrompt": "Does your grandmother still work?",
+    "dialoguePromptVi": "Bà bạn có còn đi làm không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_12",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "unemployed",
+    "ipa": "/ˌʌn.ɪmˈplɔɪd/",
+    "pos": "adj.",
+    "meaning": "thất nghiệp",
+    "relatedTerms": [
+      "jobless",
+      "look for a job",
+      "retired"
+    ],
+    "example": "He is unemployed at the moment, so he is looking for a job.",
+    "exampleVi": "Hiện tại anh ấy đang thất nghiệp nên đang tìm việc.",
+    "clinicalNote": "HA 1 Phonetics câu 5 ('u' đọc /ʌ/ giống bus, husband) & Speakout VB1A.",
+    "dialoguePrompt": "Does he have a job right now?",
+    "dialoguePromptVi": "Hiện tại anh ấy có việc làm không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_13",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "taxi driver",
+    "ipa": "/ˈtæk.si ˌdraɪ.vər/",
+    "pos": "n.",
+    "meaning": "tài xế taxi",
+    "relatedTerms": [
+      "bus driver",
+      "train driver",
+      "destination"
+    ],
+    "example": "A taxi driver takes people to their destinations in his car.",
+    "exampleVi": "Tài xế taxi chở mọi người đến điểm đến bằng ô tô.",
+    "clinicalNote": "HA 1 Vocab câu 19 & Speakout VB1A: nhóm ghép + driver (bus/train/taxi driver).",
+    "dialoguePrompt": "What does a taxi driver do?",
+    "dialoguePromptVi": "Tài xế taxi làm công việc gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_14",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "football player",
+    "ipa": "/ˈfʊt.bɔːl ˌpleɪ.ər/",
+    "pos": "n.",
+    "meaning": "cầu thủ bóng đá",
+    "relatedTerms": [
+      "play football",
+      "team",
+      "sports"
+    ],
+    "example": "I think Messi is a great football player.",
+    "exampleVi": "Tôi nghĩ Messi là một cầu thủ bóng đá tuyệt vời.",
+    "clinicalNote": "HA 1 Vocab câu 42 & Writing câu 7 ('women's football team').",
+    "dialoguePrompt": "Who is your favourite football player?",
+    "dialoguePromptVi": "Cầu thủ bóng đá yêu thích của bạn là ai?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_15",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "business manager",
+    "ipa": "/ˈbɪz.nɪs ˌmæn.ɪ.dʒər/",
+    "pos": "n.",
+    "meaning": "quản lý kinh doanh",
+    "relatedTerms": [
+      "hotel manager",
+      "office worker",
+      "company"
+    ],
+    "example": "I want to become a business manager in the future.",
+    "exampleVi": "Tôi muốn trở thành một quản lý kinh doanh trong tương lai.",
+    "clinicalNote": "HA 1 Vocab câu 41 & Speakout VB1A: nhóm ghép + manager (hotel/business manager).",
+    "dialoguePrompt": "What do you want to become in the future?",
+    "dialoguePromptVi": "Bạn muốn trở thành gì trong tương lai?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1a_16",
+    "unit": "Unit 1A: Nghề nghiệp & Học tập (Jobs & Studies)",
+    "word": "part-time job",
+    "ipa": "/ˌpɑːt.taɪm ˈdʒɒb/",
+    "pos": "n.",
+    "meaning": "công việc bán thời gian",
+    "relatedTerms": [
+      "major",
+      "university",
+      "student"
+    ],
+    "example": "Many university students have a part-time job to earn money.",
+    "exampleVi": "Nhiều sinh viên đại học có công việc bán thời gian để kiếm tiền.",
+    "clinicalNote": "HA 1 Speaking Set 2 Part 2: 'Do you have a part-time job?' & 'What is your major at university?'.",
+    "dialoguePrompt": "Do you have a part-time job?",
+    "dialoguePromptVi": "Bạn có làm việc bán thời gian không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_01",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "work from home",
+    "ipa": "/wɜːk frəm həʊm/",
+    "pos": "phr.",
+    "meaning": "làm việc tại nhà",
+    "relatedTerms": [
+      "office",
+      "flat",
+      "digital designer"
+    ],
+    "example": "I work from home in my flat near the city centre.",
+    "exampleVi": "Tôi làm việc tại nhà ở căn hộ gần trung tâm thành phố.",
+    "clinicalNote": "HA 1 Reading câu 3, 11, 25: luôn dùng giới từ 'from' (work from home), không dùng 'in'.",
+    "dialoguePrompt": "Where does Emma work?",
+    "dialoguePromptVi": "Emma làm việc ở đâu?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_02",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "get up early",
+    "ipa": "/ɡet ʌp ˈɜː.li/",
+    "pos": "phr.",
+    "meaning": "thức dậy sớm",
+    "relatedTerms": [
+      "in the morning",
+      "video calls",
+      "wake up"
+    ],
+    "example": "We need to get up early tomorrow morning.",
+    "exampleVi": "Ngày mai chúng ta cần thức dậy sớm.",
+    "clinicalNote": "HA 1 Vocab câu 24, Grammar câu 15 & Social English câu 14 ('Yes, I do. I get up at 5.30 a.m.').",
+    "dialoguePrompt": "Do you get up early?",
+    "dialoguePromptVi": "Bạn có thức dậy sớm không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_03",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "live alone",
+    "ipa": "/lɪv əˈləʊn/",
+    "pos": "phr.",
+    "meaning": "sống một mình",
+    "relatedTerms": [
+      "flat",
+      "city centre",
+      "family"
+    ],
+    "example": "My sister lives alone in a flat in the city centre.",
+    "exampleVi": "Chị gái tôi sống một mình trong một căn hộ ở trung tâm thành phố.",
+    "clinicalNote": "HA 1 Vocab câu 12 & Grammar câu 12: ngôi thứ 3 số ít thêm -s (lives alone).",
+    "dialoguePrompt": "Does your sister live with your parents?",
+    "dialoguePromptVi": "Chị bạn có sống cùng bố mẹ không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_04",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "have in common",
+    "ipa": "/hæv ɪn ˈkɒm.ən/",
+    "pos": "phr.",
+    "meaning": "có điểm chung",
+    "relatedTerms": [
+      "similar",
+      "different",
+      "hobbies"
+    ],
+    "example": "What do you and your sister have in common?",
+    "exampleVi": "Bạn và chị gái bạn có điểm chung gì?",
+    "clinicalNote": "HA 1 Vocab câu 11: cụm cố định 'have (something) in common', không dùng do/get/stay.",
+    "dialoguePrompt": "What do you and your best friend have in common?",
+    "dialoguePromptVi": "Bạn và bạn thân có điểm chung gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_05",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "go out a lot",
+    "ipa": "/ɡəʊ aʊt ə lɒt/",
+    "pos": "phr.",
+    "meaning": "đi chơi bên ngoài nhiều",
+    "relatedTerms": [
+      "at the weekend",
+      "friends",
+      "restaurant"
+    ],
+    "example": "She doesn't go out a lot on weekdays.",
+    "exampleVi": "Cô ấy không ra ngoài chơi nhiều vào các ngày trong tuần.",
+    "clinicalNote": "HA 1 Vocab câu 10 & Writing câu 2 ('She doesn't go out a lot.').",
+    "dialoguePrompt": "Do you go out a lot at the weekend?",
+    "dialoguePromptVi": "Cuối tuần bạn có hay đi chơi không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_06",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "go running",
+    "ipa": "/ɡəʊ ˈrʌn.ɪŋ/",
+    "pos": "phr.",
+    "meaning": "đi chạy bộ",
+    "relatedTerms": [
+      "after work",
+      "play tennis",
+      "sports"
+    ],
+    "example": "I usually go running in the evening after work.",
+    "exampleVi": "Tôi thường đi chạy bộ vào buổi tối sau giờ làm.",
+    "clinicalNote": "HA 1 Vocab câu 7: dùng 'go + V-ing' cho chạy bộ/bơi (goes running), không dùng walk/stay.",
+    "dialoguePrompt": "What does he do in the evening after work?",
+    "dialoguePromptVi": "Anh ấy làm gì vào buổi tối sau giờ làm?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_07",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "eat out",
+    "ipa": "/iːt aʊt/",
+    "pos": "phr.",
+    "meaning": "đi ăn ngoài (nhà hàng)",
+    "relatedTerms": [
+      "cook lunch",
+      "restaurant",
+      "cafe"
+    ],
+    "example": "Do you cook lunch at home or eat out?",
+    "exampleVi": "Bạn tự nấu bữa trưa ở nhà hay đi ăn ngoài?",
+    "clinicalNote": "HA 1 Vocab câu 23 & Reading câu 12 ('Sam doesn't eat out' — Sam tự nấu ăn chay ở nhà).",
+    "dialoguePrompt": "Do you usually cook at home or eat out?",
+    "dialoguePromptVi": "Bạn thường tự nấu ở nhà hay đi ăn ngoài?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_08",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "look after",
+    "ipa": "/lʊk ˈɑːf.tər/",
+    "pos": "phr.",
+    "meaning": "chăm sóc",
+    "relatedTerms": [
+      "nurse",
+      "ill people",
+      "children"
+    ],
+    "example": "A nurse looks after ill people in a hospital.",
+    "exampleVi": "Y tá chăm sóc người bệnh ở bệnh viện.",
+    "clinicalNote": "HA 1 Vocab câu 2: cụm động từ 'look after' = take care of (chăm sóc).",
+    "dialoguePrompt": "What does a nurse do?",
+    "dialoguePromptVi": "Y tá làm công việc gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_09",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "leave home",
+    "ipa": "/liːv həʊm/",
+    "pos": "phr.",
+    "meaning": "rời khỏi nhà",
+    "relatedTerms": [
+      "university",
+      "at 7.00 a.m.",
+      "start work"
+    ],
+    "example": "I usually leave home for university at 7.00 a.m.",
+    "exampleVi": "Tôi thường rời khỏi nhà đi học đại học lúc 7 giờ sáng.",
+    "clinicalNote": "HA 1 Vocab câu 29: 'leave home for + nơi đến' (rời nhà để đi tới đâu).",
+    "dialoguePrompt": "What time do you usually leave home?",
+    "dialoguePromptVi": "Bạn thường rời nhà lúc mấy giờ?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_10",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "finish work",
+    "ipa": "/ˈfɪn.ɪʃ wɜːk/",
+    "pos": "phr.",
+    "meaning": "tan làm, xong việc",
+    "relatedTerms": [
+      "start work",
+      "go home",
+      "late"
+    ],
+    "example": "Do you usually finish work at 5.00 p.m.?",
+    "exampleVi": "Bạn có thường tan làm lúc 5 giờ chiều không?",
+    "clinicalNote": "HA 1 Vocab câu 25 & Writing câu 14 ('Does she finish work late in the evening?').",
+    "dialoguePrompt": "What time do you finish work?",
+    "dialoguePromptVi": "Bạn tan làm lúc mấy giờ?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_11",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "play the guitar",
+    "ipa": "/pleɪ ðə ɡɪˈtɑːr/",
+    "pos": "phr.",
+    "meaning": "chơi đàn ghi-ta",
+    "relatedTerms": [
+      "band",
+      "music",
+      "play tennis"
+    ],
+    "example": "He plays the guitar in a local band.",
+    "exampleVi": "Anh ấy chơi đàn ghi-ta trong một ban nhạc địa phương.",
+    "clinicalNote": "HA 1 Writing câu 13 & Phonetics câu 9 (guitar trọng âm 2 /ɡɪˈtɑːr/ khác village, language, music). Nhớ 'the' trước nhạc cụ!",
+    "dialoguePrompt": "Can you play any musical instruments?",
+    "dialoguePromptVi": "Bạn có biết chơi nhạc cụ nào không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_12",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "teach English",
+    "ipa": "/tiːtʃ ˈɪŋ.ɡlɪʃ/",
+    "pos": "phr.",
+    "meaning": "dạy tiếng Anh",
+    "relatedTerms": [
+      "school",
+      "teenagers",
+      "students"
+    ],
+    "example": "My uncle works in a school and he teaches English to teenagers.",
+    "exampleVi": "Chú tôi làm ở trường học và chú dạy tiếng Anh cho thanh thiếu niên.",
+    "clinicalNote": "HA 1 Vocab câu 39, Grammar câu 21 & Writing câu 11: động từ đuôi -ch thêm -es (teaches).",
+    "dialoguePrompt": "What does your uncle teach?",
+    "dialoguePromptVi": "Chú bạn dạy môn gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_13",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "study law",
+    "ipa": "/ˈstʌd.i lɔː/",
+    "pos": "phr.",
+    "meaning": "học ngành luật",
+    "relatedTerms": [
+      "university",
+      "lawyer",
+      "English"
+    ],
+    "example": "They study law and English at university.",
+    "exampleVi": "Họ học luật và tiếng Anh ở trường đại học.",
+    "clinicalNote": "HA 1 Vocab câu 8 & Writing câu 3 ('She studies law at university.').",
+    "dialoguePrompt": "What do they study at university?",
+    "dialoguePromptVi": "Họ học gì ở đại học?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_14",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "get on well with",
+    "ipa": "/ɡet ɒn wel wɪð/",
+    "pos": "phr.",
+    "meaning": "hòa thuận, thân thiết với",
+    "relatedTerms": [
+      "classmates",
+      "colleagues",
+      "friends"
+    ],
+    "example": "Do you get on well with your classmates at university?",
+    "exampleVi": "Bạn có hòa thuận với các bạn cùng lớp ở đại học không?",
+    "clinicalNote": "HA 1 Speaking Set 2 Part 2: cụm điểm cộng khi nói về bạn học hoặc đồng nghiệp.",
+    "dialoguePrompt": "Do you get on well with your classmates?",
+    "dialoguePromptVi": "Bạn có hòa thuận với bạn cùng lớp không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1b_15",
+    "unit": "Unit 1B: Thói quen & Cụm động từ (Common Verb Phrases)",
+    "word": "take a dog for a walk",
+    "ipa": "/teɪk ə dɒɡ fər ə wɔːk/",
+    "pos": "phr.",
+    "meaning": "dắt chó đi dạo",
+    "relatedTerms": [
+      "park",
+      "usually",
+      "evening"
+    ],
+    "example": "I usually take a dog for a walk in the park after dinner.",
+    "exampleVi": "Tôi thường dắt chó đi dạo trong công viên sau bữa tối.",
+    "clinicalNote": "HA 1 Grammar câu 43: 'When do you usually take your dog for a walk?' (take + sb/pet + for a walk).",
+    "dialoguePrompt": "When do you usually take your dog for a walk?",
+    "dialoguePromptVi": "Bạn thường dắt chó đi dạo khi nào?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_01",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "hungry",
+    "ipa": "/ˈhʌŋ.ɡri/",
+    "pos": "adj.",
+    "meaning": "đói bụng",
+    "relatedTerms": [
+      "breakfast",
+      "eat",
+      "thirsty"
+    ],
+    "example": "I didn't eat anything for breakfast, so I'm hungry now.",
+    "exampleVi": "Tôi chưa ăn gì cho bữa sáng nên giờ tôi đang đói.",
+    "clinicalNote": "HA 1 Phonetics câu 1 ('u' đọc /ʌ/ khác student, university, useful /juː/) & Vocab câu 34.",
+    "dialoguePrompt": "Are you hungry right now?",
+    "dialoguePromptVi": "Bây giờ bạn có đói không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_02",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "thirsty",
+    "ipa": "/ˈθɜː.sti/",
+    "pos": "adj.",
+    "meaning": "khát nước",
+    "relatedTerms": [
+      "drink",
+      "water",
+      "hungry"
+    ],
+    "example": "Can I have something to drink because I'm thirsty?",
+    "exampleVi": "Tôi có thể uống gì đó không vì tôi đang khát?",
+    "clinicalNote": "HA 1 Vocab câu 35 & Phonetics câu 7 (thirsty trọng âm 1 giống angry, worried; khác relaxed).",
+    "dialoguePrompt": "Would you like a bottle of water?",
+    "dialoguePromptVi": "Bạn có muốn một chai nước không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_03",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "tired",
+    "ipa": "/ˈtaɪəd/",
+    "pos": "adj.",
+    "meaning": "mệt mỏi",
+    "relatedTerms": [
+      "busy day",
+      "office",
+      "sleep"
+    ],
+    "example": "She's tired because it's a busy day in her office.",
+    "exampleVi": "Cô ấy mệt vì hôm nay là một ngày bận rộn ở văn phòng.",
+    "clinicalNote": "HA 1 Vocab câu 37, Reading câu 20 & Writing câu 4 ('Are you often tired in the morning?').",
+    "dialoguePrompt": "Are you often tired in the morning?",
+    "dialoguePromptVi": "Buổi sáng bạn có thường thấy mệt không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_04",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "relaxed",
+    "ipa": "/rɪˈlækst/",
+    "pos": "adj.",
+    "meaning": "thư giãn, thoải mái",
+    "relatedTerms": [
+      "weekend",
+      "calm",
+      "stress"
+    ],
+    "example": "I feel very relaxed at the weekend.",
+    "exampleVi": "Tôi cảm thấy rất thư giãn vào cuối tuần.",
+    "clinicalNote": "HA 1 Phonetics câu 3 ('e' đọc /ɪ/ khác tech, get, tennis /e/) & câu 7 (trọng âm 2 /rɪˈlækst/).",
+    "dialoguePrompt": "When do you feel most relaxed?",
+    "dialoguePromptVi": "Khi nào bạn cảm thấy thư giãn nhất?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_05",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "bored",
+    "ipa": "/bɔːd/",
+    "pos": "adj.",
+    "meaning": "buồn chán (cảm xúc người)",
+    "relatedTerms": [
+      "boring",
+      "interesting",
+      "do something"
+    ],
+    "example": "I'm bored today, so do you want to do something?",
+    "exampleVi": "Hôm nay tôi chán quá, bạn có muốn làm gì đó không?",
+    "clinicalNote": "HA 1 Reading câu 19 (tin nhắn Lisa & Eva): phân biệt 'bored' (người chán) với 'boring' (vật/chuyện nhàm chán).",
+    "dialoguePrompt": "What do you do when you're bored?",
+    "dialoguePromptVi": "Bạn làm gì khi thấy chán?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_06",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "angry",
+    "ipa": "/ˈæŋ.ɡri/",
+    "pos": "adj.",
+    "meaning": "tức giận",
+    "relatedTerms": [
+      "feelings",
+      "watch",
+      "upset"
+    ],
+    "example": "He is angry because someone stole his expensive watch.",
+    "exampleVi": "Anh ấy tức giận vì ai đó đã lấy trộm chiếc đồng hồ đắt tiền.",
+    "clinicalNote": "HA 1 Vocab câu 47 & Phonetics câu 7 (trọng âm 1 /ˈæŋ.ɡri/).",
+    "dialoguePrompt": "Why is he angry?",
+    "dialoguePromptVi": "Tại sao anh ấy tức giận?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_07",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "all right",
+    "ipa": "/ˌɔːl ˈraɪt/",
+    "pos": "adj.",
+    "meaning": "ổn, bình thường",
+    "relatedTerms": [
+      "fine",
+      "How are things?",
+      "feelings"
+    ],
+    "example": "I'm all right, thanks, and how are you?",
+    "exampleVi": "Tôi ổn, cảm ơn, còn bạn thì sao?",
+    "clinicalNote": "HA 1 Social English câu 1 & Reading câu 19: đáp tự nhiên cho câu hỏi 'How are things?'.",
+    "dialoguePrompt": "How are things?",
+    "dialoguePromptVi": "Mọi chuyện thế nào rồi?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_08",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "at the weekend",
+    "ipa": "/æt ðə ˌwiːkˈend/",
+    "pos": "phr.",
+    "meaning": "vào cuối tuần",
+    "relatedTerms": [
+      "weekends",
+      "weekdays",
+      "relax"
+    ],
+    "example": "Sam and Mark usually go out at the weekend.",
+    "exampleVi": "Sam và Mark thường đi chơi vào cuối tuần.",
+    "clinicalNote": "HA 1 Vocab câu 10, 38 & Speakout VB1C: Anh-Anh dùng 'at the weekend / at weekends'.",
+    "dialoguePrompt": "What do you usually do at the weekend?",
+    "dialoguePromptVi": "Cuối tuần bạn thường làm gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_09",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "make suggestions",
+    "ipa": "/meɪk səˈdʒes.tʃənz/",
+    "pos": "phr.",
+    "meaning": "đưa ra gợi ý, đề xuất",
+    "relatedTerms": [
+      "suggest",
+      "party",
+      "idea"
+    ],
+    "example": "Can you make suggestions for our class party?",
+    "exampleVi": "Bạn có thể đưa ra vài gợi ý cho bữa tiệc lớp mình không?",
+    "clinicalNote": "HA 1 Vocab câu 33 & Phonetics câu 8 ('suggest' trọng âm 2 khác finish, answer, listen). Dùng 'make', không dùng do/work.",
+    "dialoguePrompt": "Can you make some suggestions for the weekend?",
+    "dialoguePromptVi": "Bạn có thể gợi ý gì cho cuối tuần không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_10",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "Let's meet",
+    "ipa": "/lets miːt/",
+    "pos": "phr.",
+    "meaning": "Chúng mình gặp nhau đi",
+    "relatedTerms": [
+      "cinema",
+      "cafe",
+      "park"
+    ],
+    "example": "Let's meet at that new cafe next to our university.",
+    "exampleVi": "Chúng mình gặp nhau ở quán cà phê mới cạnh trường đại học đi.",
+    "clinicalNote": "HA 1 Theory 1C (trang 49) & Social English câu 6, 11, 12: Let's + V(nguyên mẫu).",
+    "dialoguePrompt": "Where can we meet this afternoon?",
+    "dialoguePromptVi": "Chiều nay mình gặp nhau ở đâu được?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_11",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "How about meeting",
+    "ipa": "/haʊ əˈbaʊt ˈmiː.tɪŋ/",
+    "pos": "phr.",
+    "meaning": "Gặp nhau thì sao nhỉ?",
+    "relatedTerms": [
+      "What about",
+      "at 6 p.m.",
+      "cinema"
+    ],
+    "example": "How about meeting at the cinema at 6 p.m.?",
+    "exampleVi": "Gặp nhau ở rạp chiếu phim lúc 6 giờ tối thì sao nhỉ?",
+    "clinicalNote": "HA 1 Theory 1C (trang 49) & Social English câu 4, 10: How about / What about + V-ing hoặc Danh từ/Thời gian.",
+    "dialoguePrompt": "What time should we meet?",
+    "dialoguePromptVi": "Mấy giờ chúng ta nên gặp nhau?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_12",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "Would you like to",
+    "ipa": "/wʊd juː laɪk tuː/",
+    "pos": "phr.",
+    "meaning": "Bạn có muốn ... không? (lịch sự)",
+    "relatedTerms": [
+      "play football",
+      "see a film",
+      "go out"
+    ],
+    "example": "Would you like to play football on Saturday?",
+    "exampleVi": "Bạn có muốn chơi bóng đá vào thứ Bảy không?",
+    "clinicalNote": "HA 1 Theory 1C (trang 49) & Social English câu 8: 'Would you like' dùng để mời/rủ rê; phân biệt với 'Do you like' (hỏi sở thích chung).",
+    "dialoguePrompt": "Would you like to go to the cinema tonight?",
+    "dialoguePromptVi": "Tối nay bạn có muốn đi xem phim không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_13",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "that's fine",
+    "ipa": "/ðæts faɪn/",
+    "pos": "phr.",
+    "meaning": "Chắc chắn rồi, ổn đấy",
+    "relatedTerms": [
+      "Good idea",
+      "Perfect",
+      "I'd love to"
+    ],
+    "example": "Sure, that's fine, let's meet tomorrow morning.",
+    "exampleVi": "Chắc chắn rồi, ổn đấy, sáng mai gặp nhau nhé.",
+    "clinicalNote": "HA 1 Theory 1C & Social English câu 5: mẫu đồng ý lời rủ (cùng nhóm với Good idea / Perfect / I'd love to).",
+    "dialoguePrompt": "Can we meet at three o'clock?",
+    "dialoguePromptVi": "Mình gặp nhau lúc 3 giờ được không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_14",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "I'm busy then",
+    "ipa": "/aɪm ˈbɪz.i ðen/",
+    "pos": "phr.",
+    "meaning": "Xin lỗi, lúc đó mình bận rồi",
+    "relatedTerms": [
+      "Sorry, I can't",
+      "Another time?",
+      "suggestion"
+    ],
+    "example": "Sorry, I'm busy then, so what about 6 p.m.?",
+    "exampleVi": "Xin lỗi, lúc đó mình bận rồi, vậy 6 giờ tối thì sao?",
+    "clinicalNote": "HA 1 Theory 1C & Social English câu 3, 12: cách từ chối lịch sự kèm đề xuất giờ khác.",
+    "dialoguePrompt": "What about 2 p.m.?",
+    "dialoguePromptVi": "2 giờ chiều thì sao?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1c_15",
+    "unit": "Unit 1C: Cảm xúc, Thời gian & Rủ rê (Feelings & Suggestions)",
+    "word": "I'd love to",
+    "ipa": "/aɪd lʌv tuː/",
+    "pos": "phr.",
+    "meaning": "Mình rất thích / Rất sẵn lòng",
+    "relatedTerms": [
+      "Would you like to",
+      "Great",
+      "Sure"
+    ],
+    "example": "I'd love to come with you on Saturday.",
+    "exampleVi": "Mình rất sẵn lòng đi cùng bạn vào thứ Bảy.",
+    "clinicalNote": "HA 1 Social English câu 8: trả lời chuẩn cho 'Would you like to...?' (không trả lời 'Sorry, I don't').",
+    "dialoguePrompt": "Would you like to play football on Saturday?",
+    "dialoguePromptVi": "Bạn có muốn chơi bóng đá vào thứ Bảy không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_01",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "parents",
+    "ipa": "/ˈpeə.rənts/",
+    "pos": "n.",
+    "meaning": "bố mẹ (cả cha lẫn mẹ)",
+    "relatedTerms": [
+      "father",
+      "mother",
+      "family"
+    ],
+    "example": "My father and my mother are my parents.",
+    "exampleVi": "Bố tôi và mẹ tôi là bố mẹ của tôi.",
+    "clinicalNote": "HA 1 Vocab câu 48 & Theory 1D: số nhiều 'parents' khi sở hữu viết dấu nháy sau 's' → parents'.",
+    "dialoguePrompt": "Who do you live with?",
+    "dialoguePromptVi": "Bạn sống cùng ai?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_02",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "uncle",
+    "ipa": "/ˈʌŋ.kəl/",
+    "pos": "n.",
+    "meaning": "chú, bác, cậu",
+    "relatedTerms": [
+      "aunt",
+      "mother's brother",
+      "relatives"
+    ],
+    "example": "My mother's brother is my uncle.",
+    "exampleVi": "Anh/em trai của mẹ tôi là cậu của tôi.",
+    "clinicalNote": "HA 1 Vocab câu 21, 49: định nghĩa xuất hiện trực tiếp trong đề trắc nghiệm HA 1.",
+    "dialoguePrompt": "Who is your mother's brother?",
+    "dialoguePromptVi": "Anh/em trai của mẹ bạn là ai?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_03",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "aunt",
+    "ipa": "/ɑːnt/",
+    "pos": "n.",
+    "meaning": "cô, dì, bác gái",
+    "relatedTerms": [
+      "uncle",
+      "mother's sister",
+      "relatives"
+    ],
+    "example": "My mother's sister is my aunt.",
+    "exampleVi": "Chị/em gái của mẹ tôi là dì của tôi.",
+    "clinicalNote": "HA 1 Vocab câu 50: phát âm Anh-Anh là /ɑːnt/.",
+    "dialoguePrompt": "Who is your mother's sister?",
+    "dialoguePromptVi": "Chị/em gái của mẹ bạn là ai?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_04",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "niece",
+    "ipa": "/niːs/",
+    "pos": "n.",
+    "meaning": "cháu gái (con của anh/chị/em)",
+    "relatedTerms": [
+      "nephew",
+      "sister's daughter",
+      "cousin"
+    ],
+    "example": "Susan is my sister's daughter, so she is my niece.",
+    "exampleVi": "Susan là con gái của chị tôi, nên cô bé là cháu gái tôi.",
+    "clinicalNote": "HA 1 Vocab câu 18: rất dễ nhầm với 'nephew' (cháu trai) và 'cousin' (anh chị em họ).",
+    "dialoguePrompt": "Your sister has a daughter. Who is she to you?",
+    "dialoguePromptVi": "Chị bạn có con gái. Bé là gì của bạn?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_05",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "nephew",
+    "ipa": "/ˈnef.juː/",
+    "pos": "n.",
+    "meaning": "cháu trai (con của anh/chị/em)",
+    "relatedTerms": [
+      "niece",
+      "brother's son",
+      "cousin"
+    ],
+    "example": "My brother's son is my nephew.",
+    "exampleVi": "Con trai của anh trai tôi là cháu trai của tôi.",
+    "clinicalNote": "Speakout VB1D & HA 1 Vocab: chú ý chính tả 'ph' đọc /f/ (/ˈnef.juː/).",
+    "dialoguePrompt": "Who is your brother's son?",
+    "dialoguePromptVi": "Con trai của anh bạn là gì của bạn?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_06",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "cousin",
+    "ipa": "/ˈkʌz.ən/",
+    "pos": "n.",
+    "meaning": "anh/chị/em họ",
+    "relatedTerms": [
+      "uncle",
+      "aunt",
+      "relatives"
+    ],
+    "example": "My uncle's children are my cousins.",
+    "exampleVi": "Các con của chú tôi là anh chị em họ của tôi.",
+    "clinicalNote": "Speakout VB1D: 'cousin' dùng chung cho cả nam và nữ; âm 'ou' đọc /ʌ/.",
+    "dialoguePrompt": "Do you have many cousins?",
+    "dialoguePromptVi": "Bạn có nhiều anh chị em họ không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_07",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "twin",
+    "ipa": "/twɪn/",
+    "pos": "n./adj.",
+    "meaning": "sinh đôi, anh/chị/em sinh đôi",
+    "relatedTerms": [
+      "twin brother",
+      "born on the same date",
+      "look alike"
+    ],
+    "example": "Sam and Pete are twin brothers born on the same date.",
+    "exampleVi": "Sam và Pete là anh em sinh đôi sinh cùng ngày.",
+    "clinicalNote": "HA 1 Vocab câu 15 & Reading câu 1, 6, 13: 'twin brothers' (không dùng double/imitated).",
+    "dialoguePrompt": "Why do people say 'Am I seeing double?'",
+    "dialoguePromptVi": "Tại sao mọi người lại nói 'Tôi có nhìn nhầm thành hai người không'?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_08",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "husband",
+    "ipa": "/ˈhʌz.bənd/",
+    "pos": "n.",
+    "meaning": "chồng",
+    "relatedTerms": [
+      "wife",
+      "married",
+      "brother-in-law"
+    ],
+    "example": "My sister is married and her husband is from Germany.",
+    "exampleVi": "Chị gái tôi đã kết hôn và chồng chị ấy đến từ Đức.",
+    "clinicalNote": "HA 1 Phonetics câu 5 ('u' đọc /ʌ/) & Reading trang 97 ('married to Stefan').",
+    "dialoguePrompt": "Who is Emma married to?",
+    "dialoguePromptVi": "Emma kết hôn với ai?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_09",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "wife",
+    "ipa": "/waɪf/",
+    "pos": "n.",
+    "meaning": "vợ",
+    "relatedTerms": [
+      "husband",
+      "get married",
+      "married"
+    ],
+    "example": "She is Jim's wife and they got married last year.",
+    "exampleVi": "Cô ấy là vợ của Jim và họ kết hôn năm ngoái.",
+    "clinicalNote": "HA 1 Vocab câu 16 & Grammar câu 35 ('Can you tell me your wife's name?').",
+    "dialoguePrompt": "Who is she to Jim?",
+    "dialoguePromptVi": "Cô ấy là gì của Jim?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_10",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "brother-in-law",
+    "ipa": "/ˈbrʌð.ər.ɪn.lɔː/",
+    "pos": "n.",
+    "meaning": "anh/em rể, anh/em vợ/chồng",
+    "relatedTerms": [
+      "sister-in-law",
+      "sister's husband",
+      "family"
+    ],
+    "example": "Marcel is my sister's husband, so he is my brother-in-law.",
+    "exampleVi": "Marcel là chồng của chị gái tôi, nên anh ấy là anh rể tôi.",
+    "clinicalNote": "HA 1 Reading câu 8: bẫy đọc hiểu kinh điển (Marcella's husband = the author's brother-in-law).",
+    "dialoguePrompt": "Who is Marcel in the reading passage?",
+    "dialoguePromptVi": "Marcel là ai trong bài đọc?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_11",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "parents' house",
+    "ipa": "/ˈpeə.rənts haʊs/",
+    "pos": "phr.",
+    "meaning": "nhà của bố mẹ (sở hữu số nhiều)",
+    "relatedTerms": [
+      "two parents",
+      "possessive s'",
+      "near here"
+    ],
+    "example": "My parents' house is near here.",
+    "exampleVi": "Nhà của bố mẹ tôi ở gần đây.",
+    "clinicalNote": "HA 1 Theory 1D (trang 49): danh từ số nhiều có -s chỉ thêm dấu nháy (parents' house), KHÔNG dùng parent's cho hai người.",
+    "dialoguePrompt": "Where is your parents' house?",
+    "dialoguePromptVi": "Nhà của bố mẹ bạn ở đâu?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_12",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "children's bedroom",
+    "ipa": "/ˈtʃɪl.drənz ˈbed.ruːm/",
+    "pos": "phr.",
+    "meaning": "phòng ngủ của bọn trẻ",
+    "relatedTerms": [
+      "women's team",
+      "irregular plural",
+      "possessive 's"
+    ],
+    "example": "This is the children's bedroom upstairs.",
+    "exampleVi": "Đây là phòng ngủ của bọn trẻ ở trên lầu.",
+    "clinicalNote": "HA 1 Theory 1D (trang 49) & Writing câu 7 ('women's football team'): số nhiều bất quy tắc thêm 's (KHÔNG viết childrens').",
+    "dialoguePrompt": "Whose bedroom is this?",
+    "dialoguePromptVi": "Đây là phòng ngủ của ai?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1d_13",
+    "unit": "Unit 1D: Gia đình & Sở hữu cách (Family & Possessives)",
+    "word": "Charles's car",
+    "ipa": "/ˈtʃɑːl.zɪz kɑːr/",
+    "pos": "phr.",
+    "meaning": "xe ô tô của Charles",
+    "relatedTerms": [
+      "Pippa's",
+      "Kiera's",
+      "Paul's camera"
+    ],
+    "example": "This is Charles's car in front of the house.",
+    "exampleVi": "Đây là xe ô tô của Charles ở trước nhà.",
+    "clinicalNote": "HA 1 Theory 1D (trang 50) & Grammar câu 30, 33, 34: tên kết thúc bằng -s vẫn thêm 's (Charles's); phân biệt 's sở hữu với 's = is.",
+    "dialoguePrompt": "Whose car is this?",
+    "dialoguePromptVi": "Chiếc xe này là của ai?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_01",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "doesn't study",
+    "ipa": "/ˈdʌz.ənt ˈstʌd.i/",
+    "pos": "phr.",
+    "meaning": "không học (ngôi 3 số ít + V nguyên mẫu)",
+    "relatedTerms": [
+      "doesn't have",
+      "doesn't like",
+      "doesn't eat"
+    ],
+    "example": "Martina doesn't study Chinese because it is a very difficult language.",
+    "exampleVi": "Martina không học tiếng Trung vì đó là một ngôn ngữ rất khó.",
+    "clinicalNote": "BẪY HA 1 Grammar câu 37: sau doesn't động từ PHẢI nguyên mẫu (KHÔNG chọn doesn't studies hay isn't study).",
+    "dialoguePrompt": "Why doesn't Martina study Chinese?",
+    "dialoguePromptVi": "Tại sao Martina không học tiếng Trung?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_02",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "doesn't have",
+    "ipa": "/ˈdʌz.ənt hæv/",
+    "pos": "phr.",
+    "meaning": "không có (tránh lỗi doesn't has)",
+    "relatedTerms": [
+      "has",
+      "have a brother",
+      "free time"
+    ],
+    "example": "My friend has a sister, but he doesn't have a brother.",
+    "exampleVi": "Bạn tôi có chị gái, nhưng anh ấy không có anh/em trai.",
+    "clinicalNote": "BẪY HA 1 Grammar câu 16, 42 & Writing câu 9: khẳng định dùng 'has', phủ định PHẢI trả về 'doesn't have' (KHÔNG viết doesn't has).",
+    "dialoguePrompt": "Does Fred have a lot of free time?",
+    "dialoguePromptVi": "Fred có nhiều thời gian rảnh không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_03",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "Does it rain",
+    "ipa": "/dʌz ɪt reɪn/",
+    "pos": "phr.",
+    "meaning": "Trời có mưa không? (Does + S + V nguyên mẫu)",
+    "relatedTerms": [
+      "Does Emma play",
+      "Does he like",
+      "Yes/No question"
+    ],
+    "example": "Does it rain a lot in spring and autumn in Hanoi?",
+    "exampleVi": "Ở Hà Nội trời có mưa nhiều vào mùa xuân và mùa thu không?",
+    "clinicalNote": "BẪY HA 1 Grammar câu 22, 36, 44, 49: đã mượn 'Does' đầu câu thì động từ chính KHÔNG thêm -s (KHÔNG viết Does it rains).",
+    "dialoguePrompt": "Does it rain a lot in Hanoi?",
+    "dialoguePromptVi": "Ở Hà Nội trời có mưa nhiều không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_04",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "am not",
+    "ipa": "/æm nɒt/",
+    "pos": "phr.",
+    "meaning": "không phải là (dùng to be với tính từ/danh từ)",
+    "relatedTerms": [
+      "isn't",
+      "aren't",
+      "busy person"
+    ],
+    "example": "I am not a very busy person and I have lots of free time.",
+    "exampleVi": "Tôi không phải người quá bận rộn và tôi có nhiều thời gian rảnh.",
+    "clinicalNote": "BẪY HA 1 Grammar câu 11: không có động từ thường thì dùng to be 'am not' (KHÔNG chọn don't be hay do not).",
+    "dialoguePrompt": "Are you a very busy person?",
+    "dialoguePromptVi": "Bạn có phải là người rất bận rộn không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_05",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "isn't in class",
+    "ipa": "/ˈɪz.ənt ɪn klɑːs/",
+    "pos": "phr.",
+    "meaning": "không có mặt ở lớp (phủ định to be)",
+    "relatedTerms": [
+      "in the library",
+      "at home",
+      "am not"
+    ],
+    "example": "My classmate isn't in class right now because she's in the library.",
+    "exampleVi": "Bạn cùng lớp tôi hiện không ở trong lớp vì bạn ấy đang ở thư viện.",
+    "clinicalNote": "BẪY HA 1 Grammar câu 17: nói vị trí (in class) dùng to be 'isn't' (KHÔNG dùng doesn't hay doesn't be).",
+    "dialoguePrompt": "Where is your classmate right now?",
+    "dialoguePromptVi": "Bạn cùng lớp của bạn hiện đang ở đâu?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_06",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "Is your father",
+    "ipa": "/ɪz jɔːr ˈfɑː.ðər/",
+    "pos": "phr.",
+    "meaning": "Bố bạn có phải là ... không?",
+    "relatedTerms": [
+      "a teacher",
+      "a policeman",
+      "to be question"
+    ],
+    "example": "Is your father a teacher or a policeman?",
+    "exampleVi": "Bố bạn là giáo viên hay cảnh sát?",
+    "clinicalNote": "BẪY HA 1 Grammar câu 18: hỏi nghề nghiệp/danh từ dùng 'Is + S + N' (KHÔNG dùng Does/Do).",
+    "dialoguePrompt": "Is your father a teacher or a policeman?",
+    "dialoguePromptVi": "Bố bạn là giáo viên hay cảnh sát?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_07",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "we don't",
+    "ipa": "/wiː dəʊnt/",
+    "pos": "phr.",
+    "meaning": "Không, chúng tôi không (trả lời ngắn)",
+    "relatedTerms": [
+      "Yes, I do",
+      "Yes, she does",
+      "No, he doesn't"
+    ],
+    "example": "No, we don't, because we learn French instead.",
+    "exampleVi": "Không, chúng tôi không học, vì chúng tôi học tiếng Pháp.",
+    "clinicalNote": "BẪY HA 1 Theory 1A-1B & Grammar câu 47: trả lời ngắn lặp lại trợ động từ (do/don't/does/doesn't), KHÔNG lặp động từ chính (KHÔNG nói Yes, I like).",
+    "dialoguePrompt": "Do you learn English?",
+    "dialoguePromptVi": "Các bạn có học tiếng Anh không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_08",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "watches TV",
+    "ipa": "/ˈwɒtʃ.ɪz ˌtiːˈviː/",
+    "pos": "phr.",
+    "meaning": "xem tivi (động từ đuôi -ch/-sh/-s/-x thêm -es)",
+    "relatedTerms": [
+      "brushes",
+      "teaches",
+      "finishes"
+    ],
+    "example": "My brother watches TV every evening after dinner.",
+    "exampleVi": "Anh trai tôi xem tivi mỗi tối sau bữa ăn.",
+    "clinicalNote": "BẪY HA 1 Grammar câu 7 (brushes), 10 (watches), 21 (teaches): động từ kết thúc bằng -ch, -sh, -s, -x, -o thêm -es.",
+    "dialoguePrompt": "What does your brother do every evening?",
+    "dialoguePromptVi": "Anh trai bạn làm gì mỗi tối?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_09",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "studies in the library",
+    "ipa": "/ˈstʌd.iz ɪn ðə ˈlaɪ.brər.i/",
+    "pos": "phr.",
+    "meaning": "học bài ở thư viện (phụ âm + y → ies)",
+    "relatedTerms": [
+      "tidies",
+      "study",
+      "tidy"
+    ],
+    "example": "My best friend often studies in the library after class.",
+    "exampleVi": "Bạn thân tôi thường học bài ở thư viện sau giờ học.",
+    "clinicalNote": "BẪY HA 1 Grammar câu 9 (studies) & câu 41 (When does your sister tidy — có does thì giữ tidy nguyên mẫu!).",
+    "dialoguePrompt": "Where does your best friend often study?",
+    "dialoguePromptVi": "Bạn thân bạn thường học ở đâu?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_10",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "does his homework",
+    "ipa": "/dʌz hɪz ˈhəʊm.wɜːk/",
+    "pos": "phr.",
+    "meaning": "làm bài tập về nhà (do là động từ thường)",
+    "relatedTerms": [
+      "doesn't do",
+      "every day",
+      "after school"
+    ],
+    "example": "He does his homework every day after school.",
+    "exampleVi": "Cậu ấy làm bài tập về nhà mỗi ngày sau giờ học.",
+    "clinicalNote": "BẪY HA 1 Theory 1B (trang 48) & Grammar câu 4, 40: 'do' vừa là trợ động từ vừa là động từ thường (phủ định: He doesn't do his homework).",
+    "dialoguePrompt": "Does he do his homework every day?",
+    "dialoguePromptVi": "Cậu ấy có làm bài tập về nhà mỗi ngày không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_11",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "How much does it cost",
+    "ipa": "/haʊ mʌtʃ dʌz ɪt kɒst/",
+    "pos": "phr.",
+    "meaning": "Cái này giá bao nhiêu?",
+    "relatedTerms": [
+      "this suitcase",
+      "money",
+      "price"
+    ],
+    "example": "How much does it cost to buy this suitcase?",
+    "exampleVi": "Mua chiếc vali này tốn bao nhiêu tiền?",
+    "clinicalNote": "BẪY HA 1 Grammar câu 28 ('How much does this suitcase cost?'): dùng 'does + S + cost', KHÔNG dùng is/costing.",
+    "dialoguePrompt": "How much does this suitcase cost?",
+    "dialoguePromptVi": "Chiếc vali này giá bao nhiêu?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1e_12",
+    "unit": "Unit 1E: Bẫy Ngữ pháp Hiện tại đơn (Grammar Traps)",
+    "word": "What time do the shops open",
+    "ipa": "/wɒt taɪm duː ðə ʃɒps ˈəʊ.pən/",
+    "pos": "phr.",
+    "meaning": "Các cửa hàng mở cửa lúc mấy giờ?",
+    "relatedTerms": [
+      "does your father go",
+      "at 9 a.m.",
+      "present simple"
+    ],
+    "example": "What time do the shops open in the morning?",
+    "exampleVi": "Buổi sáng các cửa hàng mở cửa lúc mấy giờ?",
+    "clinicalNote": "BẪY HA 1 Grammar câu 38 (What time does your father go — số ít) vs câu 45 (What time do the shops open — số nhiều 'shops' dùng 'do').",
+    "dialoguePrompt": "What time do the shops here open?",
+    "dialoguePromptVi": "Các cửa hàng ở đây mở cửa lúc mấy giờ?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1f_01",
+    "unit": "Unit 1F: Phản xạ Nói & Viết HA 1 (Speaking & Writing)",
+    "word": "What do you do",
+    "ipa": "/wɒt duː juː duː/",
+    "pos": "phr.",
+    "meaning": "Bạn làm nghề gì?",
+    "relatedTerms": [
+      "What's your job?",
+      "student",
+      "engineer"
+    ],
+    "example": "What do you do and where do you work?",
+    "exampleVi": "Bạn làm nghề gì và làm việc ở đâu?",
+    "clinicalNote": "HA 1 Theory 1B (trang 48) & Speaking Set 1-2: nghĩa bằng 'What's your job?', không phải 'Bạn đang làm gì?'.",
+    "dialoguePrompt": "What do you do?",
+    "dialoguePromptVi": "Bạn làm nghề gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1f_02",
+    "unit": "Unit 1F: Phản xạ Nói & Viết HA 1 (Speaking & Writing)",
+    "word": "Where do you live",
+    "ipa": "/weər duː juː lɪv/",
+    "pos": "phr.",
+    "meaning": "Bạn sống ở đâu?",
+    "relatedTerms": [
+      "in the city",
+      "in the country",
+      "flat"
+    ],
+    "example": "I live in Hanoi, so where do you live?",
+    "exampleVi": "Tôi sống ở Hà Nội, còn bạn sống ở đâu?",
+    "clinicalNote": "HA 1 Grammar câu 20 & Speaking Set 1 Part 2: cấu trúc Wh- + do + you + V(nguyên mẫu).",
+    "dialoguePrompt": "Where do you live?",
+    "dialoguePromptVi": "Bạn sống ở đâu?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1f_03",
+    "unit": "Unit 1F: Phản xạ Nói & Viết HA 1 (Speaking & Writing)",
+    "word": "major at university",
+    "ipa": "/ˈmeɪ.dʒər æt ˌjuː.nɪˈvɜː.sə.ti/",
+    "pos": "phr.",
+    "meaning": "chuyên ngành ở trường đại học",
+    "relatedTerms": [
+      "enjoy your study",
+      "difficulties",
+      "classmates"
+    ],
+    "example": "What is your major at university and do you enjoy it?",
+    "exampleVi": "Chuyên ngành đại học của bạn là gì và bạn có thích nó không?",
+    "clinicalNote": "HA 1 Speaking Set 2 Part 2: 5 câu hỏi trọng tâm về học tập (enjoy study, major, difficulties, classmates, part-time job).",
+    "dialoguePrompt": "What is your major at university?",
+    "dialoguePromptVi": "Chuyên ngành của bạn ở đại học là gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1f_04",
+    "unit": "Unit 1F: Phản xạ Nói & Viết HA 1 (Speaking & Writing)",
+    "word": "reunite",
+    "ipa": "/ˌriː.juːˈnaɪt/",
+    "pos": "v.",
+    "meaning": "đoàn tụ, sum họp",
+    "relatedTerms": [
+      "family",
+      "often",
+      "weekend"
+    ],
+    "example": "How often do you and your family reunite during the year?",
+    "exampleVi": "Gia đình bạn có thường sum họp trong năm không?",
+    "clinicalNote": "HA 1 Speaking Set 1 Part 2 (Let's talk about your family): dùng tốt khi nói về dịp sum họp cuối tuần/lễ Tết.",
+    "dialoguePrompt": "How often do you and your family reunite?",
+    "dialoguePromptVi": "Gia đình bạn có thường đoàn tụ không?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1f_05",
+    "unit": "Unit 1F: Phản xạ Nói & Viết HA 1 (Speaking & Writing)",
+    "word": "spend time with",
+    "ipa": "/spend taɪm wɪð/",
+    "pos": "phr.",
+    "meaning": "dành thời gian bên ai",
+    "relatedTerms": [
+      "family member",
+      "the most",
+      "together"
+    ],
+    "example": "I spend time with my mother every evening after dinner.",
+    "exampleVi": "Tôi dành thời gian bên mẹ mỗi tối sau bữa ăn.",
+    "clinicalNote": "HA 1 Speaking Set 1 Part 3: 'Describe a family member that you spend the most time with.'",
+    "dialoguePrompt": "Which family member do you spend the most time with?",
+    "dialoguePromptVi": "Bạn dành nhiều thời gian nhất cho thành viên nào trong gia đình?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1f_06",
+    "unit": "Unit 1F: Phản xạ Nói & Viết HA 1 (Speaking & Writing)",
+    "word": "support from family",
+    "ipa": "/səˈpɔːt frəm ˈfæm.əl.i/",
+    "pos": "phr.",
+    "meaning": "sự ủng hộ từ gia đình",
+    "relatedTerms": [
+      "friends",
+      "help",
+      "prefer"
+    ],
+    "example": "I prefer support from family because they always understand me.",
+    "exampleVi": "Tôi thích sự ủng hộ từ gia đình vì họ luôn hiểu tôi.",
+    "clinicalNote": "HA 1 Speaking Set 1 Part 4: 'Which do you prefer, support from family members or friends?'.",
+    "dialoguePrompt": "Which do you prefer, support from family or friends?",
+    "dialoguePromptVi": "Bạn thích sự ủng hộ từ gia đình hay bạn bè hơn?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1f_07",
+    "unit": "Unit 1F: Phản xạ Nói & Viết HA 1 (Speaking & Writing)",
+    "word": "qualities and responsibilities",
+    "ipa": "/ˈkwɒl.ə.tiz ænd rɪˌspɒn.səˈbɪl.ə.tiz/",
+    "pos": "phr.",
+    "meaning": "phẩm chất và trách nhiệm",
+    "relatedTerms": [
+      "future job",
+      "experience",
+      "successful"
+    ],
+    "example": "Good qualities and responsibilities are important for my future job.",
+    "exampleVi": "Phẩm chất tốt và tinh thần trách nhiệm rất quan trọng cho công việc tương lai của tôi.",
+    "clinicalNote": "HA 1 Speaking Set 2 Part 3: trả lời 2 ý cốt lõi khi miêu tả nghề nghiệp tương lai (qualities needed + responsibilities).",
+    "dialoguePrompt": "What qualities and responsibilities are needed for your future job?",
+    "dialoguePromptVi": "Công việc tương lai của bạn cần những phẩm chất và trách nhiệm gì?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1f_08",
+    "unit": "Unit 1F: Phản xạ Nói & Viết HA 1 (Speaking & Writing)",
+    "word": "individual development",
+    "ipa": "/ˌɪn.dɪˈvɪdʒ.u.əl dɪˈvel.əp.mənt/",
+    "pos": "phr.",
+    "meaning": "sự phát triển cá nhân",
+    "relatedTerms": [
+      "teams' goals",
+      "more important",
+      "career"
+    ],
+    "example": "Both individual development and teams' goals are important at work.",
+    "exampleVi": "Cả sự phát triển cá nhân và mục tiêu của đội nhóm đều quan trọng trong công việc.",
+    "clinicalNote": "HA 1 Speaking Set 2 Part 3 Follow-up: 'Which one do you think is more important, individual development or teams' goals?'.",
+    "dialoguePrompt": "Which is more important, individual development or teams' goals?",
+    "dialoguePromptVi": "Theo bạn phát triển cá nhân hay mục tiêu nhóm quan trọng hơn?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  },
+  {
+    "id": "ha1_u1f_09",
+    "unit": "Unit 1F: Phản xạ Nói & Viết HA 1 (Speaking & Writing)",
+    "word": "voluntary work",
+    "ipa": "/ˈvɒl.ən.tər.i wɜːk/",
+    "pos": "n.",
+    "meaning": "công việc tình nguyện",
+    "relatedTerms": [
+      "help others",
+      "community",
+      "experience"
+    ],
+    "example": "Doing voluntary work helps not only other people but also ourselves.",
+    "exampleVi": "Làm công việc tình nguyện không chỉ giúp người khác mà còn giúp chính chúng ta.",
+    "clinicalNote": "HA 1 Speaking Set 2 Part 4 Discussion: cấu trúc ghi điểm 'not only ... but also ...' + ví dụ giúp đỡ khi không có tiền (share time/skills).",
+    "dialoguePrompt": "Have you ever done any voluntary work?",
+    "dialoguePromptVi": "Bạn đã bao giờ làm công việc tình nguyện chưa?",
+    "srsLevel": 0,
+    "mistakeCount": 0,
+    "lastReviewedAt": null,
+    "nextReviewAt": null,
+    "reviewIntervalDays": 0
+  }
+];
 
     const COMM_EXPRESSION_LEXICON = [];
     // GLOBAL STATES
@@ -3329,53 +3848,61 @@
         try { specialtiesMap = JSON.parse(rawSpecs); } catch (e) { specialtiesMap = {}; }
       }
 
-      const hasSeededSpV2 = localStorage.getItem(STORAGE_KEY_SEED_SIMPLE_PRESENT_V1) === "1";
-      const existingCommVocab = (specialtiesMap["comm_eng"] && Array.isArray(specialtiesMap["comm_eng"].vocab))
-        ? specialtiesMap["comm_eng"].vocab
-        : [];
-
-      if (!hasSeededSpV2) {
-        // Giữ lại các từ do người dùng tự thêm (không thuộc bộ u1_..u8_ cũ) và nạp trọn bộ 60 mục Simple Present (sp_u1_..sp_u6_)
-        const seedIdSet = new Set(SEED_DATA.map(i => i.id));
-        const customUserItems = existingCommVocab.filter(item =>
-          item &&
-          item.id &&
-          !seedIdSet.has(item.id) &&
-          !/^u[1-8]_\d+$/i.test(String(item.id))
-        );
-        const existingSpMap = new Map(
-          existingCommVocab
-            .filter(item => item && seedIdSet.has(item.id))
-            .map(item => [item.id, item])
-        );
-        const mergedSeedVocab = SEED_DATA.map(seedItem => {
-          const prev = existingSpMap.get(seedItem.id);
-          return prev ? { ...seedItem, ...prev, unit: seedItem.unit } : { ...seedItem };
-        });
-
+      if (!localStorage.getItem(STORAGE_KEY_SEED_HA1_U1_V1)) {
+        const freshSeed = SEED_DATA.map(i => ({ ...i }));
         specialtiesMap["comm_eng"] = {
           id: "comm_eng",
           name: "Giao Tiếp & Phản Xạ",
           icon: "fa-comments",
-          vocab: [...mergedSeedVocab, ...customUserItems]
+          vocab: freshSeed
         };
+        guidedFcViewedIds.clear();
+        guidedDictCleanIds.clear();
+        guidedDictAttempted = false;
+        guidedSprintDoneKeys.clear();
         localStorage.setItem(STORAGE_KEY_SPECIALTIES, JSON.stringify(specialtiesMap));
         localStorage.setItem(STORAGE_KEY_CURRENT_SPEC, "comm_eng");
         localStorage.removeItem(STORAGE_KEY_CBT_STATE);
-        localStorage.setItem(STORAGE_KEY_SEED_SIMPLE_PRESENT_V1, "1");
+        localStorage.setItem(STORAGE_KEY_SEED_HA1_U1_V1, "1");
+        try {
+          const savedSettingsRaw = localStorage.getItem(STORAGE_KEY_APP_SETTINGS);
+          if (savedSettingsRaw) {
+            const parsedSettings = JSON.parse(savedSettingsRaw);
+            parsedSettings.selectedUnits = Object.keys(UNIT_METADATA);
+            parsedSettings.guidedFcViewedIds = [];
+            parsedSettings.guidedDictCleanIds = [];
+            parsedSettings.guidedDictAttempted = false;
+            parsedSettings.guidedSprintDoneKeys = [];
+            parsedSettings.quizPoolIds = [];
+            parsedSettings.quizIndex = 0;
+            parsedSettings.fcIndex = 0;
+            parsedSettings.dictIndex = 0;
+            localStorage.setItem(STORAGE_KEY_APP_SETTINGS, JSON.stringify(parsedSettings));
+          }
+        } catch (e) {}
+      } else if (!specialtiesMap["comm_eng"] || !Array.isArray(specialtiesMap["comm_eng"].vocab) || specialtiesMap["comm_eng"].vocab.length === 0) {
+        specialtiesMap["comm_eng"] = {
+          id: "comm_eng",
+          name: "Giao Tiếp & Phản Xạ",
+          icon: "fa-comments",
+          vocab: SEED_DATA.map(i => ({ ...i }))
+        };
+        localStorage.setItem(STORAGE_KEY_SPECIALTIES, JSON.stringify(specialtiesMap));
       } else {
-        if (!specialtiesMap["comm_eng"] || !Array.isArray(specialtiesMap["comm_eng"].vocab) || specialtiesMap["comm_eng"].vocab.length === 0) {
-          specialtiesMap["comm_eng"] = {
-            id: "comm_eng",
-            name: "Giao Tiếp & Phản Xạ",
-            icon: "fa-comments",
-            vocab: SEED_DATA.map(i => ({ ...i }))
-          };
+        const existingVocab = specialtiesMap["comm_eng"].vocab;
+        const existingIdSet = new Set(existingVocab.map(v => v && v.id).filter(Boolean));
+        let addedMissingSeed = false;
+        SEED_DATA.forEach(seedItem => {
+          if (!existingIdSet.has(seedItem.id)) {
+            existingVocab.push({ ...seedItem });
+            addedMissingSeed = true;
+          }
+        });
+        existingVocab.forEach(item => {
+          if (item) item.unit = normalizeUnitName(item.unit);
+        });
+        if (addedMissingSeed) {
           localStorage.setItem(STORAGE_KEY_SPECIALTIES, JSON.stringify(specialtiesMap));
-        } else {
-          specialtiesMap["comm_eng"].vocab.forEach(item => {
-            if (item) item.unit = normalizeUnitName(item.unit);
-          });
         }
       }
 
@@ -5887,15 +6414,15 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         e.stopPropagation();
         const allU = getAllUnits();
         if (allU.length === 0) return showToast("Kho từ vựng đang trống!", "info");
-        const reflexUnits = allU.filter(u => /^Unit\s*[5678]\b/i.test(u));
+        const reflexUnits = allU.filter(u => /^Unit\s*(1[EF]|[5678])\b/i.test(u));
         selectedUnits = new Set(reflexUnits.length > 0 ? reflexUnits : [allU[0]]);
-        saveStudyProgress(); syncAllViews(); showToast("Đã chọn nhóm Unit Ngữ pháp & Phản xạ (Unit 5-6)!");
+        saveStudyProgress(); syncAllViews(); showToast("Đã chọn nhóm Unit 1E-1F (Bẫy Ngữ pháp & Phản xạ Nói/Viết)!");
       };
       document.getElementById("btnDeselectAllUnits").onclick = e => {
         e.stopPropagation();
         const allU = getAllUnits();
         if (allU.length === 0) return showToast("Kho từ vựng đang trống!", "info");
-        const targetUnit = allU.find(u => /^Unit\s*1\b/i.test(u)) || allU[0];
+        const targetUnit = allU.find(u => /^Unit\s*1A?\b/i.test(u)) || allU[0];
         selectedUnits = new Set([targetUnit]);
         saveStudyProgress(); syncAllViews(); showToast(`Chỉ chọn ${targetUnit}`);
       };
@@ -6393,10 +6920,19 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
       }
 
       document.getElementById("btnResetDefaultData").onclick = () => {
-        vocabList = SEED_DATA.map(i => ({ ...i })); selectedUnits = new Set(getAllUnits());
+        vocabList = SEED_DATA.map(i => ({ ...i }));
+        selectedUnits = new Set(getAllUnits());
         quizPool = []; fcPool = []; dictPool = [];
-        guidedFcViewedIds.clear(); guidedDictCleanIds.clear(); guidedDictAttempted = false; guidedSprintDoneKeys.clear();
-        saveDatabase(); syncAllViews(); document.getElementById("jsonModal").classList.add("hidden"); showToast("Đã khôi phục bộ 60 mẫu câu Thì Hiện Tại Đơn mặc định!");
+        quizIndex = 0; fcIndex = 0; dictIndex = 0;
+        guidedFcViewedIds.clear();
+        guidedDictCleanIds.clear();
+        guidedDictAttempted = false;
+        guidedSprintDoneKeys.clear();
+        localStorage.setItem(STORAGE_KEY_SEED_HA1_U1_V1, "1");
+        saveDatabase();
+        syncAllViews();
+        document.getElementById("jsonModal").classList.add("hidden");
+        showToast("Đã khôi phục đầy đủ 80 mục từ vựng & 6 Unit mặc định (Unit 1: Me and You — HA 1)!");
       };
       function normalizeImportedItem(item) {
         if (!item || typeof item !== "object") return item;
