@@ -71,6 +71,11 @@
       50% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
     }
     .pulse-arrow { animation: pulseGlow 2s infinite; }
+    @keyframes scrambleCaretBlink {
+      0%, 100% { opacity: 1; transform: scaleY(1); }
+      50% { opacity: 0.35; transform: scaleY(0.88); }
+    }
+    .scramble-caret-active { animation: scrambleCaretBlink 1s ease-in-out infinite; }
     @keyframes micPulse {
       0%, 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.55); }
       50% { box-shadow: 0 0 0 8px rgba(225, 29, 72, 0); }
@@ -176,6 +181,9 @@
         </button>
         <button class="mode-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-1.5 transition" data-tab="docexam">
           <i class="fa-solid fa-file-circle-question"></i> 7. Quét PDF Tạo Đề Thi
+        </button>
+        <button class="mode-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-1.5 transition" data-tab="scramble">
+          <i class="fa-solid fa-arrows-left-right-to-line"></i> 8. Sắp Xếp Câu
         </button>
       </nav>
     </div>
@@ -1273,6 +1281,127 @@
         </div>
       </div>
     </section>
+
+    <!-- ==========================================
+         CHẾ ĐỘ 8: SẮP XẾP CÂU (SENTENCE SCRAMBLE)
+         ========================================== -->
+    <section id="tab-scramble" class="tab-panel hidden space-y-4">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
+        <details class="p-2.5 rounded-xl bg-indigo-50/60 dark:bg-slate-900/60 border border-indigo-200/60 dark:border-slate-700 text-xs">
+          <summary class="cursor-pointer font-bold text-indigo-800 dark:text-indigo-300 flex items-center justify-between">
+            <span><i class="fa-solid fa-arrows-left-right-to-line mr-1.5"></i>Hướng dẫn Chế độ 8: Sắp Xếp Câu (Sentence Scramble)</span>
+            <span class="text-[10px] text-indigo-600 dark:text-indigo-400">Nhấn để xem / ẩn</span>
+          </summary>
+          <p class="mt-1.5 text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+            Luyện trật tự từ và cấu trúc ngữ pháp câu hoàn chỉnh trực tiếp từ các Unit đang chọn. Bạn có thể <strong>kéo thả trực tiếp</strong> thẻ từ vào bất kỳ vị trí nào (PC), hoặc <strong>chạm vào khe chèn (+)</strong> giữa các từ để đặt con trỏ màu tím Indigo rồi chạm từ bên dưới để chèn đúng vị trí (tối ưu điện thoại). Chạm thẻ đã xếp (hoặc kéo ra ngoài) để trả về Kho từ. Phím tắt: <strong>Enter</strong> kiểm tra / qua câu, <strong>Backspace</strong> hoàn tác từ cuối.
+          </p>
+        </details>
+
+        <!-- Thanh công cụ trên cùng -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-700">
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="scrambleProgressText" class="px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 text-xs font-extrabold">Câu 0 / 0</span>
+            <span id="scrambleUnitBadge" class="px-2.5 py-1 rounded-full bg-violet-100 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 text-[11px] font-bold max-w-[260px] truncate">Unit 1</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button id="btnScrambleShuffle" type="button" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-shuffle text-indigo-500"></i> Trộn câu
+            </button>
+            <button id="btnScrambleReset" type="button" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-rotate-left text-amber-500"></i> Đặt lại câu đang xếp
+            </button>
+            <button id="btnScrambleSpeak" type="button" disabled title="Mở khóa sau khi kiểm tra đáp án hoặc bật Gợi ý" class="px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/70 text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-45 disabled:cursor-not-allowed">
+              <i id="scrambleSpeakIcon" class="fa-solid fa-lock"></i>
+              <span id="scrambleSpeakLabel">Nghe câu mẫu (UK)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Trạng thái trống khi không có câu hợp lệ -->
+        <div id="scrambleEmptyState" class="hidden p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-300 dark:border-slate-700 text-center space-y-2">
+          <i class="fa-solid fa-layer-group text-2xl text-indigo-400"></i>
+          <p class="text-sm font-extrabold text-slate-700 dark:text-slate-200">Không có câu ví dụ phù hợp trong các Unit đang chọn</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Hãy chọn thêm các Unit học lõi (1A–1F) ở thanh chọn học phần phía trên để bắt đầu luyện sắp xếp câu.</p>
+        </div>
+
+        <!-- Nội dung câu hỏi chính -->
+        <div id="scrambleMainContent" class="space-y-4">
+          <!-- Khung đề bài: Nghĩa tiếng Việt & Từ khóa trọng tâm -->
+          <div class="p-4 rounded-2xl bg-gradient-to-br from-indigo-50/80 via-white to-violet-50/70 dark:from-slate-900/90 dark:via-slate-900/70 dark:to-indigo-950/40 border border-indigo-200/70 dark:border-indigo-900/60 space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-language"></i> Ghép câu tiếng Anh tương ứng với nghĩa:
+              </span>
+              <button id="btnScrambleToggleKeyword" type="button" class="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-slate-800 border border-indigo-200 dark:border-slate-700 text-[11px] font-bold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-slate-700 transition flex items-center gap-1">
+                <i class="fa-regular fa-eye"></i> <span>Hiện từ khóa</span>
+              </button>
+            </div>
+            <p id="scramblePromptVi" class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-snug"></p>
+            <div id="scrambleKeywordWrap" class="hidden pt-1 flex flex-wrap items-center gap-2">
+              <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Từ khóa trọng tâm:</span>
+              <span id="scrambleKeywordBadge" class="px-2.5 py-0.5 rounded-lg bg-violet-100 dark:bg-violet-900/60 text-violet-800 dark:text-violet-200 text-xs font-extrabold"></span>
+            </div>
+          </div>
+
+          <!-- Vùng Xếp Câu (Answer Drop Zone) -->
+          <div class="space-y-1.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <label class="text-xs font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                <i class="fa-solid fa-pen-to-square text-indigo-500"></i> Vùng Xếp Câu
+                <span class="text-[11px] font-medium text-slate-400">(Chạm khe <strong class="text-indigo-500">+</strong> để chọn chỗ chèn hoặc kéo thả thẻ từ)</span>
+              </label>
+              <span id="scrambleCursorHint" class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">Vị trí chèn: cuối câu</span>
+            </div>
+            <div id="scrambleAnswerZone" class="min-h-[84px] p-3.5 rounded-2xl bg-slate-50/90 dark:bg-slate-900/70 border-2 border-dashed border-indigo-300/80 dark:border-indigo-700/60 flex flex-wrap items-center gap-y-2.5 gap-x-1 transition-all">
+            </div>
+          </div>
+
+          <!-- Kho Từ Xáo Trộn (Word Bank) -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <label class="text-xs font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                <i class="fa-solid fa-cubes-stacked text-violet-500"></i> Kho Từ Xáo Trộn
+                <span id="scrambleBankCount" class="text-[11px] font-bold text-slate-400">(0 thẻ còn lại)</span>
+              </label>
+              <span class="text-[11px] text-slate-400 hidden sm:inline">Kéo thẻ từ lên trên hoặc chạm để chèn ngay</span>
+            </div>
+            <div id="scrambleBankZone" class="min-h-[72px] p-3.5 rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 flex flex-wrap items-center gap-2 transition-all">
+            </div>
+          </div>
+
+          <!-- Hộp Gợi ý 1 (Cấu trúc & Từ khóa) -->
+          <div id="scrambleHintBox" class="hidden p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/35 border border-amber-300/80 dark:border-amber-700/60 text-xs space-y-1.5">
+          </div>
+
+          <!-- Thanh nút Gợi ý 2 nấc + Kiểm tra + Điều hướng -->
+          <div class="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-700">
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="btnScrambleHint1" type="button" class="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/50 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-extrabold transition flex items-center gap-1.5">
+                <i class="fa-regular fa-lightbulb"></i> Gợi ý 1: Cấu trúc &amp; Từ khóa
+              </button>
+              <button id="btnScrambleHint2" type="button" class="px-3 py-2 rounded-xl bg-violet-50 hover:bg-violet-100 dark:bg-violet-950/50 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800 text-xs font-extrabold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Gợi ý 2: Điền 1 từ tiếp theo
+              </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="btnScramblePrev" type="button" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1">
+                <i class="fa-solid fa-chevron-left"></i> Câu trước
+              </button>
+              <button id="btnScrambleCheck" type="button" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:brightness-110 text-white text-xs font-extrabold shadow-md transition flex items-center gap-1.5">
+                <i class="fa-solid fa-check-double"></i> Kiểm tra đáp án
+              </button>
+              <button id="btnScrambleNext" type="button" class="px-3.5 py-2 rounded-xl bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/70 dark:hover:bg-indigo-800/80 text-indigo-800 dark:text-indigo-200 text-xs font-extrabold transition flex items-center gap-1">
+                Câu tiếp theo <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bảng Kết quả & Giải thích Ngữ pháp -->
+          <div id="scrambleFeedbackBox" class="hidden rounded-2xl p-4 border space-y-2.5 text-xs">
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- CHÂN TRANG BẢN QUYỀN CỐ ĐỊNH -->
@@ -1595,6 +1724,13 @@
         icon: "fa-trophy",
         title: "Bản v7: Trọn Bộ Unit 1 v2 (105 Mục Lõi) + Đề Thi Thử Chuẩn HA 1 (50 Câu CBT · 35 Phút)",
         desc: "Mở rộng kho học lõi Unit 1A–1F lên 105 mục phủ đủ 8 phần đề thi HA 1 (gồm Listening B & Speaking Set 1–2), tích hợp sẵn Unit Đề Thi Thử Chuẩn HA 1 (50 câu) gắn đầy đủ grammarChoices + giải thích phương án nhiễu, thêm tùy chọn 50 Câu (35 phút) ở Phòng thi CBT và tự động hợp nhất dữ liệu mới mà bảo toàn 100% tiến độ SRS cũ."
+      },
+      {
+        type: "important",
+        date: "19/11/2026 • 15:30",
+        icon: "fa-arrows-left-right-to-line",
+        title: "Bổ Sung Chế Độ 8: Sắp Xếp Câu (Sentence Scramble) — Kéo Thả & Con Trỏ Chèn Thông Minh",
+        desc: "Thêm Tab 8 tự động tách câu từ kho Unit đang chọn (giữ nguyên rút gọn doesn't/I'm, sở hữu cách parents'/women's và từ ghép), hỗ trợ đồng thời Kéo Thả (Drag & Drop) lẫn Chạm Khe Chèn (+) tối ưu cho điện thoại, gợi ý 2 nấc, tô màu đúng/sai theo vị trí, giải thích ngữ pháp chi tiết và đồng bộ SRS Ebbinghaus."
       }
     ];
 
@@ -6038,6 +6174,10 @@ const SEED_DATA = [
     let distractorStrategy = "smart";
     let fcPool = [], fcIndex = 0;
     let dictPool = [], dictIndex = 0, isDictTransitioning = false, dictAutoNextTimer = null;
+    let scramblePool = [], scrambleIndex = 0, scramblePlaced = [], scrambleBank = [];
+    let scrambleInsertIndex = 0, scrambleShowKeyword = false, scrambleHint1Shown = false;
+    let scrambleHint2UsedCount = 0, scrambleChecked = false, scrambleLastCorrect = false;
+    let scrambleCheckResult = [], scrambleSrsRecorded = false, scrambleDragPayload = null;
     let speechRecognition = null, isMicRecording = false;
 
     let sprintTimer = null, sprintSeconds = 60, sprintScore = 0, sprintCombo = 1, sprintAnsweredCount = 0, currentSprintItem = null;
@@ -6166,7 +6306,8 @@ const SEED_DATA = [
         quizScore,
         quizPoolIds: quizPool.map(i => i.id),
         fcIndex,
-        dictIndex
+        dictIndex,
+        scrambleIndex
       };
       localStorage.setItem(STORAGE_KEY_APP_SETTINGS, JSON.stringify(stateObj));
     }
@@ -6188,6 +6329,7 @@ const SEED_DATA = [
         if (s.distractorStrategy) distractorStrategy = s.distractorStrategy;
         if (s.fcIndex !== undefined) fcIndex = s.fcIndex;
         if (s.dictIndex !== undefined) dictIndex = s.dictIndex;
+        if (s.scrambleIndex !== undefined) scrambleIndex = s.scrambleIndex;
         if (s.onlyMistakes !== undefined) onlyMistakesFilter = s.onlyMistakes;
         if (s.onlyDueToday !== undefined) onlyDueTodayFilter = s.onlyDueToday;
         if (s.guidedModeEnabled !== undefined) guidedModeEnabled = !!s.guidedModeEnabled;
@@ -6297,6 +6439,10 @@ const SEED_DATA = [
       }
 
       if (tabName === "dashboard") renderDashboard();
+      if (tabName === "scramble") {
+        if (scramblePool.length === 0) buildScramblePool(false);
+        renderScrambleQuestion();
+      }
       renderGuidedFlowBar();
     }
 
@@ -6788,6 +6934,7 @@ const SEED_DATA = [
 
       renderFlashcard(true);
       renderDictation();
+      syncScrambleWithFilter();
       renderVocabTree(document.getElementById("searchVocabInput")?.value || "");
       renderGuidedFlowBar();
     }
@@ -9097,10 +9244,785 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         document.getElementById("chkOnlyMistakes").checked = false;
         const chkDue = document.getElementById("chkOnlyDueToday");
         if (chkDue) chkDue.checked = false;
-        quizIndex = 0; quizScore = 0; fcIndex = 0; dictIndex = 0; quizPool = []; dictPool = [];
+        quizIndex = 0; quizScore = 0; fcIndex = 0; dictIndex = 0; scrambleIndex = 0; quizPool = []; dictPool = []; scramblePool = [];
       }
       syncAllViews();
       renderSpecialtyList();
+    }
+
+    /* =========================================================================
+     * 12B. CHẾ ĐỘ 8: SẮP XẾP CÂU (SENTENCE SCRAMBLE ENGINE)
+     * ========================================================================= */
+    const SCRAMBLE_ABBREV_RE = /^(?:a\.m\.|p\.m\.|mr\.|mrs\.|ms\.|dr\.|st\.|etc\.|u\.s\.|u\.k\.)$/i;
+
+    function stripScrambleSectionTag(str) {
+      return String(str || "").replace(/^\s*\[[IVX]+\.\s*[^\]]+\]\s*/i, "").trim();
+    }
+
+    function tokenizeSentenceForScramble(sentence) {
+      const normalized = String(sentence || "")
+        .replace(/[’‘`]/g, "'")
+        .replace(/[“”]/g, '"')
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/^"(.*)"$/, "$1")
+        .trim();
+      if (!normalized) return [];
+
+      const rawParts = normalized.split(/\s+/).filter(Boolean);
+      const tokens = [];
+
+      rawParts.forEach(part => {
+        let chunk = part.trim();
+        if (!chunk) return;
+
+        // Tách dấu kết câu (. ? !) nếu đứng cuối từ, giữ nguyên viết tắt (a.m., p.m., Mr., Mrs., Ms., Dr.)
+        const abbrevWithEndPunct = chunk.match(/^((?:a\.m\.|p\.m\.|mr\.|mrs\.|ms\.|dr\.|etc\.|u\.s\.|u\.k\.))([?!]+)$/i);
+        if (abbrevWithEndPunct) {
+          tokens.push(abbrevWithEndPunct[1]);
+          tokens.push(abbrevWithEndPunct[2]);
+          return;
+        }
+        if (SCRAMBLE_ABBREV_RE.test(chunk)) {
+          tokens.push(chunk);
+          return;
+        }
+        const trailingMatch = chunk.match(/^(.+?)([.?!]+)$/);
+        if (trailingMatch && trailingMatch[1] && !SCRAMBLE_ABBREV_RE.test(chunk)) {
+          tokens.push(trailingMatch[1]);
+          tokens.push(trailingMatch[2]);
+          return;
+        }
+        tokens.push(chunk);
+      });
+
+      return tokens.filter(Boolean);
+    }
+
+    function countScrambleWordTokens(tokens) {
+      return tokens.filter(t => /[a-zA-Z0-9]/.test(t)).length;
+    }
+
+    function extractScrambleSentence(item) {
+      if (!item || !item.example) return null;
+      const wordStr = String(item.word || "").trim();
+      const meaningStr = String(item.meaning || "").trim();
+      const rawEx = String(item.example || "").trim();
+      const rawVi = String(item.exampleVi || "").trim();
+
+      // Bỏ qua câu phát âm / trọng âm ([I. Phonetics], [I. Stress]) hoặc chuỗi đáp án A. ... B. ...
+      if (
+        /^\[\s*I\.\s*(Phonetics|Stress)\s*\]/i.test(wordStr) ||
+        /^\[\s*I\.\s*(Phonetics|Stress)\s*\]/i.test(rawEx) ||
+        /^\[\s*I\.\s*(Phonetics|Stress)\s*\]/i.test(meaningStr) ||
+        /^A\.\s+.*B\.\s+.*C\./i.test(rawEx)
+      ) {
+        return null;
+      }
+
+      const cleanEx = stripScrambleSectionTag(rawEx);
+      const cleanVi = stripScrambleSectionTag(rawVi) || stripScrambleSectionTag(meaningStr);
+      if (!cleanEx) return null;
+
+      // Xác định từ khóa lõi để ưu tiên chọn mệnh đề chứa từ khóa trong hội thoại A: ... — B: ...
+      const keywordCore = stripScrambleSectionTag(wordStr)
+        .replace(/\([^)]*\)/g, "")
+        .split("/")[0]
+        .trim()
+        .toLowerCase();
+
+      let chosenEn = cleanEx;
+      let chosenVi = cleanVi;
+
+      // Tách hội thoại có gạch ngang dài kèm khoảng trắng (tránh tách từ ghép như brother-in-law, part-time)
+      if (/\s+[—–]\s+/.test(cleanEx)) {
+        const enParts = cleanEx.split(/\s+[—–]\s+/).map(s => s.replace(/^[AB]\s*:\s*/i, "").trim()).filter(Boolean);
+        const viParts = /\s+[—–]\s+/.test(cleanVi)
+          ? cleanVi.split(/\s+[—–]\s+/).map(s => s.replace(/^[AB]\s*:\s*/i, "").trim()).filter(Boolean)
+          : [];
+
+        const candidates = enParts.map((txt, idx) => {
+          const toks = tokenizeSentenceForScramble(txt);
+          const wordCount = countScrambleWordTokens(toks);
+          const hasKw = keywordCore.length >= 2 && txt.toLowerCase().includes(keywordCore);
+          return { idx, txt, toks, wordCount, hasKw };
+        }).filter(c => c.wordCount >= 4);
+
+        if (candidates.length > 0) {
+          const best = candidates.find(c => c.hasKw) || candidates.sort((a, b) => b.wordCount - a.wordCount)[0];
+          chosenEn = best.txt;
+          if (viParts[best.idx]) chosenVi = viParts[best.idx];
+        } else if (enParts.length > 0) {
+          chosenEn = enParts[0];
+        }
+      } else {
+        chosenEn = cleanEx.replace(/^[AB]\s*:\s*/i, "").trim();
+        chosenVi = cleanVi.replace(/^[AB]\s*:\s*/i, "").trim();
+      }
+
+      // Nếu vẫn quá dài (> 18 thẻ) và gồm nhiều câu đơn, ưu tiên tách 1 câu hoàn chỉnh chứa từ khóa
+      let tokens = tokenizeSentenceForScramble(chosenEn);
+      if (tokens.length > 18) {
+        const sentenceParts = chosenEn
+          .replace(/(a\.m\.|p\.m\.|mr\.|mrs\.|ms\.|dr\.)/gi, m => m.replace(/\./g, "__DOT__"))
+          .split(/(?<=[.?!])\s+/)
+          .map(s => s.replace(/__DOT__/g, ".").trim())
+          .filter(Boolean);
+        if (sentenceParts.length > 1) {
+          const subCandidates = sentenceParts.map(s => ({
+            txt: s,
+            toks: tokenizeSentenceForScramble(s),
+            hasKw: keywordCore.length >= 2 && s.toLowerCase().includes(keywordCore)
+          })).filter(c => countScrambleWordTokens(c.toks) >= 4);
+          if (subCandidates.length > 0) {
+            const picked = subCandidates.find(c => c.hasKw) || subCandidates[0];
+            chosenEn = picked.txt;
+            tokens = picked.toks;
+          }
+        }
+      }
+
+      if (countScrambleWordTokens(tokens) < 4) return null;
+
+      return {
+        item,
+        id: item.id,
+        unit: item.unit || "",
+        sentence: chosenEn,
+        promptVi: chosenVi || meaningStr || "Sắp xếp các từ sau thành câu tiếng Anh hoàn chỉnh.",
+        tokens
+      };
+    }
+
+    function compareScrambleToken(actualText, expectedText, index) {
+      const a = String(actualText || "").replace(/[’‘`]/g, "'").trim();
+      const b = String(expectedText || "").replace(/[’‘`]/g, "'").trim();
+      if (a === b) return true;
+      // Nới lỏng hoa/thường ở vị trí đầu câu (vẫn giữ nguyên chặt dấu ' và -)
+      if (index === 0 && a.toLowerCase() === b.toLowerCase()) return true;
+      return false;
+    }
+
+    function shuffleScrambleTokens(targetTokens) {
+      const makeItems = arr => arr.map((text, idx) => ({
+        uid: `sc_${idx}_${Math.random().toString(36).slice(2, 7)}`,
+        text,
+        isHinted: false
+      }));
+      const items = makeItems(targetTokens);
+      if (items.length <= 1) return items;
+
+      const isSameOrder = arr => arr.every((t, i) => t.text === targetTokens[i]);
+
+      for (let attempt = 0; attempt < 16; attempt++) {
+        for (let i = items.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = items[i];
+          items[i] = items[j];
+          items[j] = tmp;
+        }
+        if (!isSameOrder(items)) return items;
+      }
+
+      // Đảm bảo tuyệt đối thứ tự xáo trộn khác thứ tự đáp án gốc
+      for (let i = 1; i < items.length; i++) {
+        if (items[i].text !== items[0].text) {
+          const tmp = items[0];
+          items[0] = items[i];
+          items[i] = tmp;
+          break;
+        }
+      }
+      return items;
+    }
+
+    function buildScramblePool(shouldShuffle = false) {
+      const filtered = getFilteredVocab();
+      const built = filtered.map(extractScrambleSentence).filter(Boolean);
+      if (shouldShuffle) {
+        for (let i = built.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = built[i];
+          built[i] = built[j];
+          built[j] = tmp;
+        }
+      }
+      scramblePool = built;
+      if (scrambleIndex >= scramblePool.length || scrambleIndex < 0) {
+        scrambleIndex = 0;
+      }
+      loadScrambleQuestion(true);
+    }
+
+    function syncScrambleWithFilter() {
+      const filtered = getFilteredVocab();
+      const built = filtered.map(extractScrambleSentence).filter(Boolean);
+      const newIds = built.map(q => q.id);
+      const oldIdSet = new Set(scramblePool.map(q => q.id));
+      const sameSet = scramblePool.length === built.length && newIds.every(id => oldIdSet.has(id));
+
+      if (!sameSet) {
+        const currentId = scramblePool[scrambleIndex]?.id;
+        scramblePool = built;
+        const preservedIdx = currentId ? scramblePool.findIndex(q => q.id === currentId) : -1;
+        scrambleIndex = preservedIdx >= 0 ? preservedIdx : 0;
+        loadScrambleQuestion(true);
+      } else {
+        // Cập nhật tham chiếu item mới nhất (sau khi SRS cập nhật) mà không làm mất câu đang xếp
+        const mapById = new Map(built.map(q => [q.id, q]));
+        scramblePool = scramblePool.map(q => mapById.get(q.id) || q);
+        if (currentActiveTab === "scramble") {
+          updateScrambleHeaderMeta();
+        }
+      }
+    }
+
+    function updateScrambleSpeakButton() {
+      const btn = document.getElementById("btnScrambleSpeak");
+      const icon = document.getElementById("scrambleSpeakIcon");
+      const label = document.getElementById("scrambleSpeakLabel");
+      if (!btn || !icon || !label) return;
+
+      const accentTag = voiceAccent === "en-US" ? "US" : "UK";
+      label.textContent = `Nghe câu mẫu (${accentTag})`;
+      const unlocked = scramblePool.length > 0 && (scrambleChecked || scrambleHint1Shown || scrambleHint2UsedCount > 0);
+      btn.disabled = !unlocked;
+      icon.className = unlocked ? "fa-solid fa-volume-high" : "fa-solid fa-lock";
+      btn.title = unlocked
+        ? `Phát âm câu mẫu giọng ${accentTag}`
+        : "Mở khóa sau khi kiểm tra đáp án hoặc bật Gợi ý";
+    }
+
+    function updateScrambleHeaderMeta() {
+      const progEl = document.getElementById("scrambleProgressText");
+      const unitEl = document.getElementById("scrambleUnitBadge");
+      const q = scramblePool[scrambleIndex];
+      if (progEl) {
+        progEl.textContent = scramblePool.length > 0 ? `Câu ${scrambleIndex + 1} / ${scramblePool.length}` : "Câu 0 / 0";
+      }
+      if (unitEl) {
+        unitEl.textContent = q ? (q.unit || "Unit 1") : "Chưa có câu";
+      }
+      updateScrambleSpeakButton();
+    }
+
+    function loadScrambleQuestion(resetState = true) {
+      const q = scramblePool[scrambleIndex];
+      if (resetState) {
+        scramblePlaced = [];
+        scrambleBank = q ? shuffleScrambleTokens(q.tokens) : [];
+        scrambleInsertIndex = 0;
+        scrambleShowKeyword = false;
+        scrambleHint1Shown = false;
+        scrambleHint2UsedCount = 0;
+        scrambleChecked = false;
+        scrambleLastCorrect = false;
+        scrambleCheckResult = [];
+        scrambleSrsRecorded = false;
+        scrambleDragPayload = null;
+      }
+      if (currentActiveTab === "scramble") {
+        renderScrambleQuestion();
+      }
+    }
+
+    function renderScrambleQuestion() {
+      const emptyEl = document.getElementById("scrambleEmptyState");
+      const mainEl = document.getElementById("scrambleMainContent");
+      if (!emptyEl || !mainEl) return;
+
+      updateScrambleHeaderMeta();
+
+      if (!scramblePool.length) {
+        emptyEl.classList.remove("hidden");
+        mainEl.classList.add("hidden");
+        return;
+      }
+      emptyEl.classList.add("hidden");
+      mainEl.classList.remove("hidden");
+
+      const q = scramblePool[scrambleIndex];
+      if (!q) return;
+
+      // Đề bài tiếng Việt & nút ẩn/hiện từ khóa
+      const promptEl = document.getElementById("scramblePromptVi");
+      if (promptEl) promptEl.textContent = q.promptVi;
+
+      const kwWrap = document.getElementById("scrambleKeywordWrap");
+      const kwBadge = document.getElementById("scrambleKeywordBadge");
+      const kwToggleBtn = document.getElementById("btnScrambleToggleKeyword");
+      if (kwBadge) {
+        const cleanWord = stripScrambleSectionTag(q.item.word || "");
+        const posPart = q.item.pos ? ` (${q.item.pos})` : "";
+        const ipaPart = q.item.ipa ? ` ${q.item.ipa}` : "";
+        kwBadge.textContent = `${cleanWord}${posPart}${ipaPart}`;
+      }
+      if (kwWrap) kwWrap.classList.toggle("hidden", !scrambleShowKeyword);
+      if (kwToggleBtn) {
+        kwToggleBtn.innerHTML = scrambleShowKeyword
+          ? '<i class="fa-regular fa-eye-slash"></i> <span>Ẩn từ khóa</span>'
+          : '<i class="fa-regular fa-eye"></i> <span>Hiện từ khóa</span>';
+      }
+
+      // Gợi ý 1
+      const hintBox = document.getElementById("scrambleHintBox");
+      if (hintBox) {
+        if (scrambleHint1Shown) {
+          hintBox.classList.remove("hidden");
+          const endPunct = [".", "?", "!"].includes(q.tokens[q.tokens.length - 1]) ? q.tokens[q.tokens.length - 1] : "";
+          const sentType = endPunct === "?" ? "Câu hỏi (?)" : (endPunct === "!" ? "Câu cảm thán (!)" : "Câu trần thuật");
+          const cleanWord = stripScrambleSectionTag(q.item.word || "");
+          hintBox.innerHTML = `
+            <div class="flex flex-wrap items-center gap-2 font-extrabold text-amber-900 dark:text-amber-200">
+              <span><i class="fa-regular fa-lightbulb mr-1"></i>Gợi ý cấu trúc:</span>
+              <span class="px-2 py-0.5 rounded-md bg-white/80 dark:bg-slate-800 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700">${escapeHtml(sentType)} • ${q.tokens.length} thẻ</span>
+              <span class="px-2 py-0.5 rounded-md bg-white/80 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700">Từ đầu câu: "${escapeHtml(q.tokens[0])}"</span>
+            </div>
+            <p class="text-slate-700 dark:text-slate-200">
+              <strong>Từ khóa:</strong> <span class="text-indigo-700 dark:text-indigo-300 font-bold">${escapeHtml(cleanWord)}</span>
+              ${q.item.pos ? `<span class="text-slate-500">(${escapeHtml(q.item.pos)})</span>` : ""}
+              ${q.item.ipa ? `<span class="font-mono text-violet-700 dark:text-violet-300 ml-1">${escapeHtml(q.item.ipa)}</span>` : ""}
+              ${q.item.meaning ? ` — ${escapeHtml(q.item.meaning)}` : ""}
+            </p>
+            ${q.item.clinicalNote ? `<p class="text-slate-600 dark:text-slate-300 leading-relaxed"><strong class="text-amber-800 dark:text-amber-300">Lưu ý ngữ pháp:</strong> ${escapeHtml(q.item.clinicalNote)}</p>` : ""}
+          `;
+        } else {
+          hintBox.classList.add("hidden");
+          hintBox.innerHTML = "";
+        }
+      }
+
+      // Phản hồi kết quả
+      const fbBox = document.getElementById("scrambleFeedbackBox");
+      if (fbBox && !scrambleChecked) {
+        fbBox.classList.add("hidden");
+        fbBox.innerHTML = "";
+      }
+
+      // Trạng thái nút điều hướng
+      const prevBtn = document.getElementById("btnScramblePrev");
+      const nextBtn = document.getElementById("btnScrambleNext");
+      if (prevBtn) prevBtn.disabled = scrambleIndex <= 0;
+      if (nextBtn) nextBtn.disabled = scrambleIndex >= scramblePool.length - 1;
+
+      updateScrambleSpeakButton();
+      renderScrambleZones();
+    }
+
+    function clearScrambleCheckedVisuals() {
+      if (scrambleChecked) {
+        scrambleChecked = false;
+        scrambleLastCorrect = false;
+        scrambleCheckResult = [];
+        const fbBox = document.getElementById("scrambleFeedbackBox");
+        if (fbBox) {
+          fbBox.classList.add("hidden");
+          fbBox.innerHTML = "";
+        }
+      }
+    }
+
+    function insertBankTokenAt(bankIdx, targetSlot) {
+      if (bankIdx < 0 || bankIdx >= scrambleBank.length) return;
+      clearScrambleCheckedVisuals();
+      const [tok] = scrambleBank.splice(bankIdx, 1);
+      const safePos = Math.max(0, Math.min(targetSlot, scramblePlaced.length));
+      scramblePlaced.splice(safePos, 0, tok);
+      scrambleInsertIndex = Math.min(safePos + 1, scramblePlaced.length);
+      triggerHaptic("light");
+      renderScrambleZones();
+    }
+
+    function moveAnswerTokenTo(fromIdx, targetSlot) {
+      if (fromIdx < 0 || fromIdx >= scramblePlaced.length) return;
+      clearScrambleCheckedVisuals();
+      let dest = Math.max(0, Math.min(targetSlot, scramblePlaced.length));
+      const [tok] = scramblePlaced.splice(fromIdx, 1);
+      if (fromIdx < dest) dest--;
+      dest = Math.max(0, Math.min(dest, scramblePlaced.length));
+      scramblePlaced.splice(dest, 0, tok);
+      scrambleInsertIndex = Math.min(dest + 1, scramblePlaced.length);
+      triggerHaptic("light");
+      renderScrambleZones();
+    }
+
+    function returnAnswerTokenToBank(ansIdx) {
+      if (ansIdx < 0 || ansIdx >= scramblePlaced.length) return;
+      clearScrambleCheckedVisuals();
+      const [tok] = scramblePlaced.splice(ansIdx, 1);
+      tok.isHinted = false;
+      scrambleBank.push(tok);
+      if (scrambleInsertIndex > scramblePlaced.length) {
+        scrambleInsertIndex = scramblePlaced.length;
+      } else if (ansIdx < scrambleInsertIndex) {
+        scrambleInsertIndex = Math.max(0, scrambleInsertIndex - 1);
+      }
+      triggerHaptic("light");
+      renderScrambleZones();
+    }
+
+    function handleScrambleDropAtSlot(slotIdx) {
+      if (!scrambleDragPayload) return;
+      const payload = scrambleDragPayload;
+      scrambleDragPayload = null;
+      if (payload.source === "bank") {
+        const bIdx = scrambleBank.findIndex(t => t.uid === payload.uid);
+        if (bIdx !== -1) insertBankTokenAt(bIdx, slotIdx);
+      } else if (payload.source === "answer") {
+        const aIdx = scramblePlaced.findIndex(t => t.uid === payload.uid);
+        if (aIdx !== -1) moveAnswerTokenTo(aIdx, slotIdx);
+      }
+    }
+
+    function createScrambleInsertSlot(slotIdx) {
+      const isActive = slotIdx === scrambleInsertIndex;
+      const slotBtn = document.createElement("button");
+      slotBtn.type = "button";
+      slotBtn.dataset.slotIndex = String(slotIdx);
+      slotBtn.title = `Chèn từ vào vị trí #${slotIdx + 1}`;
+      slotBtn.className = isActive
+        ? "h-9 px-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-400 dark:border-indigo-500 flex items-center justify-center gap-0.5 transition cursor-pointer shrink-0"
+        : "h-9 min-w-[20px] px-1 rounded-lg border border-transparent hover:border-indigo-300 hover:bg-indigo-50/80 dark:hover:bg-indigo-950/40 text-slate-300 dark:text-slate-600 hover:text-indigo-500 flex items-center justify-center transition cursor-pointer shrink-0";
+
+      slotBtn.innerHTML = isActive
+        ? '<span class="w-0.5 h-5 rounded-full bg-indigo-600 dark:bg-indigo-400 scramble-caret-active"></span><span class="text-[10px] font-black text-indigo-600 dark:text-indigo-400">+</span>'
+        : '<span class="text-[11px] font-extrabold">+</span>';
+
+      slotBtn.onclick = e => {
+        e.stopPropagation();
+        scrambleInsertIndex = slotIdx;
+        triggerHaptic("light");
+        renderScrambleZones();
+      };
+
+      slotBtn.addEventListener("dragover", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        slotBtn.classList.add("border-indigo-500", "bg-indigo-100", "dark:bg-indigo-900/70", "scale-110");
+      });
+      slotBtn.addEventListener("dragleave", () => {
+        slotBtn.classList.remove("border-indigo-500", "bg-indigo-100", "dark:bg-indigo-900/70", "scale-110");
+      });
+      slotBtn.addEventListener("drop", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        slotBtn.classList.remove("border-indigo-500", "bg-indigo-100", "dark:bg-indigo-900/70", "scale-110");
+        handleScrambleDropAtSlot(slotIdx);
+      });
+
+      return slotBtn;
+    }
+
+    function renderScrambleZones() {
+      const answerZone = document.getElementById("scrambleAnswerZone");
+      const bankZone = document.getElementById("scrambleBankZone");
+      const bankCountEl = document.getElementById("scrambleBankCount");
+      const cursorHintEl = document.getElementById("scrambleCursorHint");
+      if (!answerZone || !bankZone) return;
+
+      scrambleInsertIndex = Math.max(0, Math.min(scrambleInsertIndex, scramblePlaced.length));
+
+      if (cursorHintEl) {
+        if (scramblePlaced.length === 0) {
+          cursorHintEl.textContent = "Vị trí chèn: đầu câu (#1)";
+        } else if (scrambleInsertIndex === 0) {
+          cursorHintEl.textContent = "Vị trí chèn: đầu câu (#1)";
+        } else if (scrambleInsertIndex === scramblePlaced.length) {
+          cursorHintEl.textContent = `Vị trí chèn: cuối câu (#${scrambleInsertIndex + 1})`;
+        } else {
+          cursorHintEl.textContent = `Vị trí chèn: giữa từ #${scrambleInsertIndex} & #${scrambleInsertIndex + 1}`;
+        }
+      }
+
+      if (bankCountEl) {
+        bankCountEl.textContent = `(${scrambleBank.length} thẻ còn lại)`;
+      }
+
+      // Render Vùng Xếp Câu với các khe chèn (0 .. N)
+      answerZone.innerHTML = "";
+      if (scramblePlaced.length === 0) {
+        const firstSlot = createScrambleInsertSlot(0);
+        answerZone.appendChild(firstSlot);
+        const placeholder = document.createElement("span");
+        placeholder.className = "text-xs text-slate-400 dark:text-slate-500 italic select-none ml-1";
+        placeholder.textContent = "Chạm thẻ từ bên dưới hoặc kéo thả vào đây để bắt đầu ghép câu...";
+        answerZone.appendChild(placeholder);
+      } else {
+        for (let i = 0; i < scramblePlaced.length; i++) {
+          answerZone.appendChild(createScrambleInsertSlot(i));
+
+          const tok = scramblePlaced[i];
+          const chip = document.createElement("button");
+          chip.type = "button";
+          chip.draggable = true;
+          chip.dataset.uid = tok.uid;
+          chip.dataset.answerIndex = String(i);
+          chip.title = "Chạm để trả về Kho từ, hoặc kéo để đổi vị trí";
+
+          let chipStyle = "bg-white dark:bg-slate-800 border-indigo-200 dark:border-indigo-700 text-slate-800 dark:text-slate-100 hover:border-indigo-400";
+          if (scrambleChecked) {
+            if (scrambleCheckResult[i]) {
+              chipStyle = "bg-emerald-50 dark:bg-emerald-950/70 border-emerald-500 text-emerald-800 dark:text-emerald-200";
+            } else {
+              chipStyle = "bg-rose-50 dark:bg-rose-950/70 border-rose-500 text-rose-800 dark:text-rose-200";
+            }
+          } else if (tok.isHinted) {
+            chipStyle = "bg-amber-50 dark:bg-amber-950/70 border-amber-400 text-amber-900 dark:text-amber-200";
+          }
+
+          chip.className = `px-3 py-1.5 rounded-xl border-2 text-sm font-bold shadow-xs transition select-none cursor-grab active:cursor-grabbing flex items-center gap-1.5 ${chipStyle}`;
+          chip.innerHTML = `<span>${escapeHtml(tok.text)}</span>${tok.isHinted && !scrambleChecked ? '<i class="fa-solid fa-wand-magic-sparkles text-[10px] text-amber-500"></i>' : ""}`;
+
+          chip.onclick = e => {
+            e.stopPropagation();
+            returnAnswerTokenToBank(i);
+          };
+
+          chip.addEventListener("dragstart", e => {
+            scrambleDragPayload = { source: "answer", uid: tok.uid, fromIndex: i };
+            chip.classList.add("opacity-45");
+            if (e.dataTransfer) {
+              e.dataTransfer.effectAllowed = "move";
+              try { e.dataTransfer.setData("text/plain", tok.uid); } catch (err) {}
+            }
+          });
+          chip.addEventListener("dragend", () => {
+            chip.classList.remove("opacity-45", "border-l-4", "border-l-indigo-500", "border-r-4", "border-r-indigo-500");
+            scrambleDragPayload = null;
+          });
+          chip.addEventListener("dragover", e => {
+            e.preventDefault();
+            e.stopPropagation();
+            const rect = chip.getBoundingClientRect();
+            const isLeft = (e.clientX - rect.left) < rect.width / 2;
+            chip.classList.toggle("border-l-4", isLeft);
+            chip.classList.toggle("border-l-indigo-500", isLeft);
+            chip.classList.toggle("border-r-4", !isLeft);
+            chip.classList.toggle("border-r-indigo-500", !isLeft);
+          });
+          chip.addEventListener("dragleave", () => {
+            chip.classList.remove("border-l-4", "border-l-indigo-500", "border-r-4", "border-r-indigo-500");
+          });
+          chip.addEventListener("drop", e => {
+            e.preventDefault();
+            e.stopPropagation();
+            const rect = chip.getBoundingClientRect();
+            const isLeft = (e.clientX - rect.left) < rect.width / 2;
+            chip.classList.remove("border-l-4", "border-l-indigo-500", "border-r-4", "border-r-indigo-500");
+            handleScrambleDropAtSlot(isLeft ? i : i + 1);
+          });
+
+          answerZone.appendChild(chip);
+        }
+        answerZone.appendChild(createScrambleInsertSlot(scramblePlaced.length));
+      }
+
+      // Render Kho Từ Xáo Trộn
+      bankZone.innerHTML = "";
+      if (scrambleBank.length === 0) {
+        const doneMsg = document.createElement("span");
+        doneMsg.className = "text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5";
+        doneMsg.innerHTML = '<i class="fa-solid fa-circle-check"></i> Đã xếp hết thẻ từ! Bấm <strong>Kiểm tra đáp án</strong> (hoặc nhấn Enter) để chấm điểm.';
+        bankZone.appendChild(doneMsg);
+      } else {
+        scrambleBank.forEach((tok, bIdx) => {
+          const chip = document.createElement("button");
+          chip.type = "button";
+          chip.draggable = true;
+          chip.dataset.uid = tok.uid;
+          chip.className = "px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-indigo-950/60 hover:border-indigo-400 text-slate-800 dark:text-slate-100 text-sm font-bold shadow-xs transition select-none cursor-grab active:cursor-grabbing";
+          chip.textContent = tok.text;
+
+          chip.onclick = e => {
+            e.stopPropagation();
+            insertBankTokenAt(bIdx, scrambleInsertIndex);
+          };
+
+          chip.addEventListener("dragstart", e => {
+            scrambleDragPayload = { source: "bank", uid: tok.uid, fromIndex: bIdx };
+            chip.classList.add("opacity-45");
+            if (e.dataTransfer) {
+              e.dataTransfer.effectAllowed = "move";
+              try { e.dataTransfer.setData("text/plain", tok.uid); } catch (err) {}
+            }
+          });
+          chip.addEventListener("dragend", () => {
+            chip.classList.remove("opacity-45");
+            scrambleDragPayload = null;
+          });
+
+          bankZone.appendChild(chip);
+        });
+      }
+    }
+
+    function applyScrambleHint1() {
+      const q = scramblePool[scrambleIndex];
+      if (!q) return;
+      scrambleHint1Shown = true;
+      scrambleShowKeyword = true;
+      triggerHaptic("light");
+      renderScrambleQuestion();
+      showToast("Đã mở Gợi ý 1 (Cấu trúc & Từ khóa) và mở khóa nút Nghe câu mẫu!", "info");
+    }
+
+    function applyScrambleHint2() {
+      const q = scramblePool[scrambleIndex];
+      if (!q) return;
+
+      clearScrambleCheckedVisuals();
+
+      // Tìm vị trí đầu tiên còn trống hoặc đang đặt sai từ
+      let targetIdx = -1;
+      for (let i = 0; i < q.tokens.length; i++) {
+        if (!scramblePlaced[i] || !compareScrambleToken(scramblePlaced[i].text, q.tokens[i], i)) {
+          targetIdx = i;
+          break;
+        }
+      }
+
+      if (targetIdx === -1) {
+        showToast("Tất cả các từ đã ở đúng vị trí — bấm Kiểm tra đáp án ngay nhé!", "info");
+        return;
+      }
+
+      const expectedWord = q.tokens[targetIdx];
+
+      // 1. Ưu tiên tìm thẻ khớp trong Kho Từ (Bank)
+      let foundToken = null;
+      const bankIdx = scrambleBank.findIndex(t => compareScrambleToken(t.text, expectedWord, targetIdx));
+      if (bankIdx !== -1) {
+        foundToken = scrambleBank.splice(bankIdx, 1)[0];
+      } else {
+        // 2. Nếu không ở Bank, tìm thẻ khớp đang nằm sai ở vị trí sau targetIdx trong Vùng Xếp Câu
+        for (let j = targetIdx + 1; j < scramblePlaced.length; j++) {
+          if (compareScrambleToken(scramblePlaced[j].text, expectedWord, targetIdx)) {
+            foundToken = scramblePlaced.splice(j, 1)[0];
+            break;
+          }
+        }
+      }
+
+      if (!foundToken) {
+        showToast("Không tìm thấy thẻ phù hợp còn lại. Hãy thử bấm Đặt lại câu đang xếp!", "error");
+        return;
+      }
+
+      // Nếu tại vị trí targetIdx đang có từ sai -> trả về Bank
+      if (targetIdx < scramblePlaced.length) {
+        const displaced = scramblePlaced.splice(targetIdx, 1)[0];
+        displaced.isHinted = false;
+        scrambleBank.push(displaced);
+      }
+
+      foundToken.isHinted = true;
+      scramblePlaced.splice(targetIdx, 0, foundToken);
+      scrambleInsertIndex = Math.min(targetIdx + 1, scramblePlaced.length);
+      scrambleHint2UsedCount++;
+      playTone(587, "sine");
+      triggerHaptic("light");
+      updateScrambleSpeakButton();
+      renderScrambleZones();
+      showToast(`Gợi ý 2: Đã điền đúng từ vị trí #${targetIdx + 1} ("${foundToken.text}")!`, "info");
+    }
+
+    function checkScrambleAnswer() {
+      const q = scramblePool[scrambleIndex];
+      if (!q) return;
+      if (scramblePlaced.length === 0) {
+        showToast("Hãy xếp ít nhất một vài từ vào Vùng Xếp Câu trước khi kiểm tra!", "error");
+        return;
+      }
+
+      const targetTokens = q.tokens;
+      scrambleCheckResult = scramblePlaced.map((tok, i) =>
+        i < targetTokens.length && compareScrambleToken(tok.text, targetTokens[i], i)
+      );
+
+      const isAllCorrect = scramblePlaced.length === targetTokens.length && scrambleCheckResult.every(Boolean);
+      scrambleChecked = true;
+      scrambleLastCorrect = isAllCorrect;
+
+      if (!scrambleSrsRecorded) {
+        scrambleSrsRecorded = true;
+        recordStudyOutcome(q.item, isAllCorrect);
+        updateHeaderBadges();
+      }
+
+      updateScrambleSpeakButton();
+      renderScrambleZones();
+
+      const fbBox = document.getElementById("scrambleFeedbackBox");
+      if (!fbBox) return;
+      fbBox.classList.remove("hidden");
+
+      const cleanWord = stripScrambleSectionTag(q.item.word || "");
+
+      if (isAllCorrect) {
+        playTone(880, "sine");
+        triggerHaptic("light");
+        speakText(q.sentence);
+
+        fbBox.className = "rounded-2xl p-4 border border-emerald-300 dark:border-emerald-700 bg-emerald-50/90 dark:bg-emerald-950/40 space-y-2 text-xs";
+        fbBox.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="text-sm font-black text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-check"></i> Chính xác tuyệt đối! (Đã ghi nhận tiến độ SRS)
+            </p>
+            <button type="button" id="btnScrambleFeedbackSpeak" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition flex items-center gap-1">
+              <i class="fa-solid fa-volume-high"></i> Nghe lại câu
+            </button>
+          </div>
+          <p class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">${escapeHtml(q.sentence)}</p>
+          <p class="text-slate-600 dark:text-slate-300"><strong>Dịch nghĩa:</strong> ${escapeHtml(q.promptVi)}</p>
+          <p class="text-slate-600 dark:text-slate-300">
+            <strong>Từ khóa lõi:</strong> <span class="font-bold text-indigo-700 dark:text-indigo-300">${escapeHtml(cleanWord)}</span>
+            ${q.item.ipa ? `<span class="font-mono text-violet-700 dark:text-violet-300 ml-1">${escapeHtml(q.item.ipa)}</span>` : ""}
+            ${q.item.meaning ? ` — ${escapeHtml(q.item.meaning)}` : ""}
+          </p>
+          ${q.item.clinicalNote ? `<p class="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-emerald-200/80 dark:border-emerald-800/60 text-slate-700 dark:text-slate-200 leading-relaxed"><strong class="text-emerald-700 dark:text-emerald-300">Giải thích ngữ pháp:</strong> ${escapeHtml(q.item.clinicalNote)}</p>` : ""}
+        `;
+        const fbSpeak = document.getElementById("btnScrambleFeedbackSpeak");
+        if (fbSpeak) fbSpeak.onclick = () => speakText(q.sentence);
+      } else {
+        playTone(220, "sawtooth");
+        triggerHaptic("error");
+
+        // Phân tích chi tiết lỗi sai theo từng vị trí
+        const diffNotes = [];
+        const maxLen = Math.max(scramblePlaced.length, targetTokens.length);
+        for (let i = 0; i < maxLen; i++) {
+          const got = scramblePlaced[i]?.text;
+          const exp = targetTokens[i];
+          if (got === undefined && exp !== undefined) {
+            diffNotes.push(`Thiếu từ ở vị trí #${i + 1}: cần <strong>"${escapeHtml(exp)}"</strong>`);
+          } else if (got !== undefined && exp === undefined) {
+            diffNotes.push(`Dư từ ở vị trí #${i + 1}: <strong>"${escapeHtml(got)}"</strong>`);
+          } else if (!compareScrambleToken(got, exp, i)) {
+            diffNotes.push(`Vị trí #${i + 1}: bạn xếp <span class="text-rose-700 dark:text-rose-300 font-bold">"${escapeHtml(got)}"</span> → cần <span class="text-emerald-700 dark:text-emerald-300 font-bold">"${escapeHtml(exp)}"</span>`);
+          }
+        }
+        const topDiffs = diffNotes.slice(0, 5);
+        const remainingCount = diffNotes.length - topDiffs.length;
+
+        fbBox.className = "rounded-2xl p-4 border border-rose-300 dark:border-rose-700 bg-rose-50/90 dark:bg-rose-950/40 space-y-2 text-xs";
+        fbBox.innerHTML = `
+          <p class="text-sm font-black text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-xmark"></i> Chưa khớp hoàn toàn — Hãy chỉnh lại các thẻ màu đỏ và kiểm tra lại!
+          </p>
+          <div class="p-2.5 rounded-xl bg-white/85 dark:bg-slate-900/70 border border-rose-200 dark:border-rose-800/70">
+            <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Câu đáp án chuẩn:</p>
+            <p class="text-sm font-extrabold text-emerald-700 dark:text-emerald-300 mt-0.5">${escapeHtml(q.sentence)}</p>
+          </div>
+          ${topDiffs.length > 0 ? `
+            <ul class="list-disc pl-5 space-y-1 text-slate-700 dark:text-slate-200">
+              ${topDiffs.map(line => `<li>${line}</li>`).join("")}
+              ${remainingCount > 0 ? `<li class="italic text-slate-500">...và ${remainingCount} vị trí khác cần điều chỉnh.</li>` : ""}
+            </ul>
+          ` : ""}
+          ${q.item.clinicalNote ? `<p class="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-amber-200 dark:border-amber-800/60 text-slate-700 dark:text-slate-200 leading-relaxed"><strong class="text-amber-700 dark:text-amber-300">Ghi chú ngữ pháp:</strong> ${escapeHtml(q.item.clinicalNote)}</p>` : ""}
+        `;
+      }
     }
 
     /* =========================================================================
@@ -9248,6 +10170,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
           voiceAccent = voiceAccent === "en-GB" ? "en-US" : "en-GB";
           const accentTxt = document.getElementById("voiceAccentText");
           if (accentTxt) accentTxt.textContent = voiceAccent === "en-US" ? "US" : "UK";
+          updateScrambleSpeakButton();
           saveStudyProgress();
           showToast(
             voiceAccent === "en-GB"
@@ -9878,8 +10801,8 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
       document.getElementById("btnResetDefaultData").onclick = () => {
         vocabList = SEED_DATA.map(i => ({ ...i }));
         selectedUnits = new Set(getDefaultCoreUnits());
-        quizPool = []; fcPool = []; dictPool = [];
-        quizIndex = 0; fcIndex = 0; dictIndex = 0;
+        quizPool = []; fcPool = []; dictPool = []; scramblePool = [];
+        quizIndex = 0; fcIndex = 0; dictIndex = 0; scrambleIndex = 0;
         guidedFcViewedIds.clear();
         guidedDictCleanIds.clear();
         guidedDictAttempted = false;
@@ -10358,6 +11281,125 @@ Trả về DUY NHẤT một mảng JSON hợp lệ:
         showToast(added > 0 ? `Đã nạp ${added} câu mới vào "${unitName}"!` : "Các câu này đã có sẵn trong kho học tập!", "success");
       };
 
+      // Chế độ 8: Sắp Xếp Câu (Sentence Scramble) — Gắn sự kiện nút & Drag/Drop vùng chứa
+      const btnScrambleShuffleEl = document.getElementById("btnScrambleShuffle");
+      if (btnScrambleShuffleEl) {
+        btnScrambleShuffleEl.onclick = () => {
+          if (!scramblePool.length) buildScramblePool(true);
+          else {
+            scrambleIndex = 0;
+            buildScramblePool(true);
+          }
+          saveStudyProgress();
+          showToast("Đã trộn ngẫu nhiên toàn bộ câu Sắp Xếp Câu!", "info");
+        };
+      }
+
+      const btnScrambleResetEl = document.getElementById("btnScrambleReset");
+      if (btnScrambleResetEl) {
+        btnScrambleResetEl.onclick = () => {
+          const q = scramblePool[scrambleIndex];
+          if (!q) return;
+          scramblePlaced = [];
+          scrambleBank = shuffleScrambleTokens(q.tokens);
+          scrambleInsertIndex = 0;
+          clearScrambleCheckedVisuals();
+          triggerHaptic("light");
+          renderScrambleZones();
+          showToast("Đã đặt lại câu đang xếp!", "info");
+        };
+      }
+
+      const btnScrambleSpeakEl = document.getElementById("btnScrambleSpeak");
+      if (btnScrambleSpeakEl) {
+        btnScrambleSpeakEl.onclick = () => {
+          const q = scramblePool[scrambleIndex];
+          if (!q || btnScrambleSpeakEl.disabled) return;
+          speakText(q.sentence);
+        };
+      }
+
+      const btnScrambleToggleKwEl = document.getElementById("btnScrambleToggleKeyword");
+      if (btnScrambleToggleKwEl) {
+        btnScrambleToggleKwEl.onclick = () => {
+          scrambleShowKeyword = !scrambleShowKeyword;
+          renderScrambleQuestion();
+        };
+      }
+
+      const btnScrambleHint1El = document.getElementById("btnScrambleHint1");
+      if (btnScrambleHint1El) btnScrambleHint1El.onclick = applyScrambleHint1;
+
+      const btnScrambleHint2El = document.getElementById("btnScrambleHint2");
+      if (btnScrambleHint2El) btnScrambleHint2El.onclick = applyScrambleHint2;
+
+      const btnScrambleCheckEl = document.getElementById("btnScrambleCheck");
+      if (btnScrambleCheckEl) btnScrambleCheckEl.onclick = checkScrambleAnswer;
+
+      const btnScramblePrevEl = document.getElementById("btnScramblePrev");
+      if (btnScramblePrevEl) {
+        btnScramblePrevEl.onclick = () => {
+          if (scrambleIndex > 0) {
+            scrambleIndex--;
+            loadScrambleQuestion(true);
+            saveStudyProgress();
+          }
+        };
+      }
+
+      const btnScrambleNextEl = document.getElementById("btnScrambleNext");
+      if (btnScrambleNextEl) {
+        btnScrambleNextEl.onclick = () => {
+          if (scrambleIndex < scramblePool.length - 1) {
+            scrambleIndex++;
+            loadScrambleQuestion(true);
+            saveStudyProgress();
+          }
+        };
+      }
+
+      const scrambleAnswerZoneEl = document.getElementById("scrambleAnswerZone");
+      if (scrambleAnswerZoneEl) {
+        scrambleAnswerZoneEl.addEventListener("dragover", e => {
+          e.preventDefault();
+          scrambleAnswerZoneEl.classList.add("border-indigo-500", "bg-indigo-50/70", "dark:bg-indigo-950/30");
+        });
+        scrambleAnswerZoneEl.addEventListener("dragleave", e => {
+          if (!scrambleAnswerZoneEl.contains(e.relatedTarget)) {
+            scrambleAnswerZoneEl.classList.remove("border-indigo-500", "bg-indigo-50/70", "dark:bg-indigo-950/30");
+          }
+        });
+        scrambleAnswerZoneEl.addEventListener("drop", e => {
+          e.preventDefault();
+          scrambleAnswerZoneEl.classList.remove("border-indigo-500", "bg-indigo-50/70", "dark:bg-indigo-950/30");
+          handleScrambleDropAtSlot(scrambleInsertIndex);
+        });
+      }
+
+      const scrambleBankZoneEl = document.getElementById("scrambleBankZone");
+      if (scrambleBankZoneEl) {
+        scrambleBankZoneEl.addEventListener("dragover", e => {
+          if (scrambleDragPayload && scrambleDragPayload.source === "answer") {
+            e.preventDefault();
+            scrambleBankZoneEl.classList.add("border-indigo-500", "bg-indigo-50/50", "dark:bg-indigo-950/30");
+          }
+        });
+        scrambleBankZoneEl.addEventListener("dragleave", e => {
+          if (!scrambleBankZoneEl.contains(e.relatedTarget)) {
+            scrambleBankZoneEl.classList.remove("border-indigo-500", "bg-indigo-50/50", "dark:bg-indigo-950/30");
+          }
+        });
+        scrambleBankZoneEl.addEventListener("drop", e => {
+          e.preventDefault();
+          scrambleBankZoneEl.classList.remove("border-indigo-500", "bg-indigo-50/50", "dark:bg-indigo-950/30");
+          if (scrambleDragPayload && scrambleDragPayload.source === "answer") {
+            const aIdx = scramblePlaced.findIndex(t => t.uid === scrambleDragPayload.uid);
+            scrambleDragPayload = null;
+            if (aIdx !== -1) returnAnswerTokenToBank(aIdx);
+          }
+        });
+      }
+
       window.addEventListener("beforeunload", () => {
         saveStudyProgress();
         saveDatabase();
@@ -10410,6 +11452,20 @@ Trả về DUY NHẤT một mảng JSON hợp lệ:
             e.preventDefault(); document.getElementById("btnCBTNext").click();
           } else if (e.key === "ArrowLeft") {
             e.preventDefault(); document.getElementById("btnCBTPrev").click();
+          }
+        } else if (currentActiveTab === "scramble" && scramblePool.length > 0) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (scrambleChecked && scrambleLastCorrect && scrambleIndex < scramblePool.length - 1) {
+              document.getElementById("btnScrambleNext")?.click();
+            } else {
+              checkScrambleAnswer();
+            }
+          } else if (e.key === "Backspace") {
+            if (scramblePlaced.length > 0) {
+              e.preventDefault();
+              returnAnswerTokenToBank(scramblePlaced.length - 1);
+            }
           }
         }
       });
