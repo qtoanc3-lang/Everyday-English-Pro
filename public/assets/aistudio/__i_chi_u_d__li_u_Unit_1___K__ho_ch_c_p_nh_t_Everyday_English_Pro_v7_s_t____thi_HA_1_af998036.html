@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đối chiếu dữ liệu Unit 1 & Kế hoạch cập nhật Everyday English Pro v7 sát đề thi HA 1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /*
+     * Tier 2 Balanced · Exam Alignment Audit & v7 Upgrade Plan
+     * Hero: asymmetric split (headline + deck cols 1–8, emphasis numeral 155 cols 9–12)
+     * Section order: Hero + Verdict → Open Table 1 (Old 80 vs New 105+50 Diff Matrix across 8 Exam Sections) → SVG 1 (Coverage Growth Chart) → SVG 2 (50-Question CBT Exam Composition) → Open Table 2 (v7 Upgrade Execution Plan) → Full-Bleed Dark Deployment Band
+     * Fonts: Newsreader (headline) · Plus Jakarta Sans (body) · JetBrains Mono (data labels, table headers, SVG ticks)
+     * Palette: Cool Architectural Grey (#F3F4F6) · Ink (#111827) · Indigo (#3730A3 / #2E288A) · Amber (#B45309 / #833B06)
+     * Image radius: 0 · Emphasis moment: Hero numeral 155 · Signature element: 8-Section Exam Alignment Matrix · Charts: Grouped coverage bar + Exam composition bar (inline SVG)
+     */
+    :root {
+      --paper: #F3F4F6;
+      --ink: #111827;
+      --ink2: #2B3445;
+      --mute: #4B5563;
+      --hair: #D1D5DB;
+      --accent: #3730A3;
+      --accent-text: #27227A;
+      --accent-2: #B45309;
+      --accent-2-text: #833B06;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      font-size: 16.5px;
+      line-height: 1.64;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      padding: 64px clamp(24px, 10vw, 112px) 90px;
+    }
+
+    .grid-12 {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 24px;
+      row-gap: 24px;
+    }
+
+    .sec {
+      margin-top: 90px;
+    }
+
+    .measure {
+      max-width: 68ch;
+    }
+
+    h1 {
+      font-family: 'Newsreader', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(42px, 5vw, 72px);
+      line-height: 1.07;
+      letter-spacing: -0.025em;
+      margin: 0 0 22px 0;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+
+    .deck {
+      font-size: 18.5px;
+      line-height: 1.56;
+      color: var(--ink2);
+      max-width: 58ch;
+      margin: 0;
+      text-wrap: pretty;
+    }
+
+    h2 {
+      font-family: 'Newsreader', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(30px, 3.2vw, 44px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin: 0 0 18px 0;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+
+    h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 18.5px;
+      line-height: 1.35;
+      margin: 0 0 8px 0;
+      color: var(--ink);
+    }
+
+    p {
+      margin: 0 0 15px 0;
+      color: var(--ink2);
+    }
+
+    p:last-child { margin-bottom: 0; }
+    strong { color: var(--ink); font-weight: 600; }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--accent-text);
+      white-space: nowrap;
+    }
+
+    /* Hero Split */
+    .hero-left {
+      grid-column: 1 / 9;
+      padding-right: 16px;
+    }
+
+    .hero-right {
+      grid-column: 9 / 13;
+      border-left: 1px solid var(--hair);
+      padding-left: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .hero-numeral {
+      font-family: 'Newsreader', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(84px, 9vw, 130px);
+      line-height: 0.9;
+      letter-spacing: -0.03em;
+      color: var(--accent-text);
+      margin: 0 0 12px 0;
+    }
+
+    .hero-num-caption {
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--ink2);
+      margin: 0;
+    }
+
+    .verdict-strip {
+      margin-top: 40px;
+      padding-top: 26px;
+      border-top: 2px solid var(--ink);
+      grid-column: 1 / 13;
+    }
+
+    .verdict-lead {
+      font-size: 17.5px;
+      line-height: 1.62;
+      color: var(--ink);
+      max-width: 74ch;
+      margin: 0;
+    }
+
+    /* Figures & SVG */
+    figure {
+      margin: 34px 0 0 0;
+      padding: 0;
+    }
+
+    .fig-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 18.5px;
+      line-height: 1.35;
+      color: var(--ink);
+      margin: 0 0 14px 0;
+    }
+
+    figcaption {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--mute);
+      margin-top: 10px;
+      border-top: 1px solid var(--hair);
+      padding-top: 8px;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Open Tables (max 3, 0 boxes, no zebra) */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 26px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    thead th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--mute);
+      border-top: 2px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      padding: 12px 14px 12px 0;
+      vertical-align: bottom;
+    }
+
+    tbody td {
+      padding: 15px 14px 15px 0;
+      border-bottom: 1px solid var(--hair);
+      vertical-align: top;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink2);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .accent-cell {
+      color: var(--accent-text);
+      font-weight: 700;
+    }
+
+    .warn-cell {
+      color: var(--accent-2-text);
+      font-weight: 600;
+    }
+
+    /* Full-bleed dark band (max 1) */
+    .full-bleed-band {
+      margin: 92px calc(-1 * clamp(24px, 10vw, 112px)) 0;
+      padding: 64px clamp(24px, 10vw, 112px);
+      background: #171636;
+      color: #F3F4F6;
+    }
+
+    .full-bleed-band h2 { color: #FFFFFF; }
+    .full-bleed-band p { color: #D1D5E6; }
+    .full-bleed-band strong { color: #FFFFFF; }
+
+    .band-cols {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 32px;
+      margin-top: 30px;
+      padding-top: 26px;
+      border-top: 1px solid #312E6B;
+    }
+
+    .band-cols h3 { color: #FFFFFF; }
+
+    .band-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #A5B4FC;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-left, .hero-right {
+        grid-column: 1 / 13;
+        padding: 0;
+        border-left: none;
+      }
+      .hero-right {
+        border-top: 1px solid var(--hair);
+        padding-top: 22px;
+      }
+      .band-cols {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <!-- HERO -->
+    <header class="grid-12">
+      <div class="hero-left">
+        <h1>Nâng cấp dữ liệu Unit 1 từ 80 lên 155 mục phủ trọn 8 phần đề thi HA 1</h1>
+        <p class="deck">Đối chiếu từng trang của toàn bộ 8 ảnh tài liệu <strong>Unit 1 Review</strong> (trang 90–104, gồm cả phần Listening B và Speaking Set 1 vừa bổ sung) với bộ 80 mục trước đó, chốt trọn bộ dữ liệu v2 và kế hoạch cập nhật <strong>Everyday English Pro v7</strong>.</p>
+      </div>
+      <div class="hero-right">
+        <p class="hero-numeral">155</p>
+        <p class="hero-num-caption">mục chuẩn hóa gồm <strong>105 mục học lõi</strong> (1A–1F) và <strong>50 câu đề thi thử CBT</strong> phủ đủ 10/10 câu Phát âm–Trọng âm đến Speaking Set 1 &amp; 2.</p>
+      </div>
+
+      <div class="verdict-strip">
+        <p class="verdict-lead"><strong>Kết luận đối chiếu:</strong> Bộ 80 mục cũ đã nắm tốt khung giáo trình <em>Speakout 3rd A2</em> nhưng còn thiếu <strong>25 mục thi thực chiến</strong> nằm rải rác trong 50 câu Từ vựng (trang 91–92), 4 câu Phát âm/Trọng âm (trang 90), bài đọc <em>Mood ring / Vegetarian / Travel writer</em> (trang 96), và toàn bộ <strong>Listening Part B + Speaking Set 1</strong> (trang 102–103). Bản cập nhật v2 lấp kín 100% các khoảng trống này và tách riêng <strong>Đề thi thử CBT 50 câu</strong> có giải thích chi tiết từng phương án nhiễu.</p>
+      </div>
+    </header>
+
+    <!-- TABLE 1: OLD VS NEW DIFF MATRIX -->
+    <section class="sec">
+      <div class="measure">
+        <h2>Đối chiếu chi tiết dữ liệu cũ (80 mục) với bản cập nhật v2 (105 + 50 câu)</h2>
+        <p>Bảng dưới đây bóc tách chính xác những gì bản 80 mục trước đó đã có và những gì bản v2 bổ sung trực tiếp từ 8 trang đề kiểm tra Unit 1 Review.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Phần đề thi (Trang 90–104)</th>
+              <th>Dữ liệu cũ (80 mục)</th>
+              <th>Bản cập nhật v2 (105 lõi + 50 CBT)</th>
+              <th>Khoảng trống đã lấp kín</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="accent-cell">I. Phonetics &amp; Stress<br><span class="num">10 câu (tr. 90)</span></td>
+              <td>Chỉ cài ghi chú rải rác ở 4/10 câu; chưa có câu luyện trọng âm riêng.</td>
+              <td>Phủ <strong>10/10 câu</strong> trong Đề CBT 50 câu + thêm trực tiếp <code>know</code>, <code>believe</code> vào 1E.</td>
+              <td>Khóa trọn 4 bẫy còn thiếu: <code>order/know</code>, <code>hotel</code>, <code>suggest</code>, <code>believe</code>.</td>
+            </tr>
+            <tr>
+              <td class="accent-cell">II. Vocabulary<br><span class="num">50 câu (tr. 90–92)</span></td>
+              <td>Phủ 38/50 câu; thiếu một số cụm động từ và tính từ thực tế.</td>
+              <td>Bổ sung <strong>11 cụm lõi mới</strong> (<code>have an English class</code>, <code>try a new cafe</code>, <code>sit in an armchair</code>, <code>favourite colour</code>, <code>funny</code>, <code>different hobbies</code>, <code>grandfather</code>, <code>languages</code>...).</td>
+              <td>Chặn lỗi ghép động từ sai (<code>have a class</code> vs <code>go/learn</code>, <code>make suggestions</code>).</td>
+            </tr>
+            <tr>
+              <td class="accent-cell">III. Grammar<br><span class="num">50 câu (tr. 92–94)</span></td>
+              <td>12 mục bẫy cơ bản; thiếu <code>tidy</code> sau <code>does</code>, <code>take out for dinner</code>, <code>How often does</code>.</td>
+              <td>Mở rộng lên <strong>16 mục bẫy 1E</strong> gắn sẵn <code>grammarChoices</code> + <strong>14 câu Grammar</strong> trong Đề CBT 50 câu.</td>
+              <td>Bao phủ đủ sở hữu cách (<code>sister's house</code>, <code>Paul's</code>, <code>your wife's</code>, <code>women's</code>) và toàn bộ bẫy trợ động từ.</td>
+            </tr>
+            <tr>
+              <td class="accent-cell">IV. Reading<br><span class="num">25 câu (tr. 95–97)</span></td>
+              <td>Chỉ có <code>brother-in-law</code>, <code>digital designer</code>; thiếu từ khóa suy luận.</td>
+              <td>Thêm <code>self-employed</code>, <code>vegetarian</code>, <code>mood ring</code>, <code>travel writer</code> + <strong>5 câu Đọc hiểu</strong> trong Đề CBT.</td>
+              <td>Đánh đúng các câu suy luận dễ mất điểm nhất ở trang 96–97 (câu 9, 11, 12, 14, 18, 22).</td>
+            </tr>
+            <tr>
+              <td class="accent-cell">V. Social English &amp; VI. Writing<br><span class="num">30 câu (tr. 98–99)</span></td>
+              <td>Có mẫu rủ rê cơ bản; chưa có câu <code>See you there</code>, <code>Who are those people</code>, <code>would like to become</code>.</td>
+              <td>Bổ sung đủ mẫu đáp ngắn + <strong>9 câu Social/Writing</strong> dạng <code>grammarChoices</code> trong Đề CBT.</td>
+              <td>Luyện trực tiếp trật tự từ và chia động từ của mục VI.A &amp; VI.B (trang 99).</td>
+            </tr>
+            <tr>
+              <td class="accent-cell">VII. Listening B &amp; VIII. Speaking<br><span class="num">Trang 102–104</span></td>
+              <td class="warn-cell">Chưa có dữ liệu trang 102–103 (mới có Speaking Set 2).</td>
+              <td>Bổ sung trọn bộ trang 102–103: <code>secretary</code>, <code>colleagues</code>, <code>half past twelve</code>, <code>in the country</code>, <code>help others</code>.</td>
+              <td>Lấp kín 100% phần Listening Part B (10 câu) và Speaking Set 1 (Chủ đề Gia đình).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SVG 1: CORE VOCAB GROWTH ACROSS 1A-1F -->
+    <section class="sec">
+      <div class="measure">
+        <h2>Mở rộng cân đối từ 80 lên 105 mục học lõi trên 6 chuyên đề</h2>
+        <p>Tất cả 105 mục lõi trong tệp <code>unit1-ha1-v2-seed-data.js</code> đều đã vượt qua kiểm định tự động: <strong>105/105</strong> che ô trống <code>[_____]</code> chuẩn xác, <strong>105/105</strong> câu hỏi Chiều 4 không trùng nghĩa, và <strong>15 mục bẫy ngữ pháp/phát âm</strong> tích hợp sẵn <code>grammarChoices</code>.</p>
+      </div>
+
+      <figure>
+        <p class="fig-title">Tất cả 6 chuyên đề Unit 1A–1F đều tăng độ phủ sát đề thi, tổng cộng thêm 25 mục thực chiến</p>
+        <svg viewBox="0 0 700 370" width="100%" role="img" aria-label="Biểu đồ so sánh số mục của từng chuyên đề 1A đến 1F giữa bản cũ 80 mục và bản mới 105 mục">
+          <!-- Scale: x=240..620 (380px for 0..25 items -> 15.2px per item) -->
+          <line x1="240" y1="36" x2="240" y2="306" stroke="#D1D5DB" stroke-width="1"/>
+          <line x1="316" y1="36" x2="316" y2="306" stroke="#D1D5DB" stroke-width="1"/>
+          <line x1="392" y1="36" x2="392" y2="306" stroke="#D1D5DB" stroke-width="1"/>
+          <line x1="468" y1="36" x2="468" y2="306" stroke="#D1D5DB" stroke-width="1"/>
+          <line x1="544" y1="36" x2="544" y2="306" stroke="#D1D5DB" stroke-width="1"/>
+          <line x1="620" y1="36" x2="620" y2="306" stroke="#D1D5DB" stroke-width="1"/>
+
+          <!-- Legend -->
+          <rect x="240" y="8" width="12" height="12" fill="#9CA3AF"/>
+          <text x="258" y="19" fill="#2B3445" font-family="Plus Jakarta Sans, sans-serif" font-size="13">Bản cũ (80 mục)</text>
+          <rect x="405" y="8" width="12" height="12" fill="#3730A3"/>
+          <text x="423" y="19" fill="#2B3445" font-family="Plus Jakarta Sans, sans-serif" font-size="13">Bản mới v2 (105 mục)</text>
+
+          <!-- 1A: 16 -> 21 -->
+          <text x="226" y="64" text-anchor="end" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5" font-weight="600">1A · Nghề nghiệp &amp; Học tập</text>
+          <rect x="240" y="42" width="243.2" height="14" fill="#9CA3AF"/>
+          <rect x="240" y="58" width="319.2" height="16" fill="#3730A3"/>
+          <text x="570" y="71" fill="#27227A" font-family="JetBrains Mono, monospace" font-size="13" font-weight="500">16 → 21</text>
+
+          <!-- 1B: 15 -> 20 -->
+          <text x="226" y="108" text-anchor="end" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5" font-weight="600">1B · Thói quen &amp; Cụm ĐT</text>
+          <rect x="240" y="86" width="228" height="14" fill="#9CA3AF"/>
+          <rect x="240" y="102" width="304" height="16" fill="#3730A3"/>
+          <text x="555" y="115" fill="#27227A" font-family="JetBrains Mono, monospace" font-size="13" font-weight="500">15 → 20</text>
+
+          <!-- 1C: 15 -> 20 -->
+          <text x="226" y="152" text-anchor="end" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5" font-weight="600">1C · Cảm xúc, Giờ &amp; Rủ rê</text>
+          <rect x="240" y="130" width="228" height="14" fill="#9CA3AF"/>
+          <rect x="240" y="146" width="304" height="16" fill="#3730A3"/>
+          <text x="555" y="159" fill="#27227A" font-family="JetBrains Mono, monospace" font-size="13" font-weight="500">15 → 20</text>
+
+          <!-- 1D: 13 -> 16 -->
+          <text x="226" y="196" text-anchor="end" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5" font-weight="600">1D · Gia đình &amp; Sở hữu cách</text>
+          <rect x="240" y="174" width="197.6" height="14" fill="#9CA3AF"/>
+          <rect x="240" y="190" width="243.2" height="16" fill="#3730A3"/>
+          <text x="494" y="203" fill="#27227A" font-family="JetBrains Mono, monospace" font-size="13" font-weight="500">13 → 16</text>
+
+          <!-- 1E: 12 -> 16 -->
+          <text x="226" y="240" text-anchor="end" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5" font-weight="600">1E · Bẫy Ngữ pháp &amp; Phát âm</text>
+          <rect x="240" y="218" width="182.4" height="14" fill="#9CA3AF"/>
+          <rect x="240" y="234" width="243.2" height="16" fill="#B45309"/>
+          <text x="494" y="247" fill="#833B06" font-family="JetBrains Mono, monospace" font-size="13" font-weight="500">12 → 16</text>
+
+          <!-- 1F: 9 -> 12 -->
+          <text x="226" y="284" text-anchor="end" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5" font-weight="600">1F · Phản xạ Nói &amp; Viết</text>
+          <rect x="240" y="262" width="136.8" height="14" fill="#9CA3AF"/>
+          <rect x="240" y="278" width="182.4" height="16" fill="#B45309"/>
+          <text x="433" y="291" fill="#833B06" font-family="JetBrains Mono, monospace" font-size="13" font-weight="500">9 → 12</text>
+
+          <!-- X-axis ticks -->
+          <text x="240" y="330" text-anchor="middle" fill="#4B5563" font-family="JetBrains Mono, monospace" font-size="13">0</text>
+          <text x="316" y="330" text-anchor="middle" fill="#4B5563" font-family="JetBrains Mono, monospace" font-size="13">5</text>
+          <text x="392" y="330" text-anchor="middle" fill="#4B5563" font-family="JetBrains Mono, monospace" font-size="13">10</text>
+          <text x="468" y="330" text-anchor="middle" fill="#4B5563" font-family="JetBrains Mono, monospace" font-size="13">15</text>
+          <text x="544" y="330" text-anchor="middle" fill="#4B5563" font-family="JetBrains Mono, monospace" font-size="13">20</text>
+          <text x="620" y="330" text-anchor="middle" fill="#4B5563" font-family="JetBrains Mono, monospace" font-size="13">25</text>
+          <text x="430" y="356" text-anchor="middle" fill="#4B5563" font-family="Plus Jakarta Sans, sans-serif" font-size="13">Số lượng mục học lõi theo từng chuyên đề</text>
+        </svg>
+        <figcaption>So sánh trực tiếp giữa bộ 80 mục bản v1 và 105 mục bản v2 trong <code>unit1-ha1-v2-seed-data.js</code>.</figcaption>
+      </figure>
+    </section>
+
+    <!-- SVG 2: 50-QUESTION CBT EXAM COMPOSITION -->
+    <section class="sec">
+      <div class="measure">
+        <h2>Cấu trúc Đề Thi Thử CBT 50 câu bám sát ma trận đề trường</h2>
+        <p>Tệp <code>unit1-ha1-v2-exam-50-cbt.json</code> nâng cấp từ bản 40 câu lên <strong>50 câu trọn vẹn</strong>, phủ đủ 10/10 câu Phát âm &amp; Trọng âm (trang 90) cùng tỷ trọng Từ vựng, Ngữ pháp, Đọc hiểu, Giao tiếp và Viết câu chuẩn theo đề thi học phần HA 1.</p>
+      </div>
+
+      <figure>
+        <p class="fig-title">Đề CBT 50 câu dành 52% cho Từ vựng–Ngữ pháp và 20% phủ trọn 10/10 câu Phát âm–Trọng âm</p>
+        <svg viewBox="0 0 700 220" width="100%" role="img" aria-label="Biểu đồ thanh phân bổ tỷ trọng 50 câu trong đề thi thử CBT Unit 1">
+          <!-- Stacked horizontal bar: width 600px (x=50..650), 12px per question -->
+          <!-- Grammar 14 (168px), Vocab 12 (144px), Phonetics 10 (120px), Reading 5 (60px), Social 5 (60px), Writing 4 (48px) -->
+          <rect x="50" y="48" width="168" height="44" fill="#3730A3"/>
+          <rect x="218" y="48" width="144" height="44" fill="#4F46E5"/>
+          <rect x="362" y="48" width="120" height="44" fill="#B45309"/>
+          <rect x="482" y="48" width="60" height="44" fill="#0F766E"/>
+          <rect x="542" y="48" width="60" height="44" fill="#0369A1"/>
+          <rect x="602" y="48" width="48" height="44" fill="#4B5563"/>
+
+          <!-- Direct counts inside bar -->
+          <text x="134" y="75" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">14</text>
+          <text x="290" y="75" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">12</text>
+          <text x="422" y="75" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">10</text>
+          <text x="512" y="75" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">5</text>
+          <text x="572" y="75" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">5</text>
+          <text x="626" y="75" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">4</text>
+
+          <!-- Clean 2-row legend below -->
+          <rect x="50" y="122" width="12" height="12" fill="#3730A3"/>
+          <text x="68" y="133" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5">III. Grammar (14 câu · 28%)</text>
+
+          <rect x="275" y="122" width="12" height="12" fill="#4F46E5"/>
+          <text x="293" y="133" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5">II. Vocabulary (12 câu · 24%)</text>
+
+          <rect x="500" y="122" width="12" height="12" fill="#B45309"/>
+          <text x="518" y="133" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5">I. Phonetics (10 câu · 20%)</text>
+
+          <rect x="50" y="156" width="12" height="12" fill="#0F766E"/>
+          <text x="68" y="167" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5">IV. Reading (5 câu · 10%)</text>
+
+          <rect x="275" y="156" width="12" height="12" fill="#0369A1"/>
+          <text x="293" y="167" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5">V. Social English (5 câu · 10%)</text>
+
+          <rect x="500" y="156" width="12" height="12" fill="#4B5563"/>
+          <text x="518" y="167" fill="#111827" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5">VI. Writing (4 câu · 8%)</text>
+        </svg>
+        <figcaption>Tất cả 50 câu trong <code>unit1-ha1-v2-exam-50-cbt.json</code> đều gắn <code>grammarChoices</code> và <code>grammarChoiceNotes</code> để chạy trực tiếp trên Tab 6 (Thi thử CBT) và Tab 1 (Trắc nghiệm Điền khuyết).</figcaption>
+      </figure>
+    </section>
+
+    <!-- TABLE 2: FULL UPDATE PLAN FOR EVERYDAY ENGLISH PRO v7 -->
+    <section class="sec">
+      <div class="measure">
+        <h2>Kế hoạch cập nhật trọn gói cho Everyday English Pro v7</h2>
+        <p>Để dữ liệu mới phát huy hết hiệu quả thi thật mà không làm xáo trộn tiến độ SRS bạn đã học trên 80 từ cũ, hãy triển khai bản cập nhật v7 theo 3 bước ngắn gọn dưới đây.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Bước cập nhật</th>
+              <th>Tệp / Thành phần tác động</th>
+              <th>Hành động cụ thể</th>
+              <th>Bảo toàn dữ liệu</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="accent-cell">Bước 1<br>Nạp 105 mục lõi</td>
+              <td><code>unit1-ha1-v2-seed-data.js</code> &rarr; <code>index.html</code></td>
+              <td>Thay thế <code>UNIT_METADATA</code> và <code>SEED_DATA</code> trong AI Studio bằng bản v2 (105 mục); giữ cơ chế hợp nhất theo <code>id</code> trong <code>initDatabase()</code>.</td>
+              <td>Giữ nguyên 100% <code>srsLevel</code> của 80 mục cũ, chỉ tự thêm 25 mục mới và cập nhật <code>grammarChoices</code>.</td>
+            </tr>
+            <tr>
+              <td class="accent-cell">Bước 2<br>Nạp Đề CBT 50 câu</td>
+              <td><code>unit1-ha1-v2-exam-50-cbt.json</code> &rarr; Hộp thoại JSON</td>
+              <td>Mở biểu tượng <strong>Cơ sở dữ liệu (JSON)</strong> &rarr; dán tệp 50 câu &rarr; bấm <strong>Hợp nhất (Merge)</strong> để tạo riêng 1 Unit kiểm tra 50 câu.</td>
+              <td>Tách biệt khỏi 6 Unit học hàng ngày; khi thi thử chỉ cần tích chọn duy nhất Unit Đề Thi Thử.</td>
+            </tr>
+            <tr>
+              <td class="accent-cell">Bước 3<br>Nâng cấp CBT &amp; Dọn Repo</td>
+              <td><code>index.html</code> + thư mục <code>public/assets/aistudio/</code></td>
+              <td>Thêm tùy chọn <strong>50 Câu (35 phút)</strong> vào danh sách <code>#cbtQuestionCount</code>, xóa 1,29 MB tệp nháp AI Studio cũ và gắn <code>manifest.json</code> chạy Offline.</td>
+              <td>Giảm ~75% dung lượng kho GitHub và khớp chính xác thời lượng đề 50 câu.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FULL-BLEED DEPLOYMENT BAND -->
+    <section class="full-bleed-band">
+      <div class="measure">
+        <h2>Cách ôn thi hiệu quả với bộ 105 mục + Đề CBT 50 câu</h2>
+        <p>Sự kết hợp giữa kho học lõi và đề thi thử tách biệt giúp bạn vừa học đúng chuẩn SRS vừa đo chính xác năng lực trước khi chuyển sang Unit 2.</p>
+      </div>
+
+      <div class="band-cols">
+        <div>
+          <span class="band-tag">Giai đoạn 1 · Học 6 Unit lõi</span>
+          <h3>Bỏ tích Unit Đề Thi khi học hàng ngày</h3>
+          <p>Trong 10 ngày đầu, chỉ chọn từng chuyên đề <strong>1A &rarr; 1F</strong> để đi đủ 4 chặng và đưa 105 mục lõi về <code>SRS &ge; 2</code>.</p>
+        </div>
+        <div>
+          <span class="band-tag">Giai đoạn 2 · Thi thử CBT</span>
+          <h3>Chọn riêng Unit 50 câu ở Tab 6</h3>
+          <p>Chọn chiều <strong>Điền khuyết câu giao tiếp (context)</strong> để app hiển thị đúng 4 phương án A/B/C/D gốc của đề HA 1, bấm giờ và chấm điểm trên thang 10.</p>
+        </div>
+        <div>
+          <span class="band-tag">Giai đoạn 3 · Sửa lỗi sai</span>
+          <h3>Diệt sạch ngân hàng lỗi sai</h3>
+          <p>Sau khi nộp bài CBT, bấm ngay nút <strong>Ôn lại các câu sai ở Quiz</strong> để xem giải thích chi tiết từng phương án nhiễu cho tới khi đạt trên 9,0/10.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
