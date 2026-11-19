@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiểm toán kỹ thuật & Kế hoạch cải thiện Everyday English Pro (v5)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /*
+     * Tier 3 Utilitarian · Technical Code Audit & Product Improvement Roadmap
+     * Hero: compact answer-first opening with inline metric strip
+     * Section order: Hero + Verdict → SVG 1 (Severity Distribution) → Table 1 (12-Issue Technical Audit with Exact Line Numbers) → Asymmetric Split (Pedagogical Fixes: 's/s' & Grammar Tab) → SVG 2 (Repo Bloat vs Clean Footprint) → Table 2 (3-Sprint Improvement Roadmap) → Full-Bleed Action Band
+     * Fonts: Space Grotesk (headline & headings) · Plus Jakarta Sans (body) · JetBrains Mono (line refs, table headers, SVG ticks)
+     * Palette: Crisp White (#FFFFFF) · Ink (#0F172A) · Cobalt (#1D4ED8 / #1E3A8A) · Crimson (#BE123C / #9F1239)
+     * Image radius: 0 · Emphasis moment: Hero compact metric · Signature element: 12-Issue Line-Verified Audit Matrix · Charts: Horizontal bar + Stacked footprint comparison (inline SVG)
+     */
+    :root {
+      --paper: #FFFFFF;
+      --ink: #0F172A;
+      --ink2: #273449;
+      --mute: #475569;
+      --hair: #CBD5E1;
+      --accent: #1D4ED8;
+      --accent-text: #1E3A8A;
+      --accent-2: #BE123C;
+      --accent-2-text: #9F1239;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.62;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      padding: 56px clamp(24px, 9.5vw, 108px) 84px;
+    }
+
+    .sec {
+      margin-top: 68px;
+    }
+
+    .measure {
+      max-width: 68ch;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: clamp(36px, 4.2vw, 52px);
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin: 0 0 18px 0;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+
+    .deck {
+      font-size: 17.5px;
+      line-height: 1.55;
+      color: var(--ink2);
+      max-width: 64ch;
+      margin: 0;
+      text-wrap: pretty;
+    }
+
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: clamp(24px, 2.5vw, 31px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin: 0 0 16px 0;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+
+    h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 1.3;
+      margin: 0 0 8px 0;
+      color: var(--ink);
+    }
+
+    p {
+      margin: 0 0 14px 0;
+      color: var(--ink2);
+    }
+
+    p:last-child { margin-bottom: 0; }
+
+    strong { color: var(--ink); font-weight: 600; }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--accent-text);
+      white-space: nowrap;
+    }
+
+    .mono-crit {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent-2-text);
+      white-space: nowrap;
+    }
+
+    /* Compact Metric Strip under Hero (0 cards, hairline rules only) */
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 24px;
+      margin-top: 32px;
+      padding: 22px 0;
+      border-top: 2px solid var(--ink);
+      border-bottom: 1px solid var(--hair);
+    }
+
+    .metric-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 38px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin: 0 0 6px 0;
+    }
+
+    .metric-val.crit { color: var(--accent-2-text); }
+    .metric-val.ok { color: var(--accent-text); }
+
+    .metric-desc {
+      font-size: 13.5px;
+      line-height: 1.4;
+      color: var(--mute);
+      margin: 0;
+    }
+
+    .verdict-prose {
+      margin-top: 24px;
+      max-width: 72ch;
+      font-size: 16.5px;
+      color: var(--ink);
+    }
+
+    /* Figures & SVG */
+    figure {
+      margin: 28px 0 0 0;
+      padding: 0;
+    }
+
+    .fig-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 1.35;
+      color: var(--ink);
+      margin: 0 0 12px 0;
+    }
+
+    figcaption {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--mute);
+      margin-top: 10px;
+      border-top: 1px solid var(--hair);
+      padding-top: 8px;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Open Tables (max 3, no zebra, no boxes) */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 22px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    thead th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--mute);
+      border-top: 2px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      padding: 11px 14px 11px 0;
+      vertical-align: bottom;
+    }
+
+    tbody td {
+      padding: 14px 14px 14px 0;
+      border-bottom: 1px solid var(--hair);
+      vertical-align: top;
+      font-size: 14.5px;
+      line-height: 1.52;
+      color: var(--ink2);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .sev-p0 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--accent-2-text);
+      white-space: nowrap;
+    }
+
+    .sev-p1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #9A3412;
+      white-space: nowrap;
+    }
+
+    .sev-p2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--accent-text);
+      white-space: nowrap;
+    }
+
+    .sev-p3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--mute);
+      white-space: nowrap;
+    }
+
+    /* Asymmetric Split (4 / 8) */
+    .grid-12 {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 28px;
+      row-gap: 24px;
+      border-top: 1px solid var(--hair);
+      padding-top: 28px;
+    }
+
+    .col-4 { grid-column: 1 / 5; }
+    .col-8 { grid-column: 5 / 13; }
+
+    .sub-block {
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--hair);
+    }
+
+    .sub-block:last-child {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+
+    /* Full-bleed dark action band (max 1) */
+    .action-band {
+      margin: 72px calc(-1 * clamp(24px, 9.5vw, 108px)) 0;
+      padding: 56px clamp(24px, 9.5vw, 108px);
+      background: #0F172A;
+      color: #F8FAFC;
+    }
+
+    .action-band h2 { color: #FFFFFF; }
+    .action-band p { color: #CBD5E1; }
+    .action-band strong { color: #FFFFFF; }
+
+    .band-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 28px;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid #334155;
+    }
+
+    .band-grid h3 { color: #FFFFFF; }
+
+    .band-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      color: #93C5FD;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .metric-strip, .band-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .col-4, .col-8 {
+        grid-column: 1 / 13;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .metric-strip, .band-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <!-- COMPACT ANSWER-FIRST HERO -->
+    <header>
+      <h1>Nền tảng Everyday English Pro v5 chạy ổn định nhưng cần vá 4 lỗi logic học tập trước khi mở rộng Unit 2</h1>
+      <p class="deck">Kết quả kiểm toán trực tiếp toàn bộ 7.521 dòng của tệp <code>index.html</code> và cấu trúc kho lưu trữ trong bản <strong>everyday-english-pro (5).zip</strong> (ngày 19/11/2026), kèm lộ trình 3 giai đoạn nâng cấp thành công cụ luyện thi HA 1 hoàn chỉnh.</p>
+
+      <div class="metric-strip">
+        <div>
+          <p class="metric-val ok">0 / 4</p>
+          <p class="metric-desc">Lỗi cú pháp JS &amp; DOM ID thiếu (cả 4 khối script đạt <code>node --check</code>, 264/264 ID khớp)</p>
+        </div>
+        <div>
+          <p class="metric-val ok">80 / 80</p>
+          <p class="metric-desc">Mục Unit 1 chuẩn hóa (0 trùng lặp Chiều 4, đã bật nghĩa song ngữ &amp; lý do sai)</p>
+        </div>
+        <div>
+          <p class="metric-val crit">4 P0</p>
+          <p class="metric-desc">Lỗi logic cốt lõi ảnh hưởng trực tiếp tới chấm chính tả <code>'s/s'</code>, timer và giọng đọc</p>
+        </div>
+        <div>
+          <p class="metric-val">1,25 MB</p>
+          <p class="metric-desc">Tệp rác AI Studio &amp; khung React thừa đang nằm trong kho lưu trữ cần dọn sạch</p>
+        </div>
+      </div>
+
+      <p class="verdict-prose"><strong>Nhận định tổng quan:</strong> Phiên bản v5 đã giải quyết triệt để hai nút thắt lớn nhất của tuần trước (trùng nghĩa Chiều 4 và thiếu giải thích sau khi chọn đáp án). Tuy nhiên, khi soi sâu vào mã nguồn thực tế, có <strong>12 vấn đề kỹ thuật và sư phạm</strong> cần xử lý có thứ tự — ưu tiên hàng đầu là sửa bộ chấm chính tả đang bỏ qua dấu sở hữu cách <span class="mono">'s / s'</span>, chặn lỗi nhảy cóc câu hỏi của <span class="mono">quizAutoNext</span> và đồng bộ giọng đọc Anh-Anh cho sát đề HA 1.</p>
+    </header>
+
+    <!-- SVG 1: SEVERITY BREAKDOWN -->
+    <section class="sec">
+      <div class="measure">
+        <h2>Phân loại 12 lỗi và điểm nghẽn theo mức độ ảnh hưởng</h2>
+        <p>Thay vì sửa dàn trải, toàn bộ phát hiện từ mã nguồn được phân thành 4 tầng ưu tiên từ <strong>P0 (ảnh hưởng trực tiếp tới kết quả học và chấm điểm)</strong> đến <strong>P3 (tối ưu dung lượng và tốc độ tải)</strong>.</p>
+      </div>
+
+      <figure>
+        <p class="fig-title">7 trong 12 vấn đề nằm ở nhóm P0–P1 cần xử lý ngay trong bản vá tiếp theo</p>
+        <svg viewBox="0 0 700 320" width="100%" role="img" aria-label="Biểu đồ phân bổ 12 vấn đề kỹ thuật theo mức độ ưu tiên P0 đến P3">
+          <!-- Gridlines (x=250..610 -> 360px for 0..5 issues, 72px per issue) -->
+          <line x1="250" y1="24" x2="250" y2="256" stroke="#CBD5E1" stroke-width="1"/>
+          <line x1="322" y1="24" x2="322" y2="256" stroke="#CBD5E1" stroke-width="1"/>
+          <line x1="394" y1="24" x2="394" y2="256" stroke="#CBD5E1" stroke-width="1"/>
+          <line x1="466" y1="24" x2="466" y2="256" stroke="#CBD5E1" stroke-width="1"/>
+          <line x1="538" y1="24" x2="538" y2="256" stroke="#CBD5E1" stroke-width="1"/>
+          <line x1="610" y1="24" x2="610" y2="256" stroke="#CBD5E1" stroke-width="1"/>
+
+          <!-- X-axis labels -->
+          <text x="250" y="280" text-anchor="middle" fill="#475569" font-family="JetBrains Mono, monospace" font-size="13">0</text>
+          <text x="322" y="280" text-anchor="middle" fill="#475569" font-family="JetBrains Mono, monospace" font-size="13">1</text>
+          <text x="394" y="280" text-anchor="middle" fill="#475569" font-family="JetBrains Mono, monospace" font-size="13">2</text>
+          <text x="466" y="280" text-anchor="middle" fill="#475569" font-family="JetBrains Mono, monospace" font-size="13">3</text>
+          <text x="538" y="280" text-anchor="middle" fill="#475569" font-family="JetBrains Mono, monospace" font-size="13">4</text>
+          <text x="610" y="280" text-anchor="middle" fill="#475569" font-family="JetBrains Mono, monospace" font-size="13">5</text>
+          <text x="430" y="306" text-anchor="middle" fill="#475569" font-family="Plus Jakarta Sans, sans-serif" font-size="13">Số lượng vấn đề phát hiện (tổng cộng 12 mục)</text>
+
+          <!-- P0: 4 -->
+          <text x="236" y="64" text-anchor="end" fill="#0F172A" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="600">P0 · Logic học tập &amp; Chấm điểm</text>
+          <rect x="250" y="44" width="288" height="28" fill="#BE123C"/>
+          <text x="550" y="64" fill="#9F1239" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">4 lỗi</text>
+
+          <!-- P1: 3 -->
+          <text x="236" y="122" text-anchor="end" fill="#0F172A" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="600">P1 · Bảo mật, DOM &amp; PWA</text>
+          <rect x="250" y="102" width="216" height="28" fill="#C2410C"/>
+          <text x="478" y="122" fill="#9A3412" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">3 lỗi</text>
+
+          <!-- P2: 3 -->
+          <text x="236" y="180" text-anchor="end" fill="#0F172A" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="600">P2 · Sư phạm &amp; Chế độ luyện</text>
+          <rect x="250" y="160" width="216" height="28" fill="#1D4ED8"/>
+          <text x="478" y="180" fill="#1E3A8A" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">3 mục</text>
+
+          <!-- P3: 2 -->
+          <text x="236" y="238" text-anchor="end" fill="#0F172A" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="600">P3 · Hiệu năng &amp; Dọn Repo</text>
+          <rect x="250" y="218" width="144" height="28" fill="#64748B"/>
+          <text x="406" y="238" fill="#334155" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">2 mục</text>
+        </svg>
+        <figcaption>Đơn vị: số lỗi/điểm nghẽn kiểm chứng trực tiếp trên tệp <code>index.html</code> (7.521 dòng) và cây thư mục của <code>everyday-english-pro (5).zip</code>.</figcaption>
+      </figure>
+    </section>
+
+    <!-- TABLE 1: FULL 12-ISSUE TECHNICAL AUDIT -->
+    <section class="sec">
+      <div class="measure">
+        <h2>Bảng chẩn đoán chi tiết 12 lỗi và giải pháp kỹ thuật</h2>
+        <p>Mỗi mục dưới đây đều gắn kèm vị trí dòng chính xác trong <code>index.html</code> (bản v5) để bạn hoặc AI Studio có thể đối chiếu và vá chính xác mà không làm ảnh hưởng các hàm khác.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mức</th>
+              <th>Lỗi / Điểm nghẽn &amp; Vị trí dòng</th>
+              <th>Tác động thực tế tới người học</th>
+              <th>Hướng xử lý chuẩn</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="sev-p0">P0 · 01</td>
+              <td><strong>Xóa dấu nháy đơn trong Dictation</strong><br><span class="mono">index.html:5062, 5170</span></td>
+              <td><code>normalizeDictString</code> thay dấu <code>'</code> và <code>-</code> bằng khoảng trắng, khiến lỗi sai sở hữu cách (<code>parent's</code> vs <code>parents'</code>, bỏ <code>'</code> trong <code>doesn't</code>) vẫn bị chấm Đúng 100%.</td>
+              <td>Thêm công tắc <strong>Chấm chặt dấu câu</strong> khi gõ phím (giữ nguyên <code>'</code> và <code>-</code>), chỉ nới lỏng dấu câu khi nhập bằng giọng nói Mic.</td>
+            </tr>
+            <tr>
+              <td class="sev-p0">P0 · 02</td>
+              <td><strong>Race condition ở <code>quizAutoNext</code></strong><br><span class="mono">index.html:4970</span></td>
+              <td><code>setTimeout(..., 1200)</code> không được hủy khi người dùng bấm tay <em>Câu tiếp theo</em> sớm hơn 1,2 giây, dẫn đến app tự động nhảy cóc qua thêm 1 câu nữa.</td>
+              <td>Lưu biến <code>quizAutoNextTimer</code> toàn cục và gọi <code>clearTimeout(quizAutoNextTimer)</code> ở đầu <code>loadQuizQuestion()</code> và nút Next.</td>
+            </tr>
+            <tr>
+              <td class="sev-p0">P0 · 03</td>
+              <td><strong><code>getFilteredVocab()</code> tự sửa state</strong><br><span class="mono">index.html:3972</span></td>
+              <td>Hàm đọc dữ liệu lại tự tắt <code>onlyMistakesFilter</code> / <code>onlyDueTodayFilter</code> và bắn <code>showToast</code>. Do hàm bị gọi 4–5 lần trong một chu kỳ render, toast có thể hiện chồng nhau.</td>
+              <td>Tách hàm đọc thuần (pure getter) khỏi hàm kiểm tra rỗng; chỉ tắt bộ lọc và báo toast tại sự kiện người dùng đổi tab/lọc hoặc sau khi trả lời xong.</td>
+            </tr>
+            <tr>
+              <td class="sev-p0">P0 · 04</td>
+              <td><strong>Khóa cứng giọng Mỹ <code>en-US</code></strong><br><span class="mono">index.html:3560, 5413</span></td>
+              <td>Phiên âm IPA trong giáo trình <em>Speakout 3rd A2</em> và đề HA 1 theo chuẩn Anh-Anh (<code>aunt /ɑːnt/</code>, <code>doctor /ˈdɒk.tər/</code>), nhưng TTS đọc Anh-Mỹ gây lệch tai khi ôn Phonetics.</td>
+              <td>Thêm nút chuyển nhanh <strong>UK / US</strong> ngay cạnh nút tốc độ <code>1.0x</code> (mặc định <code>en-GB</code> cho bộ Speakout A2).</td>
+            </tr>
+            <tr>
+              <td class="sev-p1">P1 · 05</td>
+              <td><strong><code>innerHTML</code> &amp; <code>querySelectorAll</code> chưa escape</strong><br><span class="mono">index.html:4030, 4065, 4965</span></td>
+              <td>Tên Unit chứa dấu ngoặc kép sẽ làm văng lỗi <code>querySelectorAll</code> trong <code>toggleUnitDetail</code>; trường <code>relatedTerms</code> và <code>meta</code> chưa qua <code>escapeHtml()</code> tiềm ẩn XSS khi nạp JSON ngoài.</td>
+              <td>Bọc <code>escapeHtml()</code> cho toàn bộ biến chèn vào <code>innerHTML</code> và dùng <code>CSS.escape(unitName)</code> trong mọi bộ chọn thuộc tính DOM.</td>
+            </tr>
+            <tr>
+              <td class="sev-p1">P1 · 06</td>
+              <td><strong>Khóa zoom trên di động</strong><br><span class="mono">index.html:14</span></td>
+              <td>Thuộc tính <code>maximum-scale=1.0, user-scalable=no</code> chặn thao tác chụm tay phóng to bảng phân tích lỗi và phiên âm IPA nhỏ trên màn hình điện thoại.</td>
+              <td>Đổi thẻ viewport về chuẩn <code>width=device-width, initial-scale=1.0</code>.</td>
+            </tr>
+            <tr>
+              <td class="sev-p1">P1 · 07</td>
+              <td><strong>PWA thiếu <code>manifest.json</code> &amp; Offline</strong><br><span class="mono">index.html:31–56</span></td>
+              <td>App có nút <em>Cài App</em> nhưng không có Web Manifest và Service Worker; mất mạng 4G/Wi-Fi sẽ mất luôn Tailwind CDN và FontAwesome khiến giao diện vỡ hoàn toàn.</td>
+              <td>Bổ sung <code>manifest.json</code>, biểu tượng app và Service Worker cache-first (hoặc biên dịch sẵn CSS thay vì phụ thuộc Tailwind Play CDN).</td>
+            </tr>
+            <tr>
+              <td class="sev-p2">P2 · 08</td>
+              <td><strong>Thiếu chế độ Luyện Ngữ pháp A/B/C/D</strong><br><span class="mono">Toàn bộ tab Quiz</span></td>
+              <td>Quiz từ vựng chưa tạo được 4 phương án nhiễu biến thể ngữ pháp sát đề HA 1 như <code>a / an / the / Ø</code> hay <code>doesn't study / doesn't studies / isn't study</code>.</td>
+              <td>Bổ sung trường tùy chọn <code>grammarChoices</code> trên thẻ ngữ pháp (hoặc 1 chế độ <em>Luyện Ngữ pháp HA 1</em>) dùng đáp án nhiễu cố định có giải thích từng phương án sai.</td>
+            </tr>
+            <tr>
+              <td class="sev-p2">P2 · 09</td>
+              <td><strong>Chặng 3 quá dễ &amp; Sprint 1 chiều</strong><br><span class="mono">index.html:4153, 5545</span></td>
+              <td>Chặng 3 hoàn thành 100% chỉ sau <strong>1 từ</strong> đúng sạch lỗi; Sprint 60s chỉ hỏi 1 chiều Anh ➔ Việt nên chưa ép được phản xạ nói/nghe.</td>
+              <td>Nâng ngưỡng Chặng 3 lên <code>&ge; 50%</code> số thẻ sạch lỗi (tối thiểu 5 thẻ) và thêm tùy chọn chiều <em>Việt ➔ Anh</em> / <em>Hội thoại</em> cho Sprint 60s.</td>
+            </tr>
+            <tr>
+              <td class="sev-p2">P2 · 10</td>
+              <td><strong>Chữ cũ &amp; bộ giải mã Offline rỗng</strong><br><span class="mono">index.html:908, 1285, 1523, 6042</span></td>
+              <td><code>COMM_EXPRESSION_LEXICON = []</code> làm Tầng 3 AI Offline không phân tích được cấu trúc mới; hướng dẫn vẫn ghi <em>"8 Unit"</em>, ô nhập mặc định <em>"Unit 5"</em>, sót biến <code>STORAGE_KEY_EMPTY_PURGE_V2</code>.</td>
+              <td>Điền 25 quy tắc cốt lõi HA 1 (chia <code>-s/-es/-ies</code>, <code>'s/s'</code>, <code>a/an</code>, <code>do/does</code>) vào bộ giải mã Offline và đồng bộ lại toàn bộ nhãn hiển thị theo số Unit thực tế.</td>
+            </tr>
+            <tr>
+              <td class="sev-p3">P3 · 11</td>
+              <td><strong>Repo chứa 1,25 MB tệp rác AI Studio</strong><br><span class="mono">public/assets/aistudio/*, src/*</span></td>
+              <td>7 tệp dán nháp cũ (riêng 2 tệp Paste đã chiếm 940 KB) cùng khung React/Vite không chạy làm nặng kho GitHub và dễ gây nhầm khi đồng bộ mã.</td>
+              <td>Xóa thư mục <code>public/assets/aistudio/</code>, xóa bộ dữ liệu cũ không dùng và tách rõ tệp <code>index.html</code> (hoặc chuyển hẳn sang build Vite gọn).</td>
+            </tr>
+            <tr>
+              <td class="sev-p3">P3 · 12</td>
+              <td><strong>Tailwind Play CDN &amp; Key plain-text</strong><br><span class="mono">index.html:31, 4020</span></td>
+              <td><code>cdn.tailwindcss.com</code> phải biên dịch toàn bộ lớp CSS mỗi lần mở trang; Gemini API Key lưu trần trong <code>localStorage</code> dễ lộ nếu mở trên máy tính công cộng.</td>
+              <td>Biên dịch sẵn tệp CSS tĩnh (hoặc giữ 1 bản <code>styles.css</code> nội bộ) và thêm nhắc nhở <em>"Xóa Key khi dùng máy công cộng"</em> ngay trong khung cài đặt AI.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ASYMMETRIC SPLIT: DEEP DIVE ON PEDAGOGICAL UPGRADES -->
+    <section class="sec">
+      <div class="grid-12">
+        <div class="col-4">
+          <h2>Hai nâng cấp sư phạm tạo khác biệt lớn nhất cho bài thi HA 1</h2>
+          <p>Sửa lỗi kỹ thuật giúp app chạy mượt, nhưng để điểm thi thật (Phonetics, Grammar, Writing, Speaking) bứt phá, web app cần bổ sung hai cơ chế mà bộ từ vựng thuần túy chưa giải quyết được.</p>
+        </div>
+        <div class="col-8">
+          <div class="sub-block">
+            <h3>1. Chế độ chấm chặt chính tả dấu nháy (<code>'s / s'</code>) &amp; mạo từ (<code>a / an</code>)</h3>
+            <p>Hiện tại, khi bạn gõ <code>parents house</code> hay <code>parent's house</code> thay vì <code>parents' house</code>, hàm <span class="mono">normalizeDictString</span> đều xóa sạch dấu <code>'</code> nên chấm đúng tuyệt đối. Khi tách riêng quy tắc: <strong>Gõ phím giữ nguyên dấu <code>'</code> và <code>-</code></strong> (còn <strong>Mic giữ nguyên chế độ nới lỏng</strong> vì nhận diện giọng nói không phát âm dấu câu), Chế độ 3 sẽ lập tức trở thành công cụ luyện lỗi chính tả ngữ pháp cực kỳ chính xác cho cả Unit 1 và các Unit sau.</p>
+          </div>
+          <div class="sub-block">
+            <h3>2. Trường <code>grammarChoices</code> cho câu hỏi trắc nghiệm biến thể ngữ pháp</h3>
+            <p>Thay vì phải xây hẳn một trang web mới, bạn chỉ cần cho phép mỗi thẻ trong <span class="mono">SEED_DATA</span> có thêm một mảng tùy chọn <span class="mono">grammarChoices: ["doesn't study", "doesn't studies", "isn't study", "don't study"]</span>. Khi làm Quiz Chiều 3 (Điền khuyết), nếu thẻ có sẵn mảng này, app sẽ dùng đúng 4 phương án bẫy của đề thi HA 1 thay vì bốc ngẫu nhiên từ các thẻ khác — biến Quiz thành phòng luyện đề ngữ pháp sát 100% cấu trúc đề trường.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SVG 2: REPO BLOAT COMPARISON -->
+    <section class="sec">
+      <div class="measure">
+        <h2>Cắt giảm hơn 75% dung lượng kho lưu trữ sau khi dọn tệp rác</h2>
+        <p>Trong bản nén <code>everyday-english-pro (5).zip</code>, mã nguồn thực sự đang chạy chỉ nằm ở <code>index.html</code> (407 KB), còn gần <strong>1,26 MB</strong> là các tệp lưu nháp lịch sử dán code của AI Studio nằm trong <code>public/assets/aistudio/</code>.</p>
+      </div>
+
+      <figure>
+        <p class="fig-title">Dọn thư mục nháp AI Studio và tinh gọn HTML giảm tổng dung lượng từ 1.665 KB xuống ~360 KB</p>
+        <svg viewBox="0 0 700 260" width="100%" role="img" aria-label="Biểu đồ so sánh dung lượng kho lưu trữ hiện tại và sau khi tối ưu">
+          <!-- Scale: x=210..630 (420px for 1800 KB -> 0.2333 px/KB) -->
+          <line x1="210" y1="36" x2="210" y2="196" stroke="#CBD5E1" stroke-width="1"/>
+          <line x1="350" y1="36" x2="350" y2="196" stroke="#CBD5E1" stroke-width="1"/>
+          <line x1="490" y1="36" x2="490" y2="196" stroke="#CBD5E1" stroke-width="1"/>
+          <line x1="630" y1="36" x2="630" y2="196" stroke="#CBD5E1" stroke-width="1"/>
+
+          <!-- Legend -->
+          <rect x="210" y="8" width="12" height="12" fill="#1D4ED8"/>
+          <text x="228" y="19" fill="#273449" font-family="Plus Jakarta Sans, sans-serif" font-size="13">index.html chạy chính</text>
+          <rect x="400" y="8" width="12" height="12" fill="#BE123C"/>
+          <text x="418" y="19" fill="#273449" font-family="Plus Jakarta Sans, sans-serif" font-size="13">Tệp nháp AI Studio &amp; React thừa</text>
+
+          <!-- Current bar: 407 KB blue (95px) + 1258 KB crimson (293.5px) = 388.5px -->
+          <text x="196" y="84" text-anchor="end" fill="#0F172A" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="600">Hiện tại (v5)</text>
+          <rect x="210" y="60" width="95" height="36" fill="#1D4ED8"/>
+          <rect x="305" y="60" width="293.5" height="36" fill="#BE123C"/>
+          <text x="610" y="84" fill="#9F1239" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">1.665 KB</text>
+
+          <!-- Target bar: 360 KB blue (84px) -->
+          <text x="196" y="156" text-anchor="end" fill="#0F172A" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="600">Sau tối ưu (v6)</text>
+          <rect x="210" y="132" width="84" height="36" fill="#1D4ED8"/>
+          <text x="306" y="156" fill="#1E3A8A" font-family="JetBrains Mono, monospace" font-size="14" font-weight="500">~360 KB (-78%)</text>
+
+          <!-- X-axis ticks -->
+          <text x="210" y="220" text-anchor="middle" fill="#475569" font-family="JetBrains Mono, monospace" font-size="13">0 KB</text>
+          <text x="350" y="220" text-anchor="middle" fill="#475569" font-family="JetBrains Mono, monospace" font-size="13">600 KB</text>
+          <text x="490" y="220" text-anchor="middle" fill="#475569" font-family="JetBrains Mono, monospace" font-size="13">1.200 KB</text>
+          <text x="630" y="220" text-anchor="middle" fill="#475569" font-family="JetBrains Mono, monospace" font-size="13">1.800 KB</text>
+          <text x="420" y="246" text-anchor="middle" fill="#475569" font-family="Plus Jakarta Sans, sans-serif" font-size="13">Tổng dung lượng tệp mã nguồn &amp; tài sản tĩnh (KB)</text>
+        </svg>
+        <figcaption>Số liệu đo trực tiếp từ danh mục tệp trong <code>everyday-english-pro (5).zip</code> (<code>index.html</code>: 407,2 KB; <code>public/assets/aistudio/*</code>: 1.255,5 KB; <code>src/*</code>: 0,3 KB).</figcaption>
+      </figure>
+    </section>
+
+    <!-- TABLE 2: 3-SPRINT IMPROVEMENT ROADMAP -->
+    <section class="sec">
+      <div class="measure">
+        <h2>Kế hoạch cải thiện 3 giai đoạn để đưa app lên chuẩn hoàn thiện</h2>
+        <p>Lộ trình chia nhỏ thành 3 đợt cập nhật độc lập; mỗi đợt đều kiểm định được ngay trên trình duyệt mà không làm gián đoạn lịch học Unit 1 hiện tại của bạn.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Giai đoạn</th>
+              <th>Hạng mục thực hiện</th>
+              <th>Thời gian ước tính</th>
+              <th>Tiêu chí nghiệm thu (Done)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="sev-p0">Đợt 1<br>Vá lỗi P0 &amp; P1</td>
+              <td>Sửa <code>quizAutoNextTimer</code> chống nhảy cóc; tách side-effect khỏi <code>getFilteredVocab()</code>; bật chấm chặt <code>'s/s'</code> khi gõ phím; thêm nút chọn giọng <strong>UK/US</strong>; bọc <code>escapeHtml()</code> &amp; mở zoom di động.</td>
+              <td class="mono">1 phiên vá<br>(~15 phút)</td>
+              <td>Gõ sai <code>parents'</code> bị báo lỗi ngay; bấm Next nhanh không bỏ câu; đổi giọng UK đọc chuẩn IPA Speakout; 0 lỗ hổng XSS khi nạp JSON.</td>
+            </tr>
+            <tr>
+              <td class="sev-p2">Đợt 2<br>Sư phạm HA 1</td>
+              <td>Thêm hỗ trợ <code>grammarChoices</code> cho câu hỏi bẫy ngữ pháp (<code>a/an</code>, <code>'s/s'</code>, chia thì); nâng ngưỡng Chặng 3 lên <code>&ge; 50%</code>; thêm chiều Việt ➔ Anh cho Sprint 60s; nạp 25 quy tắc vào <code>COMM_EXPRESSION_LEXICON</code>.</td>
+              <td class="mono">1 phiên nâng cấp<br>(~20 phút)</td>
+              <td>Làm được trắc nghiệm biến thể <code>a/an</code>, <code>doesn't + V</code> ngay trong Quiz; Tầng 3 AI Offline giải thích được quy tắc ngữ pháp khi không có API Key.</td>
+            </tr>
+            <tr>
+              <td class="sev-p3">Đợt 3<br>PWA &amp; Dọn Repo</td>
+              <td>Xóa thư mục <code>public/assets/aistudio/</code> và tệp React thừa; thêm <code>manifest.json</code> + Service Worker để chạy Offline mượt trên điện thoại; đồng bộ nhãn số Unit động.</td>
+              <td class="mono">1 phiên tối ưu<br>(~15 phút)</td>
+              <td>Repo giảm còn ~360 KB; cài ra màn hình chính iPhone/Android mở không cần mạng vẫn giữ đủ giao diện và dữ liệu SRS.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FULL-BLEED ACTION BAND -->
+    <section class="action-band">
+      <div class="measure">
+        <h2>Đề xuất triển khai ngay để không gián đoạn tiến độ học Unit 1</h2>
+        <p>Bạn không cần dừng học để chờ làm lại cả app. Hãy triển khai cuốn chiếu theo đúng 3 bước gọn nhẹ dưới đây:</p>
+      </div>
+
+      <div class="band-grid">
+        <div>
+          <span class="band-tag">Bước 01 · Làm ngay hôm nay</span>
+          <h3>Vá trọn gói Đợt 1 vào <code>index.html</code></h3>
+          <p>Áp dụng bản vá 7 lỗi P0–P1 trực tiếp vào tệp <code>index.html</code> hiện tại (giữ nguyên 100% dữ liệu SRS 80 mục Unit 1 đang lưu trên máy bạn).</p>
+        </div>
+        <div>
+          <span class="band-tag">Bước 02 · Trước khi sang Unit 2</span>
+          <h3>Bật cơ chế <code>grammarChoices</code></h3>
+          <p>Mở khóa dạng câu hỏi trắc nghiệm biến thể ngữ pháp cho <code>a/an</code>, <code>'s/s'</code> và chia thì để khi nạp Unit 2 (<em>Speakout 3rd A2</em>), cả từ vựng lẫn ngữ pháp đều luyện chung một chỗ.</p>
+        </div>
+        <div>
+          <span class="band-tag">Bước 03 · Dọn gọn GitHub</span>
+          <h3>Xóa tệp rác &amp; bật PWA Offline</h3>
+          <p>Xóa thư mục <code>public/assets/aistudio/</code> thừa trên nhánh <code>main</code> và gắn <code>manifest.json</code> để học mượt trên điện thoại kể cả khi tắt mạng.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

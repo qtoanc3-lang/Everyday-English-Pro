@@ -10,7 +10,7 @@
     gtag('config', 'G-3QD2TQ0SGP');
   </script>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -130,6 +130,10 @@
           <button id="btnSpeedRate" title="Tốc độ đọc âm thanh" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-600 transition flex items-center gap-1">
             <i class="fa-solid fa-gauge-high text-indigo-600 dark:text-indigo-400"></i>
             <span id="speedRateText">1.0x</span>
+          </button>
+          <button id="btnVoiceAccent" type="button" title="Chuyển giọng đọc Anh-Anh (UK / en-GB) & Anh-Mỹ (US / en-US)" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/70 transition flex items-center gap-1">
+            <i class="fa-solid fa-earth-europe text-[11px]"></i>
+            <span id="voiceAccentText">UK</span>
           </button>
           <button id="btnAutoAudioToggle" title="Bật/Tắt tự động phát âm" class="p-2 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 transition">
             <i id="autoAudioIcon" class="fa-solid fa-volume-high"></i>
@@ -772,7 +776,11 @@
 
         <div class="flex flex-wrap items-center justify-between gap-2 text-xs border-b border-slate-100 dark:border-slate-700 pb-2.5">
           <span class="font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Luyện Nghe, Gõ Phím &amp; Phát Âm Trực Tiếp</span>
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 cursor-pointer select-none" title="Giữ chặt dấu nháy đơn (') và gạch nối (-) khi gõ phím (phân biệt parents' vs parent's, doesn't). Khi nói Mic tự động nới lỏng dấu câu.">
+              <input type="checkbox" id="chkDictStrictPunct" class="rounded text-indigo-600 focus:ring-indigo-500" checked />
+              <span>Chấm chặt ' và -</span>
+            </label>
             <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 cursor-pointer select-none">
               <input type="checkbox" id="chkDictAutoNext" class="rounded text-indigo-600 focus:ring-indigo-500" />
               <span>Tự qua câu khi đúng</span>
@@ -843,11 +851,22 @@
           <i class="fa-solid fa-bolt text-4xl text-amber-400"></i>
           <h3 class="text-lg font-extrabold">Đua Phản Xạ Giao Tiếp 60 Giây</h3>
           <p class="text-xs text-slate-500 max-w-sm mx-auto">Đúng liên tiếp đạt Combo từ 3 trở lên được thưởng <strong>+1 giây</strong>. Chọn sai bị phạt <strong>-2 giây</strong> và mất chuỗi Combo!</p>
+          <div class="flex flex-wrap items-center justify-center gap-2 text-xs">
+            <label for="sprintDirectionSelect" class="font-bold text-slate-600 dark:text-slate-300">Chiều phản xạ:</label>
+            <select id="sprintDirectionSelect" class="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-bold text-indigo-700 dark:text-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="en-vi">Anh ➔ Việt (Đọc/Nghe hiểu nhanh)</option>
+              <option value="vi-en">Việt ➔ Anh (Bật từ phản xạ nói)</option>
+              <option value="mix">Hỗn hợp 2 chiều (Anh ↔ Việt)</option>
+            </select>
+          </div>
           <p id="sprintLastResultBanner" class="hidden text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 py-2.5 px-4 rounded-xl max-w-sm mx-auto border border-emerald-200 dark:border-emerald-800"></p>
           <button id="btnStartSprintGame" type="button" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-extrabold text-xs shadow-lg hover:brightness-110 transition">BẮT ĐẦU ĐUA NGAY</button>
         </div>
         <div id="sprintPlayView" class="hidden relative space-y-4 py-2">
-          <span id="sprintUnitTag" class="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">Unit ...</span>
+          <div class="flex flex-wrap items-center justify-center gap-1.5">
+            <span id="sprintUnitTag" class="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">Unit ...</span>
+            <span id="sprintDirBadge" class="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950 text-violet-700 dark:text-violet-300">Anh ➔ Việt</span>
+          </div>
           <h3 id="sprintQuestionWord" class="text-2xl font-black text-slate-900 dark:text-white">...</h3>
           <div id="sprintOptionsBox" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
 
@@ -905,7 +924,7 @@
         </div>
 
         <form id="addWordForm" class="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-slate-900/60 border border-indigo-200/70 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-4 gap-2.5">
-          <input id="newUnitInput" type="text" placeholder="Tên Unit (VD: Unit 5)" required class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs" />
+          <input id="newUnitInput" type="text" placeholder="Tên Unit (VD: Unit 1A)" required class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs" />
           <input id="newWordInput" type="text" placeholder="Từ / Mẫu câu Tiếng Anh *" required class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs" />
           <input id="newMeaningInput" type="text" placeholder="Nghĩa Tiếng Việt (Để trống AI tự dịch)" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs" />
           <button id="btnSubmitSingleWord" type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition flex items-center justify-center gap-1.5">
@@ -915,7 +934,7 @@
 
         <div id="batchAddContainer" class="hidden p-4 rounded-2xl bg-violet-50/50 dark:bg-slate-900/70 border border-violet-200 dark:border-slate-700 space-y-3">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <input id="batchUnitInput" type="text" value="Unit 5" placeholder="Tên Unit đích" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-semibold" />
+            <input id="batchUnitInput" type="text" value="" placeholder="Tên Unit đích (mặc định Unit đầu tiên)" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-semibold" />
             <div class="sm:col-span-2 text-[11px] text-slate-500 flex items-center">
               Mỗi dòng 1 mục theo định dạng: <strong>Mẫu câu tiếng Anh : Nghĩa tiếng Việt</strong> (hoặc chỉ gõ tiếng Anh để AI tự dịch)
             </div>
@@ -1282,7 +1301,7 @@
       <div class="p-6 overflow-y-auto space-y-6 text-sm text-slate-700 dark:text-slate-300">
         <section class="space-y-2">
           <h4 class="font-extrabold text-indigo-600 dark:text-indigo-400 flex items-center gap-2"><i class="fa-solid fa-chart-pie"></i> Chế độ 0: Tổng Quan (Dashboard)</h4>
-          <p class="text-xs leading-relaxed">Trạm điều khiển trung tâm. Theo dõi thuật toán bộ nhớ <strong>Spaced Repetition (SRS)</strong> trên 8 Unit giao tiếp từ Siêu cơ bản đến Phản xạ cảm xúc. Bộ nhớ LocalStorage sử dụng tiền tố <code>comm_eng_pro_*</code> hoàn toàn độc lập.</p>
+          <p class="text-xs leading-relaxed">Trạm điều khiển trung tâm. Theo dõi thuật toán bộ nhớ <strong>Spaced Repetition (SRS)</strong> trên toàn bộ các Unit học phần đang có trong kho. Bộ nhớ LocalStorage sử dụng tiền tố <code>comm_eng_pro_*</code> hoàn toàn độc lập.</p>
         </section>
         <section class="space-y-2">
           <h4 class="font-extrabold text-indigo-600 dark:text-indigo-400 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> Chế độ 1: Trắc Nghiệm 4 Chiều (Quiz)</h4>
@@ -1396,17 +1415,17 @@
       </div>
 
       <div class="flex flex-wrap gap-1.5 shrink-0">
-        <button type="button" data-quick-ai="Phân biệt sắc thái giữa 'I'm down for that', 'Sounds like a plan' và 'Count me in' khi đồng ý lời rủ rê" class="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 text-[11px] font-semibold hover:bg-indigo-100 transition">🔍 Sắc thái đồng ý tự nhiên</button>
-        <button type="button" data-quick-ai="Tạo đoạn hội thoại tiếng Anh tự nhiên khi tình cờ gặp lại bạn cũ ở quán cà phê và hẹn nhau đi ăn tối" class="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 text-[11px] font-semibold hover:bg-indigo-100 transition">💬 Hội thoại gặp lại bạn cũ</button>
-        <button type="button" data-quick-ai="Cách từ chối khéo léo lời mời đi chơi bằng tiếng Anh mà không làm mất lòng người rủ (dùng rain check)" class="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 text-[11px] font-semibold hover:bg-indigo-100 transition">🤝 Cách từ chối khéo léo</button>
+        <button type="button" data-quick-ai="Phân biệt sở hữu cách 's và s' (parents' house, children's bedroom, Charles's car)" class="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 text-[11px] font-semibold hover:bg-indigo-100 transition">🔍 Sở hữu cách 's vs s'</button>
+        <button type="button" data-quick-ai="Quy tắc chia -s/-es/-ies và bẫy doesn't + V nguyên mẫu trong Hiện tại đơn HA 1" class="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 text-[11px] font-semibold hover:bg-indigo-100 transition">⚡ Chia -s/-es/-ies &amp; doesn't</button>
+        <button type="button" data-quick-ai="Phân biệt mạo từ a/an và khi nào dùng to be hay do/does trong câu hỏi" class="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 text-[11px] font-semibold hover:bg-indigo-100 transition">📘 Mạo từ a/an &amp; to be vs do/does</button>
       </div>
 
       <div class="flex-1 overflow-y-auto space-y-3 pr-1">
         <form id="aiCustomPromptForm" class="flex gap-2">
-          <input id="aiCustomPromptInput" type="text" placeholder="Nhập mẫu câu hoặc tình huống giao tiếp cần giải thích..." class="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input id="aiCustomPromptInput" type="text" placeholder="Nhập mẫu câu hoặc quy tắc ngữ pháp HA 1 cần giải thích..." class="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
           <button id="btnSendCustomAi" type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shrink-0 transition">Hỏi AI</button>
         </form>
-        <div id="aiResponseBox" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap min-h-[140px]">👋 Xin chào! Tôi là Trợ lý AI Giao Tiếp &amp; Phản Xạ (Tác giả: Quốc Toản). Bạn có thể bấm vào các gợi ý phía trên hoặc nhập bất kỳ mẫu câu, tình huống hội thoại nào để phân tích ngữ cảnh &amp; sắc thái.</div>
+        <div id="aiResponseBox" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap min-h-[140px]">👋 Xin chào! Tôi là Trợ lý AI Giao Tiếp &amp; Ngữ Pháp HA 1 (Tác giả: Quốc Toản). Bạn có thể bấm vào các gợi ý phía trên hoặc nhập bất kỳ mẫu câu, quy tắc ngữ pháp ('s/s', a/an, -s/-es/-ies, doesn't, to be vs do/does...) để tra cứu ngay cả khi Offline.</div>
         <details id="aiKeyDetailsBox" class="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-slate-900/50 border border-indigo-200/60 dark:border-slate-700 text-xs">
           <summary class="cursor-pointer font-extrabold text-indigo-800 dark:text-indigo-300 flex items-center justify-between">
             <span>⚙️ Cài đặt Gemini API Key cá nhân (Mở khóa toàn năng)</span>
@@ -1414,7 +1433,7 @@
           </summary>
           <div class="mt-3 space-y-2.5">
             <p class="text-[11px] text-slate-500">
-              Nhập API Key để mở khóa mô hình <strong>Gemini 2.5 Flash</strong>: Giải thích mọi tình huống giao tiếp thực tế, sửa lỗi câu và tự động làm giàu từ vựng ở Tab 5.
+              Nhập API Key để mở khóa mô hình <strong>Gemini 2.5 Flash</strong>: Giải thích mọi tình huống giao tiếp thực tế, sửa lỗi câu và tự động làm giàu từ vựng ở Tab 5. <span class="text-amber-600 dark:text-amber-400 font-semibold">Lưu ý: Nên bấm "Xóa Key" sau khi dùng trên máy tính công cộng.</span>
             </p>
             <input id="userGeminiKeyInput" type="password" placeholder="Dán Gemini API Key (AIzaSy...)..." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-mono" />
             <p id="aiKeyStatusHint" class="text-[11px] font-semibold text-slate-500"></p>
@@ -1520,7 +1539,6 @@
     const STORAGE_KEY_STREAK = "comm_eng_pro_streak";
     const STORAGE_KEY_CBT_HISTORY = "comm_eng_pro_cbt_history";
     const STORAGE_KEY_SYNCED_UNITS_VER = "comm_eng_pro_synced_units_ver";
-    const STORAGE_KEY_EMPTY_PURGE_V2 = "comm_eng_pro_purged_empty_v2";
     const STORAGE_KEY_SEED_HA1_U1_V1 = "comm_eng_pro_seed_ha1_u1_v1";
 
     const BASE_VERSION = { major: 8, minor: 0, patch: 0 };
@@ -1560,6 +1578,13 @@
         icon: "fa-graduation-cap",
         title: "Trọn Bộ Unit 1 HA 1 (80 Mục) + Hiện Nghĩa Dưới 4 Đáp Án & Giải Thích Lý Do Sai",
         desc: "Nạp đủ 80 mục Unit 1A–1F chuẩn hóa không trùng nghĩa Chiều 4, tự động bật nghĩa tiếng Việt + IPA ngay dưới toàn bộ đáp án sau khi chọn và phân tích rõ vì sao phương án bạn chọn chưa đúng."
+      },
+      {
+        type: "important",
+        date: "19/11/2026 • 09:30",
+        icon: "fa-shield-halved",
+        title: "Vá Trọn Bộ P0/P1 + Nâng Cấp Sư Phạm HA 1 (Giọng UK/US, Chấm Chặt 's/s', Grammar Choices & AI Offline)",
+        desc: "Bật chấm chặt dấu nháy (') & gạch nối (-) khi gõ Dictation, thêm nút giọng UK (en-GB) / US, chặn race condition quizAutoNext, hỗ trợ bẫy ngữ pháp grammarChoices ở Chiều 3, nâng chuẩn Chặng 3 (≥50%, tối thiểu 5 thẻ), mở chiều Việt ➔ Anh cho Sprint 60s và nạp 24 quy tắc HA 1 vào AI Offline."
       }
     ];
 
@@ -1652,6 +1677,9 @@ const SEED_DATA = [
     "dialoguePromptVi": "Bà ấy khám bệnh và kê đơn thuốc ở bệnh viện. Bà ấy làm nghề gì?",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarMask": "a doctor",
+    "grammarChoices": ["a doctor","an doctor","doctor","the doctors"],
+    "grammarChoiceNotes": {"an doctor":"Sai mạo từ: \"doctor\" bắt đầu bằng phụ âm /d/, phải dùng \"a\" thay vì \"an\".","doctor":"Thiếu mạo từ: Nghề nghiệp số ít trong tiếng Anh bắt buộc có \"a/an\" đứng trước.","the doctors":"Sai số nhiều: Chủ ngữ \"My mother\" là số ít nên không dùng \"the doctors\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -1790,6 +1818,9 @@ const SEED_DATA = [
     "dialoguePromptVi": "Anh ấy thiết kế cầu và máy móc ở công ty kỹ thuật. Anh ấy làm nghề gì?",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarMask": "an engineer",
+    "grammarChoices": ["an engineer","a engineer","engineer","the engineers"],
+    "grammarChoiceNotes": {"a engineer":"Sai mạo từ: \"engineer\" bắt đầu bằng nguyên âm /e/, phải dùng \"an\" thay vì \"a\".","engineer":"Thiếu mạo từ: Nghề nghiệp số ít trong tiếng Anh bắt buộc có \"a/an\" đứng trước.","the engineers":"Sai số nhiều: Chủ ngữ \"My brother\" là số ít nên không dùng \"the engineers\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -2940,6 +2971,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Cả bố và mẹ bạn cùng sở hữu một ngôi nhà gần đây. Nói sở hữu cách số nhiều thế nào?",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["parents' house","parent's house","parents house","parents's house"],
+    "grammarChoiceNotes": {"parent's house":"Sai số lượng: \"parent's\" chỉ của 1 phụ huynh; nhà của cả bố mẹ (số nhiều kết thúc bằng -s) phải đặt dấu nháy sau s: \"parents'\".","parents house":"Thiếu dấu sở hữu cách: Cần dấu nháy đơn sau -s (\"parents' house\").","parents's house":"Sai quy tắc sở hữu cách số nhiều: Danh từ số nhiều đã có -s chỉ thêm dấu nháy (parents'), không thêm 's."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -2963,6 +2996,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Bọn trẻ dùng chung phòng ngủ trên lầu. Chia sở hữu cách số nhiều bất quy tắc thế nào?",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["children's bedroom","childrens' bedroom","children bedroom","childs' bedroom"],
+    "grammarChoiceNotes": {"childrens' bedroom":"Sai dạng số nhiều: \"children\" đã là số nhiều bất quy tắc (không có -s), nên thêm 's thành \"children's\".","children bedroom":"Thiếu sở hữu cách 's trước \"bedroom\".","childs' bedroom":"Sai hình thái từ: Số nhiều của \"child\" là \"children\", không phải \"childs\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -2986,6 +3021,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Charles (tên kết thúc bằng -s) sở hữu một chiếc ô tô. Viết sở hữu cách thế nào?",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["Charles's car","Charles car","Charle's car","Charles's cars"],
+    "grammarChoiceNotes": {"Charles car":"Thiếu sở hữu cách: Tên riêng sở hữu vật phải có 's (\"Charles's car\").","Charle's car":"Sai chính tả tên riêng: Tên gốc là \"Charles\" (có chữ s), phải giữ nguyên rồi thêm 's.","Charles's cars":"Sai số ít/số nhiều: \"This is\" đi với danh từ số ít \"car\", không phải \"cars\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3009,6 +3046,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Martina thấy tiếng Trung quá khó nên không học. Chọn dạng phủ định đúng cho ngôi 'she'.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["doesn't study","don't study","doesn't studies","isn't study"],
+    "grammarChoiceNotes": {"don't study":"Sai trợ động từ: Chủ ngữ ngôi thứ 3 số ít \"Martina\" phải dùng \"doesn't\", không dùng \"don't\".","doesn't studies":"Lỗi chia động từ kép: Sau trợ động từ \"doesn't\", động từ chính phải trở về nguyên mẫu \"study\".","isn't study":"Nhầm to be và động từ thường: \"study\" là động từ thường nên phủ định bằng \"doesn't\", không dùng \"isn't\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3032,6 +3071,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Anh ấy có chị gái, không có anh/em trai. Chọn dạng phủ định đúng của 'have' cho 'he'.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["doesn't have","doesn't has","don't have","isn't have"],
+    "grammarChoiceNotes": {"doesn't has":"Lỗi kinh điển: Sau \"doesn't\" động từ phải về nguyên mẫu \"have\", không giữ \"has\".","don't have":"Sai chủ ngữ: Chủ ngữ \"he\" (ngôi 3 số ít) phải đi với \"doesn't\".","isn't have":"Sai trợ động từ: Phủ định của động từ thường \"have\" dùng \"doesn't\", không dùng \"isn't\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3055,6 +3096,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Đặt câu hỏi Yes/No về việc trời có mưa nhiều ở Hà Nội không với chủ ngữ 'it'.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["Does it rain","Do it rain","Does it rains","Is it rain"],
+    "grammarChoiceNotes": {"Do it rain":"Sai trợ động từ: Chủ ngữ \"it\" (ngôi 3 số ít) phải dùng \"Does\", không dùng \"Do\".","Does it rains":"Lỗi chia động từ kép: Đã có \"Does\" ở đầu câu nên động từ \"rain\" giữ nguyên mẫu.","Is it rain":"Nhầm to be và động từ thường: \"rain\" là động từ thường, câu hỏi dùng \"Does it rain\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3078,6 +3121,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Dùng 'I' + dạng phủ định của 'to be' để nói bạn không phải người bận rộn.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["am not","don't be","isn't","aren't"],
+    "grammarChoiceNotes": {"don't be":"Sai cấu trúc: Với động từ \"to be\" trong câu trần thuật, chỉ thêm \"not\" sau am/is/are, không mượn \"don't\".","isn't":"Sai hòa hợp chủ ngữ: Chủ ngữ \"I\" chỉ đi với \"am not\", không đi với \"isn't\".","aren't":"Sai hòa hợp chủ ngữ: Trong câu trần thuật với \"I\", dùng \"I am not\" (hoặc I'm not)."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3101,6 +3146,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Bạn cùng lớp đang ở thư viện chứ không ở trong lớp. Hoàn thành với phủ định 'to be'.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["isn't in class","doesn't in class","aren't in class","don't in class"],
+    "grammarChoiceNotes": {"doesn't in class":"Sai loại động từ: \"in class\" là cụm giới từ chỉ vị trí (không có động từ thường), phải dùng \"to be\" (isn't).","aren't in class":"Sai số ít/số nhiều: \"My classmate\" là số ít nên dùng \"isn't\", không dùng \"aren't\".","don't in class":"Sai cả trợ động từ lẫn số ít: Phải dùng \"isn't in class\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3124,6 +3171,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Hỏi xem bố của ai đó là giáo viên hay cảnh sát (vị ngữ danh từ, không động từ thường).",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["Is your father","Does your father","Are your father","Do your father"],
+    "grammarChoiceNotes": {"Does your father":"Sai loại động từ: Câu hỏi nghề nghiệp (\"a teacher or a policeman\") không có động từ thường, phải đảo \"Is\" lên đầu.","Are your father":"Sai hòa hợp chủ ngữ: \"your father\" là ngôi 3 số ít, phải dùng \"Is\".","Do your father":"Sai cả loại động từ lẫn số ít: Phải dùng \"Is your father\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3147,6 +3196,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Ai đó hỏi 'Các bạn có học tiếng Anh không?' — chọn câu trả lời ngắn phủ định cho 'we'.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["we don't","we aren't","we doesn't","we not"],
+    "grammarChoiceNotes": {"we aren't":"Sai trợ động từ trả lời ngắn: Câu hỏi bắt đầu bằng \"Do you...\" phải trả lời bằng \"don't\", không dùng \"aren't\".","we doesn't":"Sai hòa hợp chủ ngữ: \"we\" đi với \"don't\", không đi với \"doesn't\".","we not":"Thiếu trợ động từ: Trả lời ngắn phủ định trong tiếng Anh cần trợ động từ (\"No, we don't\")."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3170,6 +3221,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Anh trai tôi xem chương trình TV yêu thích mỗi tối. Chọn động từ thêm -es chuẩn.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["watches TV","watch TV","watchs TV","is watch TV"],
+    "grammarChoiceNotes": {"watch TV":"Thiếu chia ngôi 3 số ít: Chủ ngữ \"My brother\" (he) đòi hỏi động từ chia thành \"watches\".","watchs TV":"Sai chính tả đuôi -es: Động từ kết thúc bằng \"-ch\" phải thêm \"-es\" (watches), không chỉ thêm \"-s\".","is watch TV":"Sai cấu trúc: Không ghép \"is\" trực tiếp với động từ nguyên mẫu \"watch\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3193,6 +3246,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Bạn thân tôi thường ôn bài ở thư viện. Chọn cụm có động từ đổi -y thành -ies.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["studies in the library","studys in the library","study in the library","is study in the library"],
+    "grammarChoiceNotes": {"studys in the library":"Sai chính tả quy tắc -y: Phụ âm + y phải đổi y thành i rồi thêm -es (\"studies\").","study in the library":"Thiếu chia động từ: \"My best friend\" là ngôi 3 số ít nên phải chia thành \"studies\".","is study in the library":"Sai cấu trúc: Hiện tại đơn với động từ thường \"study\" không dùng kèm \"is\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3216,6 +3271,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Cậu ấy làm bài tập trường mỗi ngày sau giờ học. Chọn dạng ngôi 3 của động từ thường 'do'.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["does his homework","do his homework","dos his homework","is do his homework"],
+    "grammarChoiceNotes": {"do his homework":"Thiếu chia động từ: Chủ ngữ \"He\" phải chia \"do\" thành \"does\".","dos his homework":"Sai chính tả đuôi -es: Động từ kết thúc bằng \"-o\" (do, go) phải thêm \"-es\" (\"does\").","is do his homework":"Sai cấu trúc: Không đặt \"is\" trước động từ nguyên mẫu \"do\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3239,6 +3296,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Bạn muốn hỏi giá tiền của một chiếc vali trong cửa hàng bằng thì Hiện tại đơn.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["How much does it cost","How much do it cost","How much does it costs","How much is it cost"],
+    "grammarChoiceNotes": {"How much do it cost":"Sai trợ động từ: Chủ ngữ \"it\" đi với \"does\", không đi với \"do\".","How much does it costs":"Lỗi chia kép: Đã có \"does\" nên \"cost\" phải giữ nguyên mẫu, không thêm -s.","How much is it cost":"Nhầm 2 mẫu câu: Dùng \"How much is it?\" HOẶC \"How much does it cost?\", không trộn \"is\" với \"cost\"."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3262,6 +3321,8 @@ const SEED_DATA = [
     "dialoguePromptVi": "Bạn muốn hỏi giờ mở cửa của nhiều cửa hàng (số nhiều 'the shops'). Chọn câu hỏi dùng 'do'.",
     "srsLevel": 0,
     "mistakeCount": 0,
+    "grammarChoices": ["What time do the shops open","What time does the shops open","What time are the shops open","What time do the shops opens"],
+    "grammarChoiceNotes": {"What time does the shops open":"Sai hòa hợp chủ ngữ: \"the shops\" là số nhiều nên dùng \"do\", không dùng \"does\".","What time are the shops open":"Sai sắc thái động từ hành động: Với động từ \"open\" (mở cửa lúc mấy giờ), dùng trợ động từ \"do\" (\"What time do the shops open?\").","What time do the shops opens":"Lỗi chia kép: Sau \"do\" và với chủ ngữ số nhiều \"the shops\", động từ \"open\" giữ nguyên mẫu."},
     "lastReviewedAt": null,
     "nextReviewAt": null,
     "reviewIntervalDays": 0
@@ -3475,7 +3536,176 @@ const SEED_DATA = [
   }
 ];
 
-    const COMM_EXPRESSION_LEXICON = [];
+    const COMM_EXPRESSION_LEXICON = [
+      {
+        aff: "-s",
+        keywords: ["-s", "chia -s", "ngôi thứ 3", "he she it", "hiện tại đơn", "present simple"],
+        type: "Hiện tại đơn: Chia đuôi -s (Ngôi thứ 3 số ít)",
+        mean: "He / She / It / Danh từ số ít + V-s (works, plays, lives, speaks).",
+        note: "Chỉ thêm -s ở câu KHẲNG ĐỊNH; tuyệt đối không thêm -s cho I / You / We / They hoặc sau trợ động từ does/doesn't."
+      },
+      {
+        aff: "-es",
+        keywords: ["-es", "chia -es", "watches", "goes", "does", "ông sáu chạy xe sh", "ch sh x o s z"],
+        type: "Hiện tại đơn: Quy tắc thêm -es (o, s, x, z, ch, sh)",
+        mean: "Động từ tận cùng bằng -o, -s, -x, -z, -ch, -sh thêm -es (watches, goes, does, washes, fixes).",
+        note: "Mẹo nhớ nhanh HA 1: 'Ông Sáu Chạy Xe SH Z' (o, s, ch, x, sh, z) ➔ thêm -es. VD: My brother watches TV every evening."
+      },
+      {
+        aff: "-ies",
+        keywords: ["-ies", "chia -ies", "studies", "flies", "plays", "phụ âm + y", "y thành ies"],
+        type: "Hiện tại đơn: Quy tắc đổi -y thành -ies",
+        mean: "Phụ âm + y ➔ bỏ y thêm -ies (study ➔ studies, fly ➔ flies, try ➔ tries). Nguyên âm (u,e,o,a,i) + y ➔ chỉ thêm -s (play ➔ plays, stay ➔ stays).",
+        note: "Bẫy kinh điển HA 1: 'studys' là SAI, 'plaies' là SAI. Phải viết 'studies' và 'plays'."
+      },
+      {
+        aff: "have/has",
+        keywords: ["have", "has", "doesn't have", "doesn't has", "bất quy tắc"],
+        type: "Động từ bất quy tắc: have ➔ has & phủ định doesn't have",
+        mean: "He / She / It + has (khẳng định), nhưng phủ định và câu hỏi quay về nguyên mẫu: doesn't have / Does he have...?",
+        note: "Lỗi hay mất điểm nhất: viết 'he doesn't has'. Phải sửa thành 'he doesn't have'."
+      },
+      {
+        aff: "doesn't",
+        keywords: ["doesn't", "does not", "doesn't + v", "phủ định hiện tại đơn", "doesn't study", "doesn't studies"],
+        type: "Phủ định Hiện tại đơn (Ngôi 3 số ít): doesn't + V-nguyên mẫu",
+        mean: "He / She / It / Số ít + doesn't + V nguyên mẫu (không chia -s/-es/-ies ở động từ chính).",
+        note: "Đúng: Martina doesn't study Chinese. Sai: doesn't studies / isn't study / don't study."
+      },
+      {
+        aff: "don't",
+        keywords: ["don't", "do not", "don't + v", "we don't", "they don't"],
+        type: "Phủ định Hiện tại đơn (Số nhiều & I/You): don't + V-nguyên mẫu",
+        mean: "I / You / We / They / Danh từ số nhiều + don't + V nguyên mẫu.",
+        note: "Không dùng 'don't' với chủ ngữ số ít (He/She/It/My mother). Trả lời ngắn: No, we don't."
+      },
+      {
+        aff: "does",
+        keywords: ["does", "does it", "does he", "does she", "câu hỏi does", "nghi vấn hiện tại đơn"],
+        type: "Câu hỏi Yes/No với Does: Does + S (số ít) + V-nguyên mẫu?",
+        mean: "Đảo 'Does' lên đầu câu, động từ chính giữ nguyên mẫu: Does it rain a lot in Hanoi?",
+        note: "Không chia động từ sau Does (Sai: Does it rains? / Is it rain?). Trả lời: Yes, it does. / No, it doesn't."
+      },
+      {
+        aff: "do",
+        keywords: ["do you", "do the shops", "what time do", "câu hỏi do", "trợ động từ do"],
+        type: "Câu hỏi với Do: (Wh-) + do + S (I/you/we/they/số nhiều) + V-nguyên mẫu?",
+        mean: "Dùng 'do' cho chủ ngữ số nhiều và I/you: What time do the shops open? / What do you do?",
+        note: "Chú ý chủ ngữ số nhiều 'the shops' đi với 'do', KHÔNG dùng 'does' hay 'are'."
+      },
+      {
+        aff: "short answer",
+        keywords: ["trả lời ngắn", "yes i do", "no we don't", "yes he does", "short answer"],
+        type: "Quy tắc trả lời ngắn (Short Answers)",
+        mean: "Hỏi bằng Do/Does ➔ đáp bằng do/don't/does/doesn't. Hỏi bằng Am/Is/Are ➔ đáp bằng am/is/are.",
+        note: "Bẫy HA 1: Hỏi 'Do you study Chinese?' phải đáp 'No, we don't' (KHÔNG đáp 'No, we aren't' hay 'No, we doesn't')."
+      },
+      {
+        aff: "to be vs do/does",
+        keywords: ["to be", "do/does", "am is are", "isn't", "am not", "phân biệt to be", "tính từ", "danh từ"],
+        type: "Phân biệt 'to be (am/is/are)' vs 'do/does'",
+        mean: "Dùng am/is/are trước TÍNH TỪ (busy, retired), DANH TỪ (a teacher), NƠI CHỐN (in class). Dùng do/does đi với ĐỘNG TỪ THƯỜNG (work, study, rain).",
+        note: "Sai kinh điển: 'I don't busy', 'Does your father a teacher?'. Đúng: 'I am not busy', 'Is your father a teacher?'."
+      },
+      {
+        aff: "am not / isn't",
+        keywords: ["am not", "isn't", "aren't", "is your father", "phủ định to be"],
+        type: "Phủ định & Câu hỏi với động từ 'to be'",
+        mean: "I am not (I'm not) | He/She/It isn't | We/You/They aren't. Câu hỏi đảo to be lên đầu: Is your father a teacher?",
+        note: "Không viết 'amn't'; luôn viết đầy đủ 'am not' hoặc 'I'm not'. Trước cụm giới từ nơi chốn dùng 'isn't in class'."
+      },
+      {
+        aff: "'s",
+        keywords: ["'s", "sở hữu cách", "possessive", "charles's", "số ít", "danh từ số ít"],
+        type: "Sở hữu cách danh từ số ít ('s) & tên riêng tận cùng -s",
+        mean: "Danh từ số ít + 's (my mother's brother, my sister's daughter). Tên riêng tận cùng -s thường thêm 's (Charles's car).",
+        note: "Cấu trúc ngược tiếng Việt: 'nhà của bố tôi' = 'my father's house' (chủ sở hữu đứng trước 's, vật sở hữu đứng sau)."
+      },
+      {
+        aff: "s'",
+        keywords: ["s'", "parents'", "parents' house", "parent's", "số nhiều có s", "phân biệt 's và s'"],
+        type: "Sở hữu cách danh từ số nhiều tận cùng -s (s')",
+        mean: "Danh từ số nhiều đã có -s ở cuối ➔ CHỈ thêm dấu nháy đơn (') phía sau: my parents' house, the students' books.",
+        note: "Bẫy chấm chặt chính tả: 'parent's house' là nhà của 1 phụ huynh (số ít), còn 'parents' house' là nhà của cả bố và mẹ (số nhiều)!"
+      },
+      {
+        aff: "children's",
+        keywords: ["children's", "men's", "women's", "people's", "bất quy tắc số nhiều"],
+        type: "Sở hữu cách danh từ số nhiều bất quy tắc ('s)",
+        mean: "Danh từ số nhiều KHÔNG kết thúc bằng -s (children, men, women, people) ➔ vẫn thêm 's như thường: children's bedroom.",
+        note: "Sai kinh điển: 'childrens' bedroom' hay 'children bedroom'. Đúng bắt buộc là 'children's bedroom'."
+      },
+      {
+        aff: "'s is/has",
+        keywords: ["viết tắt", "she's", "he's", "that's", "let's", "phân biệt 's"],
+        type: "Phân biệt 3 vai trò của đuôi 's",
+        mean: "1) Sở hữu cách + Danh từ (Jim's wife); 2) Viết tắt của 'is' (She's in the library / That's fine); 3) 'Let's' = Let us + V nguyên mẫu.",
+        note: "Nhìn từ đứng ngay sau 's để nhận diện: + Danh từ sở hữu (Possessive) vs + Tính từ/Giới từ/V-ing (is)."
+      },
+      {
+        aff: "a/an",
+        keywords: ["a/an", "mạo từ", "a ", "an ", "an engineer", "a doctor", "a university", "an hour", "nguyên âm"],
+        type: "Mạo từ không xác định: a vs an (Xét theo ÂM ĐỌC, không chỉ chữ cái)",
+        mean: "Dùng 'an' trước ÂM nguyên âm (/æ, e, ɪ, ɒ, ʌ, aʊ, eɪ.../: an engineer, an actor, an hour /aʊər/). Dùng 'a' trước ÂM phụ âm (a doctor, a university /juː/).",
+        note: "Bẫy HA 1: 'university' bắt đầu bằng chữ u nhưng đọc là /juː/ (âm phụ âm /j/) ➔ 'a university'. 'hour' có h câm ➔ 'an hour'."
+      },
+      {
+        aff: "a/an job",
+        keywords: ["nghề nghiệp", "job", "doctor", "nurse", "lawyer", "engineer", "singer", "teacher"],
+        type: "Bắt buộc dùng a/an trước danh từ chỉ nghề nghiệp số ít",
+        mean: "S + be + a/an + nghề nghiệp (My mother is a doctor. My brother is an engineer).",
+        note: "Lỗi phổ biến của người Việt: bỏ quên mạo từ viết 'He is engineer'. Phải có 'an' ➔ 'He is an engineer'. Nếu số nhiều thì bỏ a/an: 'They are engineers'."
+      },
+      {
+        aff: "wh-question",
+        keywords: ["wh-", "how much", "what time", "where do you", "what do you do", "từ để hỏi"],
+        type: "Cấu trúc câu hỏi có từ để hỏi (Wh-Questions) ở Hiện tại đơn",
+        mean: "Wh-word + do/does + S + V-nguyên mẫu? (How much does it cost? / Where do you live? / What do you do?)",
+        note: "Lưu ý câu hỏi nghề nghiệp chuẩn: 'What do you do?' (trả lời bằng nghề nghiệp, KHÔNG trả lời bằng hành động đang làm)."
+      },
+      {
+        aff: "frequency",
+        keywords: ["tần suất", "always", "usually", "often", "sometimes", "never", "how often", "every"],
+        type: "Vị trí trạng từ tần suất (Adverbs of Frequency)",
+        mean: "Đứng TRƯỚC động từ thường (I usually take a dog for a walk / She often studies...) và SAU động từ to be (He is always busy).",
+        note: "Cụm thời gian 'every day / every evening / on weekdays' đặt ở cuối câu. Hỏi mức độ thường xuyên dùng 'How often...?'"
+      },
+      {
+        aff: "both / not only",
+        keywords: ["both", "not only", "but also", "individual development", "voluntary work", "liên từ"],
+        type: "Cấu trúc liên từ nâng điểm Viết/Nói HA 1: both...and & not only...but also",
+        mean: "Both A and B + V (số nhiều): Cả A lẫn B. Not only A but also B: Không những A mà còn B.",
+        note: "VD chuẩn Unit 1F: 'Both individual development and teams' goals are important' / 'helps not only other people but also ourselves'."
+      },
+      {
+        aff: "pronunciation -s/-es",
+        keywords: ["phát âm", "phonetics", "đuôi s", "đuôi es", "/s/", "/z/", "/ɪz/", "phát âm s es"],
+        type: "3 cách phát âm đuôi -s/-es (Trọng tâm Phonetics HA 1)",
+        mean: "1) /ɪz/ sau âm gió (s, ss, sh, ch, x, z, ge: watches); 2) /s/ sau âm vô thanh (p, k, t, f, th: works, helps, costs); 3) /z/ sau các âm hữu thanh & nguyên âm còn lại (studies, lives, plays).",
+        note: "Mẹo nhớ nhóm /s/: 'Thời Phong Kiến Phương Tây' (t, p, k, f, th). Nhóm /ɪz/: 'Sóng Gió Chẳng Sợ Xưa Z'."
+      },
+      {
+        aff: "collocation",
+        keywords: ["collocation", "cụm động từ", "do homework", "go out", "take a dog", "spend time", "part-time job"],
+        type: "Cụm động từ & Collocations cốt lõi Unit 1",
+        mean: "do homework (không dùng make), go out a lot, take a dog for a walk, spend time with + người, have a part-time job.",
+        note: "Học thuộc nguyên cụm giúp tránh dịch word-by-word từ tiếng Việt khi làm bài Điền khuyết và Nói."
+      },
+      {
+        aff: "uk vs us ipa",
+        keywords: ["uk", "us", "en-gb", "ipa", "aunt", "doctor", "anh-anh", "speakout"],
+        type: "Đối chiếu IPA Anh-Anh (Speakout A2 / HA 1) vs Anh-Mỹ",
+        mean: "Giáo trình Speakout 3rd A2 & đề Phonetics HA 1 dùng chuẩn Anh-Anh (UK / en-GB): aunt /ɑːnt/, doctor /ˈdɒk.tər/, car /kɑːr/ (âm r cuối nhẹ/không uốn lưỡi).",
+        note: "Bạn có thể nhấn nút UK / US trên thanh công cụ để nghe chuẩn giọng Anh-Anh khớp 100% với bảng IPA."
+      },
+      {
+        aff: "speaking writing unit 1",
+        keywords: ["giới thiệu bản thân", "writing", "speaking", "me and you", "unit 1f", "đoạn văn", "gia đình"],
+        type: "Khung Nói & Viết Unit 1: Me and You (HA 1)",
+        mean: "4 ý chuẩn: 1) Tên/Quê/Chuyên ngành (major at university); 2) Gia đình & nghề nghiệp (parents, aunt/uncle, a/an + job); 3) Thói quen hằng ngày (Hiện tại đơn + tần suất); 4) Cuối tuần & giá trị (reunite, spend time with, voluntary work).",
+        note: "Kiểm tra lại 3 lỗi hay trừ điểm nhất trước khi nộp bài viết: chia -s/-es ở ngôi 3, mạo từ a/an trước nghề, và dấu sở hữu cách 's/s'."
+      }
+    ];
     // GLOBAL STATES
     let specialtiesMap = {};
     let currentSpecialtyId = "comm_eng";
@@ -3489,11 +3719,12 @@ const SEED_DATA = [
     let guidedDictCleanIds = new Set();
     let guidedDictAttempted = false;
     let guidedSprintDoneKeys = new Set();
-    let speechRate = 1.0, autoAudio = true, quizAutoNext = false, dictAutoNext = false;
+    let speechRate = 1.0, voiceAccent = "en-GB", autoAudio = true, quizAutoNext = false, dictAutoNext = false, dictStrictPunct = true;
     let currentActiveTab = "dashboard";
 
     let quizPool = [], quizIndex = 0, quizScore = 0, quizDirection = "en-vi";
     let currentQuizItem = null, currentQuizAnswered = false, currentQuizModeType = "en-vi";
+    let quizAutoNextTimer = null;
     let quizOptionCount = 4;
     let distractorStrategy = "smart";
     let fcPool = [], fcIndex = 0;
@@ -3501,6 +3732,7 @@ const SEED_DATA = [
     let speechRecognition = null, isMicRecording = false;
 
     let sprintTimer = null, sprintSeconds = 60, sprintScore = 0, sprintCombo = 1, sprintAnsweredCount = 0, currentSprintItem = null;
+    let sprintDirection = "en-vi", currentSprintModeType = "en-vi";
     let sprintBestScore = 0, isSprintActive = false, isSprintPaused = false;
 
     let cbtPool = [], cbtAnswers = {}, cbtFlags = {}, cbtCurrentIndex = 0, cbtTimerInterval = null, cbtTimeLeft = 0, cbtTotalQuestions = 40;
@@ -3511,7 +3743,26 @@ const SEED_DATA = [
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
+    const cssEscapeSafe = str => (window.CSS && typeof CSS.escape === "function")
+      ? CSS.escape(String(str || ""))
+      : String(str || "").replace(/["\\]/g, "\\$&");
+
+    const getUnitDomKey = unitName => encodeURIComponent(String(unitName || "")).replace(/[^a-zA-Z0-9_-]/g, "_");
+
+    function getDefaultUnitName() {
+      const allU = getAllUnits();
+      return allU.length > 0 ? allU[0] : "Unit 1";
+    }
+
+    function clearQuizAutoNextTimer() {
+      if (quizAutoNextTimer) {
+        clearTimeout(quizAutoNextTimer);
+        quizAutoNextTimer = null;
+      }
+    }
 
     function showToast(msg, type = "success") {
       const container = document.getElementById("toastContainer");
@@ -3521,7 +3772,7 @@ const SEED_DATA = [
         ? "bg-rose-600 border-rose-400"
         : (type === "info" ? "bg-violet-600 border-violet-400" : "bg-indigo-600 border-indigo-400");
       div.className = `px-4 py-3 rounded-2xl shadow-xl border text-xs font-bold text-white flex items-center gap-2.5 ${color} transition-all duration-300 pointer-events-auto`;
-      div.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation" : (type === "info" ? "fa-circle-info" : "fa-circle-check")}"></i><span>${msg}</span>`;
+      div.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation" : (type === "info" ? "fa-circle-info" : "fa-circle-check")}"></i><span>${escapeHtml(msg)}</span>`;
       container.appendChild(div);
       setTimeout(() => { div.style.opacity = "0"; setTimeout(() => div.remove(), 300); }, 3200);
     }
@@ -3545,6 +3796,20 @@ const SEED_DATA = [
       } catch (e) {}
     }
 
+    function pickSpeechVoice(targetLang) {
+      if (!("speechSynthesis" in window)) return null;
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return null;
+      const normTarget = String(targetLang || "en-GB").toLowerCase();
+      return (
+        voices.find(v => (v.lang || "").toLowerCase().replace("_", "-") === normTarget && /google|natural|enhanced|premium|daniel|serena|samantha/i.test(v.name || "")) ||
+        voices.find(v => (v.lang || "").toLowerCase().replace("_", "-") === normTarget) ||
+        voices.find(v => (v.lang || "").toLowerCase().startsWith(normTarget.slice(0, 5))) ||
+        voices.find(v => (v.lang || "").toLowerCase().startsWith("en")) ||
+        null
+      );
+    }
+
     function speakText(text) {
       if (!text) return;
       const clean = text
@@ -3557,7 +3822,10 @@ const SEED_DATA = [
       if ("speechSynthesis" in window && clean) {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(clean);
-        u.lang = "en-US";
+        const accent = voiceAccent === "en-US" ? "en-US" : "en-GB";
+        u.lang = accent;
+        const matchedVoice = pickSpeechVoice(accent);
+        if (matchedVoice) u.voice = matchedVoice;
         u.rate = speechRate;
         window.speechSynthesis.speak(u);
       }
@@ -3576,9 +3844,12 @@ const SEED_DATA = [
         guidedDictAttempted,
         guidedSprintDoneKeys: Array.from(guidedSprintDoneKeys),
         speechRate,
+        voiceAccent,
         autoAudio,
         quizAutoNext,
         dictAutoNext,
+        dictStrictPunct,
+        sprintDirection,
         quizDirection,
         quizOptionCount,
         distractorStrategy,
@@ -3597,9 +3868,12 @@ const SEED_DATA = [
       try {
         const s = JSON.parse(saved);
         if (s.speechRate) speechRate = s.speechRate;
+        if (s.voiceAccent === "en-US" || s.voiceAccent === "en-GB") voiceAccent = s.voiceAccent;
         if (s.autoAudio !== undefined) autoAudio = s.autoAudio;
         if (s.quizAutoNext !== undefined) quizAutoNext = s.quizAutoNext;
         if (s.dictAutoNext !== undefined) dictAutoNext = s.dictAutoNext;
+        if (s.dictStrictPunct !== undefined) dictStrictPunct = !!s.dictStrictPunct;
+        if (["en-vi", "vi-en", "mix"].includes(s.sprintDirection)) sprintDirection = s.sprintDirection;
         if (s.quizDirection) quizDirection = s.quizDirection;
         if (s.quizOptionCount !== undefined) quizOptionCount = s.quizOptionCount;
         if (s.distractorStrategy) distractorStrategy = s.distractorStrategy;
@@ -3626,6 +3900,7 @@ const SEED_DATA = [
           selectedUnits = new Set(allAvailableUnits);
         }
 
+        reconcileActiveFilters(false);
         const validVocab = getFilteredVocab();
         const validIdSet = new Set(validVocab.map(v => v.id));
         if (s.quizPoolIds && Array.isArray(s.quizPoolIds) && s.quizPoolIds.length > 0) {
@@ -3646,10 +3921,16 @@ const SEED_DATA = [
         }
 
         document.getElementById("speedRateText").textContent = `${speechRate}x`;
+        const accentTxt = document.getElementById("voiceAccentText");
+        if (accentTxt) accentTxt.textContent = voiceAccent === "en-US" ? "US" : "UK";
         document.getElementById("autoAudioIcon").className = autoAudio ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
         document.getElementById("chkQuizAutoNext").checked = quizAutoNext;
         const chkDictEl = document.getElementById("chkDictAutoNext");
         if (chkDictEl) chkDictEl.checked = dictAutoNext;
+        const chkStrictEl = document.getElementById("chkDictStrictPunct");
+        if (chkStrictEl) chkStrictEl.checked = dictStrictPunct;
+        const sprintDirEl = document.getElementById("sprintDirectionSelect");
+        if (sprintDirEl) sprintDirEl.value = sprintDirection;
         syncQuizDirectionCheckboxes(quizDirection);
         const optCountEl = document.getElementById("quizOptionCountSelect");
         if (optCountEl) optCountEl.value = String(quizOptionCount);
@@ -3671,6 +3952,9 @@ const SEED_DATA = [
     }
 
     function switchActiveTab(tabName) {
+      if (tabName !== "quiz") {
+        clearQuizAutoNextTimer();
+      }
       if (isMicRecording && speechRecognition && tabName !== "dictation") {
         try { speechRecognition.stop(); } catch (e) {}
       }
@@ -3904,6 +4188,18 @@ const SEED_DATA = [
               item.dialoguePromptVi = fresh.dialoguePromptVi;
               updatedSeed = true;
             }
+            if (fresh.grammarChoices && JSON.stringify(item.grammarChoices || null) !== JSON.stringify(fresh.grammarChoices)) {
+              item.grammarChoices = [...fresh.grammarChoices];
+              updatedSeed = true;
+            }
+            if (fresh.grammarMask && item.grammarMask !== fresh.grammarMask) {
+              item.grammarMask = fresh.grammarMask;
+              updatedSeed = true;
+            }
+            if (fresh.grammarChoiceNotes && JSON.stringify(item.grammarChoiceNotes || null) !== JSON.stringify(fresh.grammarChoiceNotes)) {
+              item.grammarChoiceNotes = { ...fresh.grammarChoiceNotes };
+              updatedSeed = true;
+            }
           }
         });
         SEED_DATA.forEach(seedItem => {
@@ -3966,25 +4262,48 @@ const SEED_DATA = [
       if (active.length === 0) active = [...vocabList];
       if (onlyMistakesFilter) {
         const mistakes = active.filter(v => (v.mistakeCount || 0) > 0 || v.srsLevel === 1);
-        if (mistakes.length > 0) {
-          active = mistakes;
-        } else {
-          onlyMistakesFilter = false;
-          const chk = document.getElementById("chkOnlyMistakes");
-          if (chk) chk.checked = false;
-          showToast("Hiện chưa có câu nào sai hoặc chưa thuộc trong các Unit đang chọn!", "info");
-        }
+        if (mistakes.length > 0) active = mistakes;
       }
       if (onlyDueTodayFilter) {
         const now = Date.now();
         const dueItems = active.filter(v => isVocabDueToday(v, now));
         if (dueItems.length > 0) return dueItems;
-        onlyDueTodayFilter = false;
-        const chkDue = document.getElementById("chkOnlyDueToday");
-        if (chkDue) chkDue.checked = false;
-        showToast("🎉 Bạn đã hoàn thành mục tiêu ôn tập đến hạn hôm nay!", "success");
       }
       return active;
+    }
+
+    function reconcileActiveFilters(notify = false) {
+      let base = vocabList.filter(v => selectedUnits.has(v.unit));
+      if (base.length === 0) base = [...vocabList];
+      let changed = false;
+
+      if (onlyMistakesFilter) {
+        const mistakes = base.filter(v => (v.mistakeCount || 0) > 0 || v.srsLevel === 1);
+        if (mistakes.length === 0) {
+          onlyMistakesFilter = false;
+          const chk = document.getElementById("chkOnlyMistakes");
+          if (chk) chk.checked = false;
+          changed = true;
+          if (notify) showToast("Hiện chưa có câu nào sai hoặc chưa thuộc trong các Unit đang chọn!", "info");
+        } else {
+          base = mistakes;
+        }
+      }
+
+      if (onlyDueTodayFilter) {
+        const now = Date.now();
+        const dueItems = base.filter(v => isVocabDueToday(v, now));
+        if (dueItems.length === 0) {
+          onlyDueTodayFilter = false;
+          const chkDue = document.getElementById("chkOnlyDueToday");
+          if (chkDue) chkDue.checked = false;
+          changed = true;
+          if (notify) showToast("🎉 Bạn đã hoàn thành mục tiêu ôn tập đến hạn hôm nay!", "success");
+        }
+      }
+
+      if (changed) saveStudyProgress();
+      return changed;
     }
 
     function updateHeaderBadges() {
@@ -4007,12 +4326,21 @@ const SEED_DATA = [
       if (mistakeLbl) mistakeLbl.textContent = mistakeTotal;
       const dueLbl = document.getElementById("dueTodayCountLabel");
       if (dueLbl) dueLbl.textContent = dueTodayTotal;
+
+      const defaultUnit = getDefaultUnitName();
+      const newUnitEl = document.getElementById("newUnitInput");
+      if (newUnitEl) newUnitEl.placeholder = `Tên Unit (VD: ${defaultUnit})`;
+      const batchUnitEl = document.getElementById("batchUnitInput");
+      if (batchUnitEl) {
+        batchUnitEl.placeholder = `Tên Unit đích (VD: ${defaultUnit})`;
+        if (!batchUnitEl.value.trim()) batchUnitEl.value = defaultUnit;
+      }
     }
 
     // ================= TÍNH NĂNG MỞ RỘNG MÔ TẢ UNIT =================
     function toggleUnitDetail(unitName, btnElement) {
       const isExpanded = expandedUnitDetails.has(unitName);
-      const safeKey = unitName.replace(/\s+/g, '');
+      const safeKey = getUnitDomKey(unitName);
       const boxIds = [`detailBox_${safeKey}`, `dashDetailBox_${safeKey}`, `treeDetailBox_${safeKey}`];
 
       if (isExpanded) {
@@ -4027,7 +4355,8 @@ const SEED_DATA = [
         if (icon) icon.style.transform = nextState ? "rotate(180deg)" : "rotate(0deg)";
       }
 
-      document.querySelectorAll(`[data-dash-toggle-unit="${unitName}"] i, [data-tree-toggle-unit="${unitName}"] i`).forEach(ic => {
+      const escapedAttr = cssEscapeSafe(unitName);
+      document.querySelectorAll(`[data-dash-toggle-unit="${escapedAttr}"] i, [data-tree-toggle-unit="${escapedAttr}"] i`).forEach(ic => {
         ic.style.transform = nextState ? "rotate(180deg)" : "rotate(0deg)";
       });
 
@@ -4053,8 +4382,9 @@ const SEED_DATA = [
         const uMastered = words.filter(v => v.srsLevel === 3).length;
         const isChecked = selectedUnits.has(unitName);
         const meta = UNIT_METADATA[unitName] || { shortTitle: "Học phần giao tiếp mở rộng", corePoints: "Các mẫu câu giao tiếp do người dùng bổ sung." };
-        const boxId = `detailBox_${unitName.replace(/\s+/g, '')}`;
+        const boxId = `detailBox_${getUnitDomKey(unitName)}`;
         const isExp = expandedUnitDetails.has(unitName);
+        const displayTitle = unitName.includes(":") ? unitName : `${unitName}: ${meta.shortTitle}`;
 
         const div = document.createElement("div");
         div.className = `flex flex-col p-2.5 rounded-xl border transition ${isChecked ? 'bg-indigo-50 dark:bg-indigo-900/40 border-indigo-300 dark:border-indigo-700' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-400'}`;
@@ -4062,9 +4392,9 @@ const SEED_DATA = [
         div.innerHTML = `
           <div class="flex items-center justify-between gap-2">
             <label class="flex items-center gap-2.5 cursor-pointer flex-1 min-w-0">
-              <input type="checkbox" value="${unitName}" class="unit-checkbox w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" ${isChecked ? 'checked' : ''} />
+              <input type="checkbox" value="${escapeHtml(unitName)}" class="unit-checkbox w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" ${isChecked ? 'checked' : ''} />
               <div class="min-w-0">
-                <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">${unitName.includes(":") ? unitName : `${unitName}: ${meta.shortTitle}`}</p>
+                <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">${escapeHtml(displayTitle)}</p>
                 <p class="text-[10px] text-slate-500 mt-0.5">Đã thuộc: ${uMastered}/${uTotal}</p>
               </div>
             </label>
@@ -4072,9 +4402,9 @@ const SEED_DATA = [
               <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" style="transform: ${isExp ? 'rotate(180deg)' : 'rotate(0deg)'}"></i>
             </button>
           </div>
-          <div id="${boxId}" class="collapse-content ${isExp ? 'expanded' : ''} mt-2 text-[10px] text-slate-600 dark:text-slate-400 border-t border-slate-200/60 dark:border-slate-700/60 pt-2 space-y-1">
-            <p><strong><i class="fa-solid fa-tag text-indigo-500 mr-1"></i>Chủ đề:</strong> ${meta.shortTitle}</p>
-            <p><strong><i class="fa-solid fa-bullseye text-amber-500 mr-1"></i>Trọng tâm:</strong> ${meta.corePoints}</p>
+          <div id="${escapeHtml(boxId)}" class="collapse-content ${isExp ? 'expanded' : ''} mt-2 text-[10px] text-slate-600 dark:text-slate-400 border-t border-slate-200/60 dark:border-slate-700/60 pt-2 space-y-1">
+            <p><strong><i class="fa-solid fa-tag text-indigo-500 mr-1"></i>Chủ đề:</strong> ${escapeHtml(meta.shortTitle)}</p>
+            <p><strong><i class="fa-solid fa-bullseye text-amber-500 mr-1"></i>Trọng tâm:</strong> ${escapeHtml(meta.corePoints)}</p>
           </div>
         `;
 
@@ -4087,6 +4417,7 @@ const SEED_DATA = [
               showToast("Phải chọn ít nhất 1 Học phần!", "error"); return;
             }
           }
+          reconcileActiveFilters(true);
           saveStudyProgress(); syncAllViews();
         };
 
@@ -4149,10 +4480,11 @@ const SEED_DATA = [
       const p2Pct = total > 0 ? Math.min(100, Math.round((recalledCount / total) * 100)) : 0;
       const p2Done = total > 0 && p2Pct >= 80;
 
-      // Chặng 3: Khóa chính tả & Phát âm (Dictation + Mic: tối thiểu 1 lượt hoàn thành không còn mistakeCount > 0)
+      // Chặng 3: Khóa chính tả & Phát âm (Dictation + Mic: >= 50% số thẻ sạch lỗi, tối thiểu 5 thẻ)
       const cleanDictItems = items.filter(v => guidedDictCleanIds.has(v.id) && (v.mistakeCount || 0) === 0);
-      const p3Done = total > 0 && cleanDictItems.length >= 1;
-      const p3Pct = total === 0 ? 0 : (p3Done ? 100 : (guidedDictAttempted ? 50 : 0));
+      const p3TargetCount = total > 0 ? Math.min(total, Math.max(5, Math.ceil(total * 0.5))) : 0;
+      const p3Done = total > 0 && cleanDictItems.length >= p3TargetCount;
+      const p3Pct = p3TargetCount > 0 ? Math.min(100, Math.round((cleanDictItems.length / p3TargetCount) * 100)) : 0;
 
       // Chặng 4: Ép phản xạ tốc độ (Sprint 60s: hoàn thành ít nhất 1 phiên Sprint với bộ từ đang chọn)
       const unitKey = getCurrentUnitSelectionKey();
@@ -4163,7 +4495,7 @@ const SEED_DATA = [
       );
       const p4Pct = p4Done ? 100 : 0;
 
-      return { total, encodedCount, p1Pct, p1Done, recalledCount, p2Pct, p2Done, cleanCount: cleanDictItems.length, p3Pct, p3Done, p4Pct, p4Done };
+      return { total, encodedCount, p1Pct, p1Done, recalledCount, p2Pct, p2Done, cleanCount: cleanDictItems.length, p3TargetCount, p3Pct, p3Done, p4Pct, p4Done };
     }
 
     function navigateGuidedStage(stageNum) {
@@ -4244,8 +4576,8 @@ const SEED_DATA = [
           tab: "dictation",
           icon: "fa-microphone-lines",
           title: "Chặng 3: Chính tả & Mic",
-          sub: `Dictation + Mic • ${st.cleanCount} lượt sạch lỗi`,
-          targetLabel: "Mục tiêu ≥ 1 lượt không lỗi",
+          sub: `Dictation + Mic • ${st.cleanCount}/${st.p3TargetCount} thẻ sạch lỗi`,
+          targetLabel: `Mục tiêu ≥ 50% sạch lỗi (tối thiểu ${Math.min(st.total || 5, 5)} thẻ)`,
           pct: st.p3Pct,
           done: st.p3Done
         },
@@ -4276,15 +4608,15 @@ const SEED_DATA = [
         card.innerHTML = `
           <div class="flex items-center justify-between gap-1.5 w-full">
             <span class="text-[11px] font-extrabold truncate ${sg.done ? "text-emerald-800 dark:text-emerald-300" : "text-indigo-800 dark:text-indigo-200"}">
-              <i class="fa-solid ${sg.done ? "fa-circle-check text-emerald-500" : sg.icon} mr-1"></i>${sg.title}
+              <i class="fa-solid ${sg.done ? "fa-circle-check text-emerald-500" : escapeHtml(sg.icon)} mr-1"></i>${escapeHtml(sg.title)}
             </span>
             <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md ${sg.done ? "bg-emerald-200/80 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-200" : "bg-indigo-100 dark:bg-indigo-900/70 text-indigo-700 dark:text-indigo-300"}">${sg.pct}%</span>
           </div>
-          <p class="text-[10px] font-semibold text-slate-600 dark:text-slate-300 truncate">${sg.sub}</p>
+          <p class="text-[10px] font-semibold text-slate-600 dark:text-slate-300 truncate">${escapeHtml(sg.sub)}</p>
           <div class="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
             <div class="h-full transition-all duration-300 ${sg.done ? "bg-emerald-500" : "bg-gradient-to-r from-indigo-500 to-violet-500"}" style="width: ${sg.pct}%"></div>
           </div>
-          <span class="text-[9px] text-slate-400 truncate">${sg.targetLabel}</span>
+          <span class="text-[9px] text-slate-400 truncate">${escapeHtml(sg.targetLabel)}</span>
         `;
         card.onclick = () => navigateGuidedStage(sg.num);
         grid.appendChild(card);
@@ -4415,7 +4747,7 @@ const SEED_DATA = [
           const uMastered = uWords.filter(v => v.srsLevel === 3).length;
           const uPct = uTotal > 0 ? Math.round((uMastered / uTotal) * 100) : 0;
           const meta = UNIT_METADATA[unitName] || { shortTitle: "Học phần giao tiếp mở rộng", corePoints: "Nội dung mở rộng từ người dùng." };
-          const boxId = `dashDetailBox_${unitName.replace(/\s+/g, '')}`;
+          const boxId = `dashDetailBox_${getUnitDomKey(unitName)}`;
           const isExp = expandedUnitDetails.has(unitName);
 
           const row = document.createElement("div");
@@ -4423,13 +4755,13 @@ const SEED_DATA = [
 
           row.innerHTML = `
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div class="min-w-0 flex-1 cursor-pointer" data-dash-toggle-unit="${unitName}">
+              <div class="min-w-0 flex-1 cursor-pointer" data-dash-toggle-unit="${escapeHtml(unitName)}">
                 <div class="flex items-center gap-2">
                   <button type="button" class="text-indigo-600 dark:text-indigo-400 p-0.5" title="Mở rộng chi tiết">
                     <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" style="transform: ${isExp ? 'rotate(180deg)' : 'rotate(0deg)'}"></i>
                   </button>
-                  <span class="font-extrabold text-xs text-indigo-700 dark:text-indigo-300 uppercase">${unitName}</span>
-                  <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate">${meta.shortTitle}</span>
+                  <span class="font-extrabold text-xs text-indigo-700 dark:text-indigo-300 uppercase">${escapeHtml(unitName)}</span>
+                  <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate">${escapeHtml(meta.shortTitle)}</span>
                 </div>
                 <div class="flex items-center gap-2 mt-1.5 pl-5">
                   <div class="flex-1 h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden max-w-md">
@@ -4438,28 +4770,34 @@ const SEED_DATA = [
                   <span class="text-[11px] font-mono font-bold text-slate-500 shrink-0">${uMastered}/${uTotal} câu (${uPct}%)</span>
                 </div>
               </div>
-              <button type="button" data-dash-jump-unit="${unitName}" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-200 dark:border-indigo-800 flex items-center justify-center gap-1.5 shrink-0 transition">
+              <button type="button" data-dash-jump-unit="${escapeHtml(unitName)}" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-200 dark:border-indigo-800 flex items-center justify-center gap-1.5 shrink-0 transition">
                 <i class="fa-solid fa-play text-[10px]"></i> Luyện Unit
               </button>
             </div>
-            <div id="${boxId}" class="collapse-content ${isExp ? 'expanded' : ''} text-[11px] text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60 ml-5 space-y-1.5">
+            <div id="${escapeHtml(boxId)}" class="collapse-content ${isExp ? 'expanded' : ''} text-[11px] text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60 ml-5 space-y-1.5">
               <p><strong><i class="fa-solid fa-layer-group text-indigo-500 mr-1"></i>Phạm vi bài học:</strong> Học phần bao gồm ${uTotal} mẫu câu &amp; cụm từ phản xạ cốt lõi.</p>
-              <p><strong><i class="fa-solid fa-bullseye text-amber-500 mr-1"></i>Trọng tâm giao tiếp:</strong> ${meta.corePoints}</p>
+              <p><strong><i class="fa-solid fa-bullseye text-amber-500 mr-1"></i>Trọng tâm giao tiếp:</strong> ${escapeHtml(meta.corePoints)}</p>
             </div>
           `;
 
-          row.querySelector(`[data-dash-toggle-unit="${unitName}"]`).onclick = function(e) {
-            e.stopPropagation();
-            const iconBtn = this.querySelector('button');
-            toggleUnitDetail(unitName, iconBtn);
-            renderUnitAccordion();
-          };
+          const toggleTarget = row.querySelector(`[data-dash-toggle-unit="${cssEscapeSafe(unitName)}"]`);
+          if (toggleTarget) {
+            toggleTarget.onclick = function(e) {
+              e.stopPropagation();
+              const iconBtn = this.querySelector('button');
+              toggleUnitDetail(unitName, iconBtn);
+              renderUnitAccordion();
+            };
+          }
 
           row.querySelector("[data-dash-jump-unit]").onclick = (e) => {
             e.stopPropagation();
             selectedUnits = new Set([unitName]);
             onlyMistakesFilter = false;
+            onlyDueTodayFilter = false;
             document.getElementById("chkOnlyMistakes").checked = false;
+            const chkDue = document.getElementById("chkOnlyDueToday");
+            if (chkDue) chkDue.checked = false;
             saveStudyProgress(); syncAllViews(); switchActiveTab("quiz");
             showToast(`Đã chọn riêng ${unitName} để luyện tập!`);
           };
@@ -4545,6 +4883,7 @@ const SEED_DATA = [
     function recordStudyOutcome(item, isCorrect) {
       if (!item) return;
       updateOutcomeMemoryOnly(item, isCorrect);
+      reconcileActiveFilters(true);
       saveDatabase();
     }
 
@@ -4719,8 +5058,57 @@ const SEED_DATA = [
       return masked;
     }
 
+    function buildGrammarOptionObjects(item, maxOptions = 4) {
+      if (!item || !Array.isArray(item.grammarChoices) || item.grammarChoices.length < 2) return null;
+      const targetText = String(item.grammarMask || item.word || "").trim();
+      const targetNorm = targetText.toLowerCase();
+      const notesMap = (item.grammarChoiceNotes && typeof item.grammarChoiceNotes === "object") ? item.grammarChoiceNotes : {};
+      const opts = [];
+      let hasCorrect = false;
+      const seen = new Set();
+
+      item.grammarChoices.forEach((rawChoice, idx) => {
+        const text = typeof rawChoice === "string"
+          ? rawChoice.trim()
+          : String(rawChoice?.word || rawChoice?.text || "").trim();
+        if (!text) return;
+        const norm = text.toLowerCase();
+        if (seen.has(norm)) return;
+        seen.add(norm);
+
+        if (norm === targetNorm) {
+          hasCorrect = true;
+          opts.push({ ...item, word: text, isGrammarOption: true });
+        } else {
+          const note = (typeof rawChoice === "object" && (rawChoice.note || rawChoice.meaning))
+            ? String(rawChoice.note || rawChoice.meaning)
+            : (notesMap[text] || "Biến thể ngữ pháp chưa đúng cấu trúc của câu này.");
+          opts.push({
+            id: `__gram_${item.id}_${idx}`,
+            word: text,
+            ipa: "",
+            meaning: note,
+            clinicalNote: note,
+            isGrammarDistractor: true,
+            isGrammarOption: true
+          });
+        }
+      });
+
+      if (!hasCorrect && targetText) {
+        opts.unshift({ ...item, word: targetText, isGrammarOption: true });
+      }
+      if (opts.length < 2) return null;
+
+      const limit = Math.max(2, maxOptions || 4);
+      const correctObj = opts.find(o => o.id === item.id);
+      const distractors = opts.filter(o => o.id !== item.id).sort(() => Math.random() - 0.5).slice(0, limit - 1);
+      return [correctObj, ...distractors].filter(Boolean).sort(() => Math.random() - 0.5);
+    }
+
     // ================= QUIZ (4 CHIỀU) & FLASHCARD & DICTATION (MIC) =================
     function resetQuizPool(preserveCurrentItem = false) {
+      clearQuizAutoNextTimer();
       const activeList = getFilteredVocab();
       if (!activeList.length) {
         quizPool = [];
@@ -4779,6 +5167,7 @@ const SEED_DATA = [
     }
 
     function loadQuizQuestion() {
+      clearQuizAutoNextTimer();
       if (!quizPool.length) quizPool = [...getFilteredVocab()];
       if (!quizPool.length) {
         currentQuizItem = null;
@@ -4808,12 +5197,16 @@ const SEED_DATA = [
       const allowedModes = resolveDirectionModes(quizDirection);
       currentQuizModeType = allowedModes[Math.floor(Math.random() * allowedModes.length)];
 
+      const grammarOpts = currentQuizModeType === "context"
+        ? buildGrammarOptionObjects(currentQuizItem, quizOptionCount || 4)
+        : null;
+
       const modeBadge = document.getElementById("quizCurrentModeBadge");
       if (modeBadge) {
         const modeLabels = {
           "en-vi": "Chiều 1: Anh ➔ Việt",
           "vi-en": "Chiều 2: Việt ➔ Anh",
-          "context": "Chiều 3: Điền khuyết câu giao tiếp",
+          "context": grammarOpts ? "Chiều 3: Bẫy Ngữ Pháp HA 1 (Điền khuyết)" : "Chiều 3: Điền khuyết câu giao tiếp",
           "dialogue": "Chiều 4: Phản xạ hội thoại (A hỏi ➔ B đáp)"
         };
         modeBadge.textContent = modeLabels[currentQuizModeType] || "Anh ➔ Việt";
@@ -4832,10 +5225,13 @@ const SEED_DATA = [
         document.getElementById("quizPosText").textContent = `(${currentQuizItem.pos})`;
         spkBtn.classList.add("opacity-40");
       } else if (currentQuizModeType === "context") {
-        const masked = maskWordInSentence(currentQuizItem.example, currentQuizItem.word);
+        const maskTarget = (grammarOpts && currentQuizItem.grammarMask) ? currentQuizItem.grammarMask : currentQuizItem.word;
+        const masked = maskWordInSentence(currentQuizItem.example, maskTarget);
         document.getElementById("quizPromptText").textContent = masked;
         document.getElementById("quizIpaText").textContent = `Nghĩa câu: "${currentQuizItem.exampleVi}"`;
-        document.getElementById("quizPosText").textContent = `Điền mẫu câu (${currentQuizItem.pos}) phù hợp vào chỗ trống`;
+        document.getElementById("quizPosText").textContent = grammarOpts
+          ? "Bẫy ngữ pháp HA 1 — Chọn phương án chia đúng cấu trúc ngữ pháp"
+          : `Điền mẫu câu (${currentQuizItem.pos}) phù hợp vào chỗ trống`;
         spkBtn.classList.add("opacity-40");
       } else {
         // Chiều 4: Phản xạ hội thoại (Tình huống A hỏi -> B đáp)
@@ -4848,9 +5244,15 @@ const SEED_DATA = [
         if (autoAudio && currentActiveTab === "quiz") speakText(promptEn);
       }
 
-      const neededDistractors = Math.max(1, (quizOptionCount || 4) - 1);
-      const dist = getDistinctDistractors(currentQuizItem, neededDistractors, currentQuizModeType, distractorStrategy);
-      const opts = [currentQuizItem, ...dist].sort(() => Math.random() - 0.5);
+      let opts;
+      if (grammarOpts) {
+        opts = grammarOpts;
+      } else {
+        const neededDistractors = Math.max(1, (quizOptionCount || 4) - 1);
+        const dist = getDistinctDistractors(currentQuizItem, neededDistractors, currentQuizModeType, distractorStrategy);
+        opts = [currentQuizItem, ...dist].sort(() => Math.random() - 0.5);
+      }
+
       const box = document.getElementById("quizOptionsContainer");
       box.innerHTML = "";
 
@@ -4869,6 +5271,7 @@ const SEED_DATA = [
     function selectQuizAnswer(selectedOpt, clickedBtn, allOpts) {
       if (currentQuizAnswered) return;
       currentQuizAnswered = true;
+      clearQuizAutoNextTimer();
       document.querySelectorAll(".quiz-opt-btn").forEach(b => (b.disabled = true));
       document.getElementById("btnSpeakQuizPrompt").classList.remove("opacity-40");
 
@@ -4891,14 +5294,19 @@ const SEED_DATA = [
         });
       }
 
-      // Hiển thị nghĩa song ngữ + IPA ngay bên dưới TẤT CẢ các đáp án
+      // Hiển thị nghĩa song ngữ + IPA (hoặc phân tích bẫy ngữ pháp) ngay bên dưới TẤT CẢ các đáp án
       document.querySelectorAll(".quiz-opt-btn").forEach((b, idx) => {
         const optObj = allOpts[idx];
         const subEl = b.querySelector(".quiz-opt-sub");
         if (optObj && subEl) {
-          const subText = currentQuizModeType === "en-vi"
-            ? `${optObj.word}${optObj.ipa ? ` (${optObj.ipa})` : ""}`
-            : `${optObj.meaning}${optObj.ipa ? ` • ${optObj.ipa}` : ""}`;
+          let subText = "";
+          if (optObj.isGrammarDistractor) {
+            subText = `✗ ${optObj.meaning}`;
+          } else if (currentQuizModeType === "en-vi") {
+            subText = `${optObj.word}${optObj.ipa ? ` (${optObj.ipa})` : ""}`;
+          } else {
+            subText = `${optObj.meaning}${optObj.ipa ? ` • ${optObj.ipa}` : ""}`;
+          }
           subEl.textContent = subText;
           subEl.classList.remove("hidden");
         }
@@ -4911,19 +5319,27 @@ const SEED_DATA = [
       document.getElementById("expStatusIcon").innerHTML = isCorrect
         ? `<i class="fa-solid fa-circle-check text-emerald-500"></i>`
         : `<i class="fa-solid fa-circle-xmark text-rose-500"></i>`;
+      const correctDisplayWord = (selectedOpt.isGrammarOption && currentQuizItem.grammarMask) ? currentQuizItem.grammarMask : currentQuizItem.word;
       document.getElementById("expStatusTitle").textContent = isCorrect
-        ? `Chính xác! ${currentQuizItem.word} (${currentQuizItem.ipa}) — ${currentQuizItem.meaning}`
-        : `Chưa đúng! Đáp án: ${currentQuizItem.word} (${currentQuizItem.ipa}) — ${currentQuizItem.meaning}`;
+        ? `Chính xác! ${correctDisplayWord} (${currentQuizItem.ipa}) — ${currentQuizItem.meaning}`
+        : `Chưa đúng! Đáp án: ${correctDisplayWord} (${currentQuizItem.ipa}) — ${currentQuizItem.meaning}`;
 
       const wrongBox = document.getElementById("expWrongReasonBox");
       if (wrongBox) {
         if (isCorrect) {
           wrongBox.classList.add("hidden");
           wrongBox.innerHTML = "";
+        } else if (selectedOpt.isGrammarDistractor) {
+          wrongBox.innerHTML = `
+            <p><strong><i class="fa-solid fa-circle-exclamation mr-1"></i>Vì sao chưa đúng (Bẫy ngữ pháp)?</strong> Bạn đã chọn <strong>«${escapeHtml(selectedOpt.word)}»</strong>.</p>
+            <p><strong>Lỗi sai của phương án này:</strong> ${escapeHtml(selectedOpt.meaning)}</p>
+            <p><strong>Đáp án chuẩn:</strong> <strong>«${escapeHtml(correctDisplayWord)}»</strong> — áp dụng trong câu <em>"${escapeHtml(currentQuizItem.example)}"</em>.</p>
+          `;
+          wrongBox.classList.remove("hidden");
         } else {
           let mismatchDetail = "";
           if (currentQuizModeType === "context") {
-            mismatchDetail = `Câu đang điền khuyết mang nghĩa <em>"${escapeHtml(currentQuizItem.exampleVi)}"</em> nên vị trí trống cần từ/cụm mang nghĩa <strong>"${escapeHtml(currentQuizItem.meaning)}"</strong> (<strong>${escapeHtml(currentQuizItem.word)}</strong>).`;
+            mismatchDetail = `Câu đang điền khuyết mang nghĩa <em>"${escapeHtml(currentQuizItem.exampleVi)}"</em> nên vị trí trống cần từ/cụm mang nghĩa <strong>"${escapeHtml(currentQuizItem.meaning)}"</strong> (<strong>${escapeHtml(correctDisplayWord)}</strong>).`;
           } else if (currentQuizModeType === "dialogue") {
             const ctxLabel = currentQuizItem.dialoguePromptVi || currentQuizItem.dialoguePrompt || currentQuizItem.meaning;
             mismatchDetail = `Trong tình huống <em>"${escapeHtml(ctxLabel)}"</em>, phản hồi phù hợp phải mang nghĩa <strong>"${escapeHtml(currentQuizItem.meaning)}"</strong> (<strong>${escapeHtml(currentQuizItem.word)}</strong>).`;
@@ -4962,13 +5378,15 @@ const SEED_DATA = [
         const badge = document.createElement("button");
         badge.type = "button";
         badge.className = "px-2 py-0.5 rounded-lg bg-indigo-100/70 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 text-[11px] font-semibold hover:bg-indigo-200 transition";
-        badge.innerHTML = `<i class="fa-solid fa-volume-low mr-1"></i>${t}`;
+        badge.innerHTML = `<i class="fa-solid fa-volume-low mr-1"></i>${escapeHtml(t)}`;
         badge.onclick = () => speakText(t);
         relBox.appendChild(badge);
       });
 
       if (isCorrect && quizAutoNext) {
-        setTimeout(() => {
+        clearQuizAutoNextTimer();
+        quizAutoNextTimer = setTimeout(() => {
+          quizAutoNextTimer = null;
           if (currentQuizAnswered && currentActiveTab === "quiz") {
             quizIndex++; loadQuizQuestion();
           }
@@ -5055,11 +5473,21 @@ const SEED_DATA = [
     }
 
     // ================= CHẾ ĐỘ 3: DICTATION & WEB SPEECH RECOGNITION MICROPHONE =================
-    function normalizeDictString(str) {
-      return String(str || "")
+    function normalizeDictString(str, strictPunct = false) {
+      const base = String(str || "")
         .toLowerCase()
         .replace(/\[[^\]]*\]/g, "")
-        .replace(/[?.!,;:'"“”‘’\-–—]/g, " ")
+        .replace(/[‘’`]/g, "'")
+        .replace(/[–—]/g, "-");
+      if (strictPunct) {
+        return base
+          .replace(/[?.!,;:"“”]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+      return base
+        .replace(/'/g, "")
+        .replace(/[?.!,;:"“”\-]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
     }
@@ -5076,26 +5504,23 @@ const SEED_DATA = [
       return list.length > 0 ? list : [rawWord.trim()];
     }
 
-    function getAcceptedDictationTargets(rawWord) {
+    function getAcceptedDictationTargets(rawWord, strictPunct = false) {
       const targets = new Set();
       if (!rawWord) return [""];
       rawWord.split("/").forEach(part => {
         const clean = part.replace(/\[[^\]]*\]/g, "").replace(/\([^)]*\)/g, "").trim();
         if (clean) {
-          targets.add(clean.toLowerCase());
-          targets.add(normalizeDictString(clean));
+          targets.add(normalizeDictString(clean, strictPunct));
         }
         const match = part.match(/\(([^)]+)\)/);
         if (match && match[1]) {
-          targets.add(match[1].trim().toLowerCase());
-          targets.add(normalizeDictString(match[1]));
+          targets.add(normalizeDictString(match[1], strictPunct));
           const combined = part.replace(/[()]/g, " ").replace(/\[[^\]]*\]/g, "").trim();
-          targets.add(normalizeDictString(combined));
+          targets.add(normalizeDictString(combined, strictPunct));
         }
       });
       const fullClean = rawWord.replace(/\[[^\]]*\]/g, "").replace(/\([^)]*\)/g, "").trim();
-      targets.add(fullClean.toLowerCase());
-      targets.add(normalizeDictString(fullClean));
+      targets.add(normalizeDictString(fullClean, strictPunct));
       return Array.from(targets).filter(Boolean);
     }
 
@@ -5115,9 +5540,9 @@ const SEED_DATA = [
       return dp[m][n];
     }
 
-    function computeStringSimilarity(a, b) {
-      const s1 = normalizeDictString(a);
-      const s2 = normalizeDictString(b);
+    function computeStringSimilarity(a, b, strictPunct = false) {
+      const s1 = normalizeDictString(a, strictPunct);
+      const s2 = normalizeDictString(b, strictPunct);
       if (!s1 && !s2) return 1;
       if (!s1 || !s2) return 0;
       if (s1 === s2) return 1;
@@ -5125,11 +5550,12 @@ const SEED_DATA = [
       return Math.max(0, 1 - dist / Math.max(s1.length, s2.length));
     }
 
-    function checkDictationMatch(userRawInput, item) {
+    function checkDictationMatch(userRawInput, item, mode = "type") {
       if (!item || !userRawInput) return false;
-      const normUser = normalizeDictString(userRawInput);
+      const useStrict = mode !== "speak" && dictStrictPunct;
+      const normUser = normalizeDictString(userRawInput, useStrict);
       if (!normUser) return false;
-      const accepted = getAcceptedDictationTargets(item.word);
+      const accepted = getAcceptedDictationTargets(item.word, useStrict);
       if (accepted.includes(normUser)) return true;
       return accepted.some(target => target.length >= 4 && normUser === target);
     }
@@ -5150,24 +5576,25 @@ const SEED_DATA = [
     }
 
     function buildDictationDiffAnalysis(userRawInput, item, mode = "type") {
+      const useStrict = mode !== "speak" && dictStrictPunct;
       const variants = getCleanDisplayVariants(item.word);
       let bestVariant = variants[0];
       let bestSim = -1;
       variants.forEach(v => {
-        const sim = computeStringSimilarity(userRawInput, v);
+        const sim = computeStringSimilarity(userRawInput, v, useStrict);
         if (sim > bestSim) {
           bestSim = sim;
           bestVariant = v;
         }
       });
 
-      const isExact = checkDictationMatch(userRawInput, item);
-      const accuracyPct = isExact ? 100 : Math.round(Math.max(0, bestSim * 100));
+      const isExact = checkDictationMatch(userRawInput, item, mode);
+      const accuracyPct = isExact ? 100 : Math.min(99, Math.round(Math.max(0, bestSim * 100)));
 
       const targetTokens = bestVariant.split(/\s+/).filter(Boolean);
       const userTokens = String(userRawInput || "").trim().split(/\s+/).filter(Boolean);
 
-      const cleanWord = w => String(w || "").toLowerCase().replace(/[?.!,;:'"“”‘’\-–—]/g, "");
+      const cleanWord = w => normalizeDictString(w, useStrict);
 
       // Quy hoạch động căn chỉnh từng từ giữa câu người dùng và câu mẫu chuẩn
       const m = targetTokens.length;
@@ -5180,7 +5607,7 @@ const SEED_DATA = [
         for (let j = 1; j <= n; j++) {
           const tw = cleanWord(targetTokens[i - 1]);
           const uw = cleanWord(userTokens[j - 1]);
-          const cost = tw === uw ? 0 : (computeStringSimilarity(tw, uw) >= 0.45 ? 0.6 : 1);
+          const cost = tw === uw ? 0 : (computeStringSimilarity(tw, uw, useStrict) >= 0.45 ? 0.6 : 1);
           dp[i][j] = Math.min(
             dp[i - 1][j] + 1,
             dp[i][j - 1] + 1,
@@ -5195,7 +5622,7 @@ const SEED_DATA = [
         if (i > 0 && j > 0) {
           const tw = cleanWord(targetTokens[i - 1]);
           const uw = cleanWord(userTokens[j - 1]);
-          const cost = tw === uw ? 0 : (computeStringSimilarity(tw, uw) >= 0.45 ? 0.6 : 1);
+          const cost = tw === uw ? 0 : (computeStringSimilarity(tw, uw, useStrict) >= 0.45 ? 0.6 : 1);
           if (Math.abs(dp[i][j] - (dp[i - 1][j - 1] + cost)) < 1e-6) {
             if (tw === uw) {
               ops.unshift({ type: "ok", target: targetTokens[i - 1], user: userTokens[j - 1] });
@@ -5220,8 +5647,12 @@ const SEED_DATA = [
 
       ops.forEach((op, idx) => {
         if (op.type === "replace") {
+          const looseEqual = useStrict && normalizeDictString(op.user, false) === normalizeDictString(op.target, false);
+          const punctHint = looseEqual
+            ? ` <span class="text-amber-700 dark:text-amber-300 font-semibold">(Sai dấu nháy đơn <code>'</code> hoặc gạch nối <code>-</code> — chú ý sở hữu cách/viết tắt!)</span>`
+            : "";
           fixTips.push(
-            `<li>Tại vị trí từ thứ <strong>${idx + 1}</strong>: Bạn ${actionLabel} là <span class="px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-mono line-through">${escapeHtml(op.user)}</span> ➔ Cần sửa thành <strong class="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-mono">${highlightWordCharDiff(cleanWord(op.user), op.target)}</strong>.</li>`
+            `<li>Tại vị trí từ thứ <strong>${idx + 1}</strong>: Bạn ${actionLabel} là <span class="px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-mono line-through">${escapeHtml(op.user)}</span> ➔ Cần sửa thành <strong class="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-mono">${highlightWordCharDiff(cleanWord(op.user), op.target)}</strong>.${punctHint}</li>`
           );
         } else if (op.type === "missing") {
           fixTips.push(
@@ -5410,7 +5841,7 @@ const SEED_DATA = [
 
       try {
         speechRecognition = new SpeechRec();
-        speechRecognition.lang = "en-US";
+        speechRecognition.lang = voiceAccent === "en-US" ? "en-US" : "en-GB";
         speechRecognition.interimResults = true;
         speechRecognition.maxAlternatives = 3;
 
@@ -5422,7 +5853,7 @@ const SEED_DATA = [
         speechRecognition.onstart = () => {
           setMicButtonUI(true);
           fb.className = "text-xs font-extrabold text-violet-600 dark:text-violet-400";
-          fb.textContent = "🎙️ Đang lắng nghe bạn phát âm tiếng Anh... Hãy nói rõ mẫu câu!";
+          fb.textContent = `🎙️ Đang lắng nghe bạn phát âm (${voiceAccent === "en-US" ? "US • en-US" : "UK • en-GB"})... Hãy nói rõ mẫu câu!`;
         };
 
         speechRecognition.onresult = (event) => {
@@ -5438,7 +5869,7 @@ const SEED_DATA = [
             if (inputEl) inputEl.value = cleanTranscript;
           }
 
-          if (checkDictationMatch(cleanTranscript, item)) {
+          if (checkDictationMatch(cleanTranscript, item, "speak")) {
             evaluatedInSession = true;
             try { speechRecognition.stop(); } catch (e) {}
             setMicButtonUI(false);
@@ -5529,11 +5960,23 @@ const SEED_DATA = [
       const list = getFilteredVocab();
       if (!list.length) return;
       currentSprintItem = list[Math.floor(Math.random() * list.length)];
-      document.getElementById("sprintUnitTag").textContent = currentSprintItem.unit;
-      document.getElementById("sprintQuestionWord").textContent = currentSprintItem.word;
-      if (autoAudio && currentActiveTab === "sprint") speakText(currentSprintItem.word);
+      currentSprintModeType = sprintDirection === "mix"
+        ? (Math.random() < 0.5 ? "en-vi" : "vi-en")
+        : (sprintDirection === "vi-en" ? "vi-en" : "en-vi");
 
-      const dist = getDistinctDistractors(currentSprintItem, 3);
+      document.getElementById("sprintUnitTag").textContent = currentSprintItem.unit;
+      const dirBadge = document.getElementById("sprintDirBadge");
+      if (dirBadge) {
+        dirBadge.textContent = currentSprintModeType === "vi-en" ? "Việt ➔ Anh" : "Anh ➔ Việt";
+      }
+      document.getElementById("sprintQuestionWord").textContent = currentSprintModeType === "vi-en"
+        ? currentSprintItem.meaning
+        : currentSprintItem.word;
+      if (autoAudio && currentActiveTab === "sprint" && currentSprintModeType === "en-vi") {
+        speakText(currentSprintItem.word);
+      }
+
+      const dist = getDistinctDistractors(currentSprintItem, 3, currentSprintModeType);
       const opts = [currentSprintItem, ...dist].sort(() => Math.random() - 0.5);
       const box = document.getElementById("sprintOptionsBox");
       box.innerHTML = "";
@@ -5542,7 +5985,7 @@ const SEED_DATA = [
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 hover:border-indigo-500 text-xs font-bold transition";
-        btn.textContent = o.meaning;
+        btn.textContent = currentSprintModeType === "vi-en" ? o.word : o.meaning;
         btn.onclick = () => {
           if (isSprintPaused || !isSprintActive) return;
           sprintAnsweredCount++;
@@ -5594,7 +6037,7 @@ const SEED_DATA = [
       if (!isSprintActive || sprintSeconds <= 0) return;
       isSprintPaused = false;
       document.getElementById("sprintPauseOverlay").classList.add("hidden");
-      if (autoAudio && currentSprintItem) speakText(currentSprintItem.word);
+      if (autoAudio && currentSprintItem && currentSprintModeType === "en-vi") speakText(currentSprintItem.word);
       startSprintTicker();
     }
 
@@ -5851,8 +6294,10 @@ const SEED_DATA = [
         document.getElementById("cbtQuestionTypeHint").textContent = "Chọn mẫu câu tiếng Anh tương ứng với nghĩa:";
         document.getElementById("cbtQuestionPrompt").textContent = q.meaning;
       } else if (q.qType === "context") {
-        document.getElementById("cbtQuestionTypeHint").textContent = `Điền mẫu câu phù hợp vào câu giao tiếp (${q.exampleVi}):`;
-        document.getElementById("cbtQuestionPrompt").textContent = maskWordInSentence(q.example, q.word);
+        document.getElementById("cbtQuestionTypeHint").textContent = q.isGrammarMode
+          ? `Điền dạng ngữ pháp đúng vào câu (${q.exampleVi}):`
+          : `Điền mẫu câu phù hợp vào câu giao tiếp (${q.exampleVi}):`;
+        document.getElementById("cbtQuestionPrompt").textContent = maskWordInSentence(q.example, q.isGrammarMode ? (q.grammarMask || q.word) : q.word);
       } else {
         document.getElementById("cbtQuestionTypeHint").textContent = `Phản xạ hội thoại (${q.dialoguePromptVi || q.meaning}) — Chọn câu B đáp lại:`;
         document.getElementById("cbtQuestionPrompt").textContent = `💬 A: "${q.dialoguePrompt || q.example}"`;
@@ -5905,7 +6350,9 @@ const SEED_DATA = [
         const realItem = vocabList.find(v => v.id === q.id);
         const userAnsObj = q.lockedOptions.find(o => o.id === cbtAnswers[idx]);
         const userAnsText = userAnsObj ? (q.qType === "en-vi" ? userAnsObj.meaning : userAnsObj.word) : "Bỏ trống";
-        const correctAnsText = q.qType === "en-vi" ? q.meaning : q.word;
+        const correctAnsText = q.qType === "en-vi"
+          ? q.meaning
+          : (q.qType === "context" && q.isGrammarMode ? (q.grammarMask || q.word) : q.word);
 
         if (cbtAnswers[idx] === q.id) {
           correct++;
@@ -6021,31 +6468,51 @@ const SEED_DATA = [
 
     function buildOfflineCommAnalysis(q) {
       const lower = (q || "").toLowerCase().trim();
+      const matchedLex = COMM_EXPRESSION_LEXICON.filter(r => {
+        if (r.aff && lower.includes(r.aff.toLowerCase())) return true;
+        if (Array.isArray(r.keywords)) {
+          return r.keywords.some(kw => kw && lower.includes(kw.toLowerCase()));
+        }
+        return false;
+      });
       const matchedWords = vocabList.filter(v => {
         const wVars = extractAllVariants(v.word);
         const mVars = extractAllVariants(v.meaning);
         return wVars.some(cw => cw.length >= 2 && lower.includes(cw)) ||
                mVars.some(cm => cm.length >= 2 && (lower.includes(cm) || cm.includes(lower)));
       });
+
+      const isGrammarIntent = /quy tắc|ngữ pháp|phân biệt|sở hữu|mạo từ|chia|phủ định|to be|do\/does|'s|s'|-s|-es|-ies|a\/an|phát âm|phonetics/i.test(lower);
+      if (matchedLex.length > 0 && (isGrammarIntent || matchedWords.length === 0)) {
+        const topRules = matchedLex.slice(0, 4);
+        const lexText = `🧩 CẨM NANG QUY TẮC NGỮ PHÁP & PHẢN XẠ HA 1 (OFFLINE):\n\n` + topRules.map((r, idx) => `${idx + 1}. ${r.type}\n   • Công thức / Quy tắc: ${r.mean}\n   • Lưu ý bẫy thi: ${r.note}`).join("\n\n");
+        if (matchedWords.length > 0) {
+          const sample = matchedWords[0];
+          return `${lexText}\n\n📌 Ví dụ thực tế trong kho Unit 1:\n• ${sample.word} (${sample.ipa}) — ${sample.meaning}\n• "${sample.example}" (${sample.exampleVi})`;
+        }
+        return lexText;
+      }
+
       if (matchedWords.length >= 2) {
         const w1 = matchedWords[0], w2 = matchedWords[1];
         return `💬 PHÂN TÍCH SO SÁNH SẮC THÁI GIAO TIẾP:\n\n1️⃣ ${w1.word} (${w1.ipa}): ${w1.meaning}\n   • Sắc thái: ${w1.clinicalNote}\n   • Ví dụ: "${w1.example}"\n\n2️⃣ ${w2.word} (${w2.ipa}): ${w2.meaning}\n   • Sắc thái: ${w2.clinicalNote}\n   • Ví dụ: "${w2.example}"`;
       }
       if (matchedWords.length === 1) {
         const w = matchedWords[0];
-        return `💬 HỒ SƠ MẪU CÂU GIAO TIẾP:\n\n• Mẫu câu: ${w.word} (${w.ipa}) — ${w.pos}\n• Nghĩa: ${w.meaning}\n• Ngữ cảnh & Sắc thái: ${w.clinicalNote}\n• Tình huống A nói: "${w.dialoguePrompt || w.example}"\n• Ví dụ: "${w.example}" (${w.exampleVi})`;
+        const extraLex = matchedLex.length > 0
+          ? `\n\n🧩 Quy tắc liên quan (${matchedLex[0].type}):\n• ${matchedLex[0].mean}\n• Lưu ý: ${matchedLex[0].note}`
+          : "";
+        return `💬 HỒ SƠ MẪU CÂU GIAO TIẾP:\n\n• Mẫu câu: ${w.word} (${w.ipa}) — ${w.pos}\n• Nghĩa: ${w.meaning}\n• Ngữ cảnh & Sắc thái: ${w.clinicalNote}\n• Tình huống A nói: "${w.dialoguePrompt || w.example}"\n• Ví dụ: "${w.example}" (${w.exampleVi})${extraLex}`;
       }
-      const matchedLex = COMM_EXPRESSION_LEXICON.filter(r => lower.includes(r.aff));
-      if (matchedLex.length > 0) {
-        return `🧩 GIẢI MÃ CỤM PHẢN XẠ GIAO TIẾP:\n\n` + matchedLex.map(r => `• ${r.type}: ${r.mean}\n  ➔ Ngữ cảnh: ${r.note}`).join("\n\n");
-      }
-      return `📚 DỮ LIỆU NỘI TUYẾN:\nHãy thử bấm vào các gợi ý phía trên hoặc nhập một từ/cụm câu có trong 8 Unit giao tiếp. Bạn cũng có thể lưu Gemini API Key bên dưới để AI giải thích tự do mọi tình huống.`;
+      const unitCount = getAllUnits().length;
+      return `📚 DỮ LIỆU NỘI TUYẾN (${unitCount} Unit • ${COMM_EXPRESSION_LEXICON.length} Quy tắc HA 1):\nHãy thử bấm vào các gợi ý phía trên hoặc nhập một từ/mẫu câu trong kho, hoặc hỏi quy tắc như: "'s và s'", "a/an", "-s/-es/-ies", "doesn't", "to be vs do/does", "phát âm đuôi s/es". Bạn cũng có thể lưu Gemini API Key bên dưới để AI giải thích tự do mọi tình huống.`;
     }
 
     async function enrichWordWithAiFallback(word, meaning, unit) {
       const cleanW = word.trim();
       const lowerW = cleanW.toLowerCase();
       const apiKey = localStorage.getItem(STORAGE_KEY_AI_KEY);
+      const targetUnit = unit || getDefaultUnitName();
 
       if (apiKey) {
         const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest"];
@@ -6077,7 +6544,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
               if (parsed.meaning && parsed.ipa) {
                 return {
                   id: "custom_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-                  unit: unit || "Unit 5",
+                  unit: targetUnit,
                   word: cleanW,
                   ipa: parsed.ipa || `/${lowerW}/`,
                   pos: parsed.pos || "phr.",
@@ -6105,7 +6572,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
       const detectedMeaning = meaning ? meaning.trim() : `Mẫu câu: ${cleanW}`;
       return {
         id: "custom_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-        unit: unit || "Unit 5",
+        unit: targetUnit,
         word: cleanW,
         ipa: `/${lowerW}/`,
         pos: cleanW.includes(" ") ? "phr." : "n.",
@@ -6113,7 +6580,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         relatedTerms: ["Daily expression"],
         example: `In everyday conversation, native speakers often use "${cleanW}" to express themselves naturally.`,
         exampleVi: `Trong giao tiếp hàng ngày, người bản xứ thường dùng "${cleanW}" (${detectedMeaning}) để diễn đạt tự nhiên.`,
-        clinicalNote: `Mẫu câu thuộc ${unit || "Unit 5"}. Hãy luyện phát âm nối âm và phản xạ trong 2 giây.`,
+        clinicalNote: `Mẫu câu thuộc ${targetUnit}. Hãy luyện phát âm nối âm và phản xạ trong 2 giây.`,
         dialoguePrompt: `Someone talks to you in a daily conversation where you want to reply: "${detectedMeaning}".`,
         dialoguePromptVi: `Tình huống bạn muốn phản hồi: "${detectedMeaning}"`,
         srsLevel: 0,
@@ -6148,29 +6615,32 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         ));
         if (words.length === 0) return;
         const meta = UNIT_METADATA[u] || { shortTitle: "Học phần giao tiếp mở rộng", corePoints: "Các mẫu câu giao tiếp bổ sung." };
-        const boxId = `treeDetailBox_${u.replace(/\s+/g, '')}`;
+        const boxId = `treeDetailBox_${getUnitDomKey(u)}`;
         const isExp = expandedUnitDetails.has(u);
 
         const folder = document.createElement("div");
         folder.className = "rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800 transition-all";
         folder.innerHTML = `
-          <div class="bg-indigo-50/80 dark:bg-slate-700/70 px-4 py-2.5 flex items-center justify-between cursor-pointer" data-tree-toggle-unit="${u}">
+          <div class="bg-indigo-50/80 dark:bg-slate-700/70 px-4 py-2.5 flex items-center justify-between cursor-pointer" data-tree-toggle-unit="${escapeHtml(u)}">
             <div class="flex items-center gap-2">
               <button type="button" class="text-indigo-600 dark:text-indigo-400 p-0.5"><i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" style="transform: ${isExp ? 'rotate(180deg)' : 'rotate(0deg)'}"></i></button>
-              <span class="font-extrabold text-xs text-indigo-800 dark:text-indigo-300"><i class="fa-solid fa-folder-open mr-1.5"></i>${u} (${words.length} câu)</span>
+              <span class="font-extrabold text-xs text-indigo-800 dark:text-indigo-300"><i class="fa-solid fa-folder-open mr-1.5"></i>${escapeHtml(u)} (${words.length} câu)</span>
             </div>
-            <span class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[240px]">${meta.shortTitle}</span>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[240px]">${escapeHtml(meta.shortTitle)}</span>
           </div>
-          <div id="${boxId}" class="collapse-content ${isExp ? 'expanded' : ''} bg-slate-50 dark:bg-slate-900/50 text-[10px] text-slate-600 dark:text-slate-400 px-4 py-2 border-b border-slate-200 dark:border-slate-700">
-            <strong>Trọng tâm:</strong> ${meta.corePoints}
+          <div id="${escapeHtml(boxId)}" class="collapse-content ${isExp ? 'expanded' : ''} bg-slate-50 dark:bg-slate-900/50 text-[10px] text-slate-600 dark:text-slate-400 px-4 py-2 border-b border-slate-200 dark:border-slate-700">
+            <strong>Trọng tâm:</strong> ${escapeHtml(meta.corePoints)}
           </div>
           <div class="divide-y divide-slate-100 dark:divide-slate-700/60 word-list-container"></div>
         `;
 
-        folder.querySelector(`[data-tree-toggle-unit="${u}"]`).onclick = function() {
-          const iconBtn = this.querySelector('button');
-          toggleUnitDetail(u, iconBtn);
-        };
+        const treeToggle = folder.querySelector(`[data-tree-toggle-unit="${cssEscapeSafe(u)}"]`);
+        if (treeToggle) {
+          treeToggle.onclick = function() {
+            const iconBtn = this.querySelector('button');
+            toggleUnitDetail(u, iconBtn);
+          };
+        }
 
         const listDiv = folder.querySelector(".word-list-container");
         words.forEach(w => {
@@ -6188,9 +6658,9 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
               <p class="text-[11px] text-slate-400 truncate">${escapeHtml(w.clinicalNote || "")}</p>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
-              <button type="button" data-tree-ai="${w.id}" class="w-8 h-8 rounded-full bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 flex items-center justify-center" title="Phân tích AI"><i class="fa-solid fa-wand-magic-sparkles text-xs"></i></button>
-              <button type="button" data-tree-spk="${w.id}" class="w-8 h-8 rounded-full bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 flex items-center justify-center" title="Nghe phát âm"><i class="fa-solid fa-volume-high text-xs"></i></button>
-              ${isCustom ? `<button type="button" data-tree-del="${w.id}" class="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center" title="Xóa câu này"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ""}
+              <button type="button" data-tree-ai="${escapeHtml(w.id)}" class="w-8 h-8 rounded-full bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 flex items-center justify-center" title="Phân tích AI"><i class="fa-solid fa-wand-magic-sparkles text-xs"></i></button>
+              <button type="button" data-tree-spk="${escapeHtml(w.id)}" class="w-8 h-8 rounded-full bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 flex items-center justify-center" title="Nghe phát âm"><i class="fa-solid fa-volume-high text-xs"></i></button>
+              ${isCustom ? `<button type="button" data-tree-del="${escapeHtml(w.id)}" class="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center" title="Xóa câu này"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ""}
             </div>
           `;
           listDiv.appendChild(itemRow);
@@ -6229,14 +6699,14 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         const div = document.createElement("div");
         div.className = `p-3 rounded-2xl border flex items-center justify-between gap-2 ${isCurrent ? "bg-indigo-50 dark:bg-indigo-950/60 border-indigo-500" : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"}`;
 
-        let actionButtons = `<button type="button" data-switch-spec="${spec.id}" class="px-3 py-1.5 rounded-xl text-xs font-bold ${isCurrent ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-indigo-100"}">${isCurrent ? "Đang chọn" : "Chuyển sang"}</button>`;
+        let actionButtons = `<button type="button" data-switch-spec="${escapeHtml(spec.id)}" class="px-3 py-1.5 rounded-xl text-xs font-bold ${isCurrent ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-indigo-100"}">${isCurrent ? "Đang chọn" : "Chuyển sang"}</button>`;
         if (!isDefault) {
-          actionButtons += `<button type="button" data-delete-spec="${spec.id}" class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 ml-1 flex items-center justify-center shrink-0"><i class="fa-solid fa-trash-can text-xs"></i></button>`;
+          actionButtons += `<button type="button" data-delete-spec="${escapeHtml(spec.id)}" class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 ml-1 flex items-center justify-center shrink-0"><i class="fa-solid fa-trash-can text-xs"></i></button>`;
         }
 
         div.innerHTML = `
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center"><i class="fa-solid ${spec.icon || "fa-comments"}"></i></div>
+            <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center"><i class="fa-solid ${escapeHtml(spec.icon || "fa-comments")}"></i></div>
             <div><p class="text-xs font-extrabold">${escapeHtml(spec.name)}</p><p class="text-[11px] text-slate-500">${(spec.vocab || []).length} mẫu câu</p></div>
           </div>
           <div class="flex items-center">${actionButtons}</div>
@@ -6421,6 +6891,22 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         showToast(`Tốc độ phát âm: ${speechRate}x`, "info");
       };
 
+      const btnVoiceAccentEl = document.getElementById("btnVoiceAccent");
+      if (btnVoiceAccentEl) {
+        btnVoiceAccentEl.onclick = () => {
+          voiceAccent = voiceAccent === "en-GB" ? "en-US" : "en-GB";
+          const accentTxt = document.getElementById("voiceAccentText");
+          if (accentTxt) accentTxt.textContent = voiceAccent === "en-US" ? "US" : "UK";
+          saveStudyProgress();
+          showToast(
+            voiceAccent === "en-GB"
+              ? "Giọng đọc: Anh-Anh (UK • en-GB — Chuẩn IPA Speakout A2)"
+              : "Giọng đọc: Anh-Mỹ (US • en-US)",
+            "info"
+          );
+        };
+      }
+
       document.getElementById("btnAutoAudioToggle").onclick = () => {
         autoAudio = !autoAudio;
         document.getElementById("autoAudioIcon").className = autoAudio ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
@@ -6438,12 +6924,14 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
 
       document.getElementById("chkOnlyMistakes").onchange = e => {
         onlyMistakesFilter = e.target.checked;
+        reconcileActiveFilters(true);
         saveStudyProgress(); syncAllViews();
       };
       const chkOnlyDueTodayEl = document.getElementById("chkOnlyDueToday");
       if (chkOnlyDueTodayEl) {
         chkOnlyDueTodayEl.onchange = e => {
           onlyDueTodayFilter = e.target.checked;
+          reconcileActiveFilters(true);
           saveStudyProgress(); syncAllViews();
         };
       }
@@ -6461,6 +6949,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         const allU = getAllUnits();
         if (allU.length === 0) return showToast("Kho từ vựng đang trống!", "info");
         allU.forEach(u => selectedUnits.add(u));
+        reconcileActiveFilters(true);
         saveStudyProgress(); syncAllViews(); showToast(`Đã chọn tất cả ${allU.length} học phần!`);
       };
       document.getElementById("btnSelectSupportUnit").onclick = e => {
@@ -6469,6 +6958,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         if (allU.length === 0) return showToast("Kho từ vựng đang trống!", "info");
         const reflexUnits = allU.filter(u => /^Unit\s*(1[EF]|[5678])\b/i.test(u));
         selectedUnits = new Set(reflexUnits.length > 0 ? reflexUnits : [allU[0]]);
+        reconcileActiveFilters(true);
         saveStudyProgress(); syncAllViews(); showToast("Đã chọn nhóm Unit 1E-1F (Bẫy Ngữ pháp & Phản xạ Nói/Viết)!");
       };
       document.getElementById("btnDeselectAllUnits").onclick = e => {
@@ -6477,6 +6967,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         if (allU.length === 0) return showToast("Kho từ vựng đang trống!", "info");
         const targetUnit = allU.find(u => /^Unit\s*1A?\b/i.test(u)) || allU[0];
         selectedUnits = new Set([targetUnit]);
+        reconcileActiveFilters(true);
         saveStudyProgress(); syncAllViews(); showToast(`Chỉ chọn ${targetUnit}`);
       };
 
@@ -6517,7 +7008,12 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         const chkDue = document.getElementById("chkOnlyDueToday");
         if (chkDue) chkDue.checked = false;
         onlyMistakesFilter = true; document.getElementById("chkOnlyMistakes").checked = true;
-        saveStudyProgress(); syncAllViews(); switchActiveTab("quiz"); showToast("Bật chế độ Ôn các câu hay sai!", "info");
+        const cleared = reconcileActiveFilters(true);
+        saveStudyProgress(); syncAllViews();
+        if (!cleared) {
+          switchActiveTab("quiz");
+          showToast("Bật chế độ Ôn các câu hay sai!", "info");
+        }
       };
       document.getElementById("btnDashQuickQuiz").onclick = () => switchActiveTab("quiz");
       document.getElementById("btnDashQuickCBT").onclick = () => switchActiveTab("cbt");
@@ -6583,7 +7079,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
 
       document.getElementById("btnShuffleQuiz").onclick = () => { resetQuizPool(); showToast("Đã đảo câu hỏi!"); };
       document.getElementById("chkQuizAutoNext").onchange = e => { quizAutoNext = e.target.checked; saveStudyProgress(); };
-      document.getElementById("btnNextQuizQuestion").onclick = () => { quizIndex++; saveStudyProgress(); loadQuizQuestion(); };
+      document.getElementById("btnNextQuizQuestion").onclick = () => { clearQuizAutoNextTimer(); quizIndex++; saveStudyProgress(); loadQuizQuestion(); };
       document.getElementById("btnSpeakQuizPrompt").onclick = () => {
         if (!currentQuizItem) return;
         if (!currentQuizAnswered && (currentQuizModeType === "vi-en" || currentQuizModeType === "context")) {
@@ -6661,6 +7157,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
           }
           if (item.id) guidedFcViewedIds.add(item.id);
           syncCrossUnitSrs(item);
+          reconcileActiveFilters(true);
           saveDatabase(); triggerHaptic("success"); fcIndex++; saveStudyProgress(); renderFlashcard();
           if (autoAudio && fcPool[fcIndex]) speakText(fcPool[fcIndex].word);
         };
@@ -6674,6 +7171,19 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
           dictAutoNext = e.target.checked;
           saveStudyProgress();
           showToast(dictAutoNext ? "Đã bật tự động nhảy sang từ mới khi đúng 100%" : "Đã tắt tự động qua câu (Giữ lại màn hình phân tích lỗi)", "info");
+        };
+      }
+      const chkDictStrictPunctEl = document.getElementById("chkDictStrictPunct");
+      if (chkDictStrictPunctEl) {
+        chkDictStrictPunctEl.onchange = e => {
+          dictStrictPunct = e.target.checked;
+          saveStudyProgress();
+          showToast(
+            dictStrictPunct
+              ? "Đã bật chấm chặt dấu ' và - khi gõ phím (phân biệt chuẩn parents' / doesn't / brother-in-law)"
+              : "Đã nới lỏng dấu ' và - khi gõ phím",
+            "info"
+          );
         };
       }
       document.getElementById("btnDictSpeak").onclick = () => {
@@ -6704,10 +7214,20 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
       };
 
       // Chế độ 4: Đua tốc độ 60s (Sprint)
+      const sprintDirSelectEl = document.getElementById("sprintDirectionSelect");
+      if (sprintDirSelectEl) {
+        sprintDirSelectEl.onchange = e => {
+          sprintDirection = e.target.value || "en-vi";
+          saveStudyProgress();
+        };
+      }
       document.getElementById("btnStartSprintGame").onclick = () => {
         if (getFilteredVocab().length === 0) {
           return showToast("Kho từ vựng đang trống! Hãy thêm từ ở Chế độ 5 trước khi đua tốc độ.", "error");
         }
+        const dirSel = document.getElementById("sprintDirectionSelect");
+        if (dirSel) sprintDirection = dirSel.value || "en-vi";
+        saveStudyProgress();
         sprintSeconds = 60; sprintScore = 0; sprintCombo = 1; sprintAnsweredCount = 0;
         isSprintActive = true; isSprintPaused = false;
         document.getElementById("sprintPauseOverlay").classList.add("hidden");
@@ -6741,7 +7261,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         const btn = document.getElementById("btnSubmitSingleWord");
         btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
 
-        const u = normalizeUnitName(document.getElementById("newUnitInput").value.trim() || "Unit 5");
+        const u = normalizeUnitName(document.getElementById("newUnitInput").value.trim() || getDefaultUnitName());
         const w = document.getElementById("newWordInput").value.trim();
         const m = document.getElementById("newMeaningInput").value.trim();
 
@@ -6757,7 +7277,7 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
 
       document.getElementById("btnRunBatchEnrich").onclick = async () => {
         const rawText = document.getElementById("batchRawInput").value;
-        const unit = normalizeUnitName(document.getElementById("batchUnitInput").value.trim() || "Unit 5");
+        const unit = normalizeUnitName(document.getElementById("batchUnitInput").value.trim() || getDefaultUnitName());
         if (!rawText.trim()) return showToast("Vui lòng dán danh sách mẫu câu!", "error");
 
         const btn = document.getElementById("btnRunBatchEnrich");
@@ -6815,9 +7335,17 @@ Trả về DUY NHẤT một chuỗi JSON hợp lệ không kèm markdown backtic
         const allowedCbtModes = resolveDirectionModes(examDir);
         cbtPool = shuffled.map(q => {
           const qType = allowedCbtModes[Math.floor(Math.random() * allowedCbtModes.length)];
-          const dist = getDistinctDistractors(q, 3, qType, distractorStrategy);
-          const lockedOptions = [q, ...dist].sort(() => Math.random() - 0.5);
-          return { ...q, qType, lockedOptions };
+          const grammarOpts = qType === "context" ? buildGrammarOptionObjects(q, 4) : null;
+          let lockedOptions;
+          let isGrammarMode = false;
+          if (grammarOpts && grammarOpts.length >= 2) {
+            lockedOptions = grammarOpts;
+            isGrammarMode = true;
+          } else {
+            const dist = getDistinctDistractors(q, 3, qType, distractorStrategy);
+            lockedOptions = [q, ...dist].sort(() => Math.random() - 0.5);
+          }
+          return { ...q, qType, lockedOptions, isGrammarMode };
         });
 
         cbtAnswers = {}; cbtFlags = {}; cbtCurrentIndex = 0;
